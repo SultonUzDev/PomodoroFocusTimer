@@ -1,6 +1,7 @@
 # Pomodoro Focus Timer
 
-A minimalist yet powerful **Pomodoro Technique**-based productivity app built using **Jetpack Compose**, following a clean and scalable architecture with **MVVM** and **MVI** patterns.
+A minimalist yet powerful **Pomodoro Technique**-based productivity app built using **Jetpack
+Compose**, following a clean and scalable architecture with **MVVM** and **MVI** patterns.
 
 ---
 
@@ -29,18 +30,16 @@ A minimalist yet powerful **Pomodoro Technique**-based productivity app built us
 
 ---
 
-
 ## ✦ Architecture Principles
 
 - **MVVM** for separation of concerns (ViewModel controls state)
 
 - **MVI** for predictable state & unidirectional data flow:
 
-  - `Intent` → User actions
-  - `ViewModel` handles `Intent`, emits new `UiState`
-  - `UiState` → Drives UI
-  - `UiEffect` → One-time events (navigation, toasts)
-
+    - `Intent` → User actions
+    - `ViewModel` handles `Intent`, emits new `UiState`
+    - `UiState` → Drives UI
+    - `UiEffect` → One-time events (navigation, toasts)
 
 ## ✦ How to Run
 
@@ -57,7 +56,6 @@ cd PomodoroFocusTimer
 
 ## ✦ Screenshots
 
-
 <div align="center">
   <img src="img/img1.png" width="200" />
   <img src="img/img4.png" width="200" />
@@ -68,13 +66,29 @@ cd PomodoroFocusTimer
 
 ---
 
-## ✦ License
+## ✦ MIT License
 
 ```
-MIT License
-...
-```
+Copyright (c) [year] [fullname]
 
----
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+```
 
 Made with ❤️ using Kotlin and Jetpack Compose.
