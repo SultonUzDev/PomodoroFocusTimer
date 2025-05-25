@@ -1,0 +1,77 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Pomodoro Focus Timer</string>
+
+    <!-- Timer Screen -->
+    <string name="focus_time">Focus Time</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+    <string name="skip">Skip</string>
+    <string name="ready_to_start">Ready to start</string>
+    <string name="timer_running">Timer running</string>
+    <string name="timer_paused">Timer paused</string>
+    <string name="timer_completed">Timer completed!</string>
+    <string name="completed_pomodoros">Completed: %1$d pomodoro%2$s</string>
+    <string name="focus_mode_active">🎯 Focus Mode Active</string>
+    <string name="stay_concentrated">Stay concentrated on your task!</string>
+    <string name="tip_start_session">💡 Tip: Start with a 25-minute focus session</string>
+
+    <!-- Timer Completion Messages -->
+    <string name="pomodoro_completed">Pomodoro completed! Take a break.</string>
+    <string name="break_over">Break\'s over. Ready for another Pomodoro?</string>
+    <string name="long_break_completed">Long break completed. Great job on your session!</string>
+
+    <!-- Notification -->
+    <string name="remaining_time">%s remaining</string>
+    <string name="paused_time">Paused - %s remaining</string>
+    <string name="timer_ready">Timer ready</string>
+    <string name="focus_session_completed">Focus session completed!</string>
+    <string name="break_time_over">Break time over!</string>
+    <string name="long_break_completed_notif">Long break completed!</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="statistics">Statistics</string>
+    <string name="language">Language</string>
+    <string name="timer_durations">Timer Durations</string>
+    <string name="pomodoro">Pomodoro</string>
+    <string name="pomodoro_duration">Pomodoro Duration</string>
+    <string name="short_break_duration">Short Break Duration</string>
+    <string name="long_break_duration">Long Break Duration</string>
+    <string name="pomodoros_before_long_break">Pomodoros Before Long Break</string>
+    <string name="notifications">Notifications</string>
+    <string name="sound_enabled">Sound Enabled</string>
+    <string name="sound_description">Play sound when timer completes</string>
+    <string name="vibration_enabled">Vibration Enabled</string>
+    <string name="vibration_description">Vibrate when timer completes</string>
+    <string name="focus_mode">Focus Mode</string>
+    <string name="focus_mode_enabled">Focus Mode Enabled</string>
+    <string name="focus_mode_description">Minimize distractions during Pomodoro sessions</string>
+    <string name="appearance">Appearance</string>
+    <string name="minutes_format">%d min</string>
+    <string name="back">Back</string>
+    <string name="reset_to_defaults">Reset to Defaults</string>
+
+    <!-- Languages -->
+    <string name="english">English</string>
+    <string name="uzbek">Uzbek</string>
+    <string name="russian">Russian</string>
+
+    <!-- Reset Dialog -->
+    <string name="reset_settings">Reset Settings</string>
+    <string name="reset_settings_confirmation">Are you sure you want to reset all settings to default values?</string>
+    <string name="reset">Reset</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Motivational Quotes -->
+    <string name="quote_1">The secret to getting ahead is getting started.</string>
+    <string name="quote_2">Focus on being productive instead of busy.</string>
+    <string name="quote_3">The way to get started is to quit talking and begin doing.</string>
+    <string name="quote_4">It\'s not about having time, it\'s about making time.</string>
+    <string name="quote_5">You don\'t have to be great to start, but you have to start to be great.</string>
+    <string name="quote_6">Productivity is never an accident. It is always the result of commitment to excellence.</string>
+</resources>

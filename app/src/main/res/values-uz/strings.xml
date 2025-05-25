@@ -1,0 +1,77 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Pomodoro Fokus Taymer</string>
+
+    <!-- Timer Screen -->
+    <string name="focus_time">Fokus Vaqti</string>
+    <string name="short_break">Qisqa Tanaffus</string>
+    <string name="long_break">Uzun Tanaffus</string>
+    <string name="start">Boshlash</string>
+    <string name="pause">Pauza</string>
+    <string name="resume">Davom etish</string>
+    <string name="stop">To\'xtatish</string>
+    <string name="skip">O\'tkazib yuborish</string>
+    <string name="ready_to_start">Boshlashga tayyor</string>
+    <string name="timer_running">Taymer ishlayapti</string>
+    <string name="timer_paused">Taymer pauza qilingan</string>
+    <string name="timer_completed">Taymer tugadi!</string>
+    <string name="completed_pomodoros">Tugallangan: %1$d pomodoro%2$s</string>
+    <string name="focus_mode_active">🎯 Fokus Rejimi Faol</string>
+    <string name="stay_concentrated">Vazifangizga e\'tibor qarating!</string>
+    <string name="tip_start_session">💡 Maslahat: 25 daqiqalik fokus sessiyasi bilan boshlang</string>
+
+    <!-- Timer Completion Messages -->
+    <string name="pomodoro_completed">Pomodoro tugadi! Dam oling.</string>
+    <string name="break_over">Tanaffus tugadi. Yana bir Pomodoroga tayyormisiz?</string>
+    <string name="long_break_completed">Uzun tanaffus tugadi. Ajoyib ish qildingiz!</string>
+
+    <!-- Notification -->
+    <string name="remaining_time">%s qoldi</string>
+    <string name="paused_time">Pauza - %s qoldi</string>
+    <string name="timer_ready">Taymer tayyor</string>
+    <string name="focus_session_completed">Fokus sessiyasi tugadi!</string>
+    <string name="break_time_over">Tanaffus vaqti tugadi!</string>
+    <string name="long_break_completed_notif">Uzun tanaffus tugadi!</string>
+
+    <!-- Settings -->
+    <string name="settings">Sozlamalar</string>
+    <string name="statistics">Statistika</string>
+    <string name="language">Til</string>
+    <string name="timer_durations">Taymer Davomiyligi</string>
+    <string name="pomodoro">Pomodoro</string>
+    <string name="pomodoro_duration">Pomodoro Davomiyligi</string>
+    <string name="short_break_duration">Qisqa Tanaffus Davomiyligi</string>
+    <string name="long_break_duration">Uzun Tanaffus Davomiyligi</string>
+    <string name="pomodoros_before_long_break">Uzun Tanaffusgacha Pomodorolar</string>
+    <string name="notifications">Bildirishnomalar</string>
+    <string name="sound_enabled">Ovoz Yoqilgan</string>
+    <string name="sound_description">Taymer tugaganda ovoz chiqarish</string>
+    <string name="vibration_enabled">Tebranish Yoqilgan</string>
+    <string name="vibration_description">Taymer tugaganda tebranish</string>
+    <string name="focus_mode">Fokus Rejimi</string>
+    <string name="focus_mode_enabled">Fokus Rejimi Yoqilgan</string>
+    <string name="focus_mode_description">Pomodoro sessiyalarida chalg\'ituvchi narsalarni kamaytirish</string>
+    <string name="appearance">Ko\'rinish</string>
+    <string name="minutes_format">%d daq</string>
+    <string name="back">Orqaga</string>
+    <string name="reset_to_defaults">Standart Holatga Qaytarish</string>
+
+    <!-- Languages -->
+    <string name="english">Inglizcha</string>
+    <string name="uzbek">O\'zbekcha</string>
+    <string name="russian">Ruscha</string>
+
+    <!-- Reset Dialog -->
+    <string name="reset_settings">Sozlamalarni Qayta O\'rnatish</string>
+    <string name="reset_settings_confirmation">Barcha sozlamalarni standart qiymatlarga qaytarishni xohlaysizmi?</string>
+    <string name="reset">Qayta o\'rnatish</string>
+    <string name="cancel">Bekor qilish</string>
+
+    <!-- Motivational Quotes -->
+    <string name="quote_1">Oldinga siljishning siri - boshlashdir.</string>
+    <string name="quote_2">Band bo\'lish o\'rniga samarali bo\'lishga e\'tibor bering.</string>
+    <string name="quote_3">Boshlashning yo\'li - gapni to\'xtatib, ishni boshlashdir.</string>
+    <string name="quote_4">Gap vaqt bo\'lishida emas, vaqt ajratishda.</string>
+    <string name="quote_5">Boshlash uchun zo\'r bo\'lishingiz shart emas, lekin zo\'r bo\'lish uchun boshlashingiz kerak.</string>
+    <string name="quote_6">Samaradorlik hech qachon tasodif emas. Bu har doim mukammallik uchun majburiyatdir.</string>
+</resources>
