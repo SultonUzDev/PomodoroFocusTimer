@@ -57,16 +57,17 @@ cd PomodoroFocusTimer
 
 ## ✦ Screenshots
 
-> (Add screenshots here once available)
-
 ### ⏱️ Focus Timer
-![Focus Timer](img/img1.png)
-
 ### 📊  Statistics
-![Weekly Report](img/img4.png)
-
 ### ⚙️ Settings
-![Settings](img/img5.png)
+
+<div align="center">
+  <img src="img/img1.png" width="200" />
+  <img src="img/img4.png" width="200" />
+  <img src="img/img5.png" width="200" />
+</div>
+
+
 
 ---
 
