@@ -57,9 +57,6 @@ cd PomodoroFocusTimer
 
 ## ✦ Screenshots
 
-### ⏱️ Focus Timer
-### 📊  Statistics
-### ⚙️ Settings
 
 <div align="center">
   <img src="img/img1.png" width="200" />
