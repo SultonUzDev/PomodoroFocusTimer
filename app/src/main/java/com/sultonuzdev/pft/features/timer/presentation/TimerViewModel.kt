@@ -1,9 +1,11 @@
 package com.sultonuzdev.pft.features.timer.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
+import com.sultonuzdev.pft.features.timer.domain.repository.StatsRepository
 import com.sultonuzdev.pft.features.timer.domain.usecase.GetTimerSettingsUseCase
 import com.sultonuzdev.pft.features.timer.domain.usecase.SaveTimerSessionUseCase
 import com.sultonuzdev.pft.features.timer.presentation.utils.TimerEffect
@@ -25,14 +27,18 @@ import javax.inject.Inject
 
 /**
  * ViewModel for the Timer screen implementing MVI pattern
- * Now observes TimerService state instead of maintaining its own timer
- * FIXED: Timer type change issue resolved
+ * Complete implementation with:
+ * - Proper session saving on timer completion
+ * - Statistics integration with SessionRepository
+ * - Service state observation
+ * - Timer type change handling
  */
 @HiltViewModel
 class TimerViewModel @Inject constructor(
     private val getTimerSettingsUseCase: GetTimerSettingsUseCase,
     private val saveTimerSessionUseCase: SaveTimerSessionUseCase,
-    private val timerServiceManager: TimerServiceManager
+    private val timerServiceManager: TimerServiceManager,
+    private val statsRepository: StatsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TimerUiState())
@@ -43,6 +49,7 @@ class TimerViewModel @Inject constructor(
 
     private var startTime: LocalDateTime? = null
     private var previousTimerState: TimerState = TimerState.IDLE
+    private var completedTimerType: TimerType? = null // Track what type completed
 
     // List of motivational quotes
     private val quotes = listOf(
@@ -59,15 +66,46 @@ class TimerViewModel @Inject constructor(
         timerServiceManager.bindService()
         observeServiceState()
         loadSettings()
+        loadStatistics()
     }
 
     private fun loadSettings() {
         viewModelScope.launch {
-            getTimerSettingsUseCase().collectLatest { settings ->
-                _uiState.update { currentState ->
-                    // Always update settings, but don't override service state
-                    currentState.copy(settings = settings)
+            try {
+                getTimerSettingsUseCase().collectLatest { settings ->
+                    _uiState.update { currentState ->
+                        // Always update settings, but don't override service state
+                        currentState.copy(settings = settings)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error loading settings", e)
+            }
+        }
+    }
+
+    private fun loadStatistics() {
+        // Observe today's stats
+        viewModelScope.launch {
+            try {
+                statsRepository.getTodayStatsFlow().collectLatest { todayStats ->
+                    Log.d("TimerViewModel", "Today stats updated: $todayStats")
+                    _uiState.update { it.copy(todayStats = todayStats) }
+                }
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error loading today stats", e)
+            }
+        }
+
+        // Observe all-time stats
+        viewModelScope.launch {
+            try {
+                statsRepository.getAllTimeStatsFlow().collectLatest { allTimeStats ->
+                    Log.d("TimerViewModel", "All-time stats updated: $allTimeStats")
+                    _uiState.update { it.copy(allTimeStats = allTimeStats) }
+                }
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error loading all-time stats", e)
             }
         }
     }
@@ -76,6 +114,7 @@ class TimerViewModel @Inject constructor(
         // Observe service connection
         viewModelScope.launch {
             timerServiceManager.isConnected.collectLatest { connected ->
+                Log.d("TimerViewModel", "Service connection state: $connected")
                 if (connected) {
                     // Start observing all service state flows once connected
                     observeAllServiceFlows()
@@ -85,18 +124,29 @@ class TimerViewModel @Inject constructor(
     }
 
     private fun observeAllServiceFlows() {
-        // Observe timer state
+        // Observe timer state - Enhanced completion detection
         viewModelScope.launch {
             timerServiceManager.timerState.collectLatest { serviceState ->
-                val isCompleted = serviceState == TimerState.COMPLETED
+                Log.d("TimerViewModel", "Service state changed: $previousTimerState -> $serviceState")
 
-                _uiState.update { it.copy(timerState = serviceState) }
+                // Detect when timer completes
+                if (serviceState == TimerState.COMPLETED && previousTimerState == TimerState.RUNNING) {
+                    // Store the type that completed before it changes
+                    completedTimerType = _uiState.value.currentType
+                    Log.d("TimerViewModel", "Timer completed: $completedTimerType")
 
-                // Handle timer completion
-                if (isCompleted && previousTimerState == TimerState.RUNNING) {
-                    handleTimerCompletion()
+                    // Handle completion (this includes saving session)
+                    handleTimerCompletion(completedTimerType!!)
                 }
 
+                // Detect when timer goes from COMPLETED back to IDLE (auto-transition)
+                if (serviceState == TimerState.IDLE && previousTimerState == TimerState.COMPLETED) {
+                    Log.d("TimerViewModel", "Timer auto-transitioned to next type")
+                    // Reset start time for new session
+                    startTime = null
+                }
+
+                _uiState.update { it.copy(timerState = serviceState) }
                 previousTimerState = serviceState
             }
         }
@@ -104,6 +154,7 @@ class TimerViewModel @Inject constructor(
         // Observe current timer type - SERVICE IS AUTHORITY
         viewModelScope.launch {
             timerServiceManager.currentTimerType.collectLatest { type ->
+                Log.d("TimerViewModel", "Timer type changed to: $type")
                 _uiState.update { it.copy(currentType = type) }
             }
         }
@@ -136,15 +187,23 @@ class TimerViewModel @Inject constructor(
             }
         }
 
-        // Observe completed pomodoros
+        // Observe current session pomodoros from service
         viewModelScope.launch {
-            timerServiceManager.completedPomodoros.collectLatest { completed ->
-                _uiState.update { it.copy(completedPomodoros = completed) }
+            try {
+                timerServiceManager.currentSessionPomodoros.collectLatest { sessionPomodoros ->
+                    Log.d("TimerViewModel", "Current session pomodoros: $sessionPomodoros")
+                    _uiState.update { it.copy(currentSessionPomodoros = sessionPomodoros) }
+                }
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error observing session pomodoros", e)
+                // Set default value if service doesn't provide this flow
+                _uiState.update { it.copy(currentSessionPomodoros = 0) }
             }
         }
     }
 
     fun processIntent(intent: TimerIntent) {
+        Log.d("TimerViewModel", "Processing intent: $intent")
         when (intent) {
             is TimerIntent.StartTimer -> startTimer()
             is TimerIntent.PauseTimer -> pauseTimer()
@@ -157,6 +216,7 @@ class TimerViewModel @Inject constructor(
 
     private fun startTimer() {
         startTime = LocalDateTime.now()
+        Log.d("TimerViewModel", "Timer started at: $startTime for type: ${_uiState.value.currentType}")
         timerServiceManager.startTimer(
             _uiState.value.currentType,
             _uiState.value.settings
@@ -164,30 +224,38 @@ class TimerViewModel @Inject constructor(
     }
 
     private fun pauseTimer() {
+        Log.d("TimerViewModel", "Pausing timer")
         timerServiceManager.pauseTimer()
     }
 
     private fun resumeTimer() {
+        Log.d("TimerViewModel", "Resuming timer")
         timerServiceManager.resumeTimer()
     }
 
     private fun stopTimer() {
+        Log.d("TimerViewModel", "Stopping timer")
         timerServiceManager.stopTimer()
 
         // Save incomplete session if it was a Pomodoro
         if (_uiState.value.currentType == TimerType.POMODORO && startTime != null) {
-            saveSession(false)
+            Log.d("TimerViewModel", "Saving incomplete Pomodoro session")
+            saveSession(_uiState.value.currentType, false)
         }
 
         startTime = null
     }
 
     private fun skipTimer() {
+        Log.d("TimerViewModel", "Skipping timer")
+
         // For tracking purposes, if skipping a Pomodoro, save it as incomplete
         if (_uiState.value.currentType == TimerType.POMODORO &&
             _uiState.value.timerState != TimerState.IDLE &&
-            startTime != null) {
-            saveSession(false)
+            startTime != null
+        ) {
+            Log.d("TimerViewModel", "Saving skipped Pomodoro session")
+            saveSession(_uiState.value.currentType, false)
         }
 
         timerServiceManager.skipTimer()
@@ -195,65 +263,84 @@ class TimerViewModel @Inject constructor(
     }
 
     private fun changeTimerType(type: TimerType) {
-        // FIXED: Only call service, let it update the state
-        // Don't update local state here - service is the single source of truth
+        Log.d("TimerViewModel", "Changing timer type to: $type")
+        // Only call service, let it update the state - service is the single source of truth
         timerServiceManager.changeTimerType(type)
         startTime = null
     }
 
-    private fun handleTimerCompletion() {
-        val currentType = _uiState.value.currentType
+    private fun handleTimerCompletion(completedType: TimerType) {
+        Log.d("TimerViewModel", "Handling completion for type: $completedType")
 
         viewModelScope.launch {
-            // Play sound/vibration
-            if (_uiState.value.settings.soundEnabled) {
-                _effect.emit(TimerEffect.PlayTimerCompletedSound)
-            }
+            // Play sound/vibration based on settings
+            try {
+                if (_uiState.value.settings.soundEnabled) {
+                    _effect.emit(TimerEffect.PlayTimerCompletedSound)
+                }
 
-            if (_uiState.value.settings.vibrationEnabled) {
-                _effect.emit(TimerEffect.VibrateDevice)
-            }
+                if (_uiState.value.settings.vibrationEnabled) {
+                    _effect.emit(TimerEffect.VibrateDevice)
+                }
 
-            // If a Pomodoro completed, show a motivational quote
-            if (currentType == TimerType.POMODORO) {
-                _effect.emit(TimerEffect.ShowQuote(quotes.random()))
-                saveSession(true)
-            }
+                // If a Pomodoro completed, show a motivational quote and save session
+                if (completedType == TimerType.POMODORO) {
+                    Log.d("TimerViewModel", "Pomodoro completed - showing quote and saving session")
+                    _effect.emit(TimerEffect.ShowQuote(quotes.random()))
+                    saveSession(completedType, true) // Save completed session
+                } else {
+                    Log.d("TimerViewModel", "Break completed - not saving session")
+                }
 
-            // Show completion message
-            val message = when (currentType) {
-                TimerType.POMODORO -> "Pomodoro completed! Take a break."
-                TimerType.SHORT_BREAK -> "Break's over. Ready for another Pomodoro?"
-                TimerType.LONG_BREAK -> "Long break completed. Great job on your session!"
+                // Show completion message
+                val message = when (completedType) {
+                    TimerType.POMODORO -> "Pomodoro completed! Take a break."
+                    TimerType.SHORT_BREAK -> "Break's over. Ready for another Pomodoro?"
+                    TimerType.LONG_BREAK -> "Long break completed. Great job on your session!"
+                }
+                _effect.emit(TimerEffect.ShowMessage(message))
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error handling timer completion", e)
             }
-            _effect.emit(TimerEffect.ShowMessage(message))
         }
-
-        startTime = null
     }
 
-    private fun saveSession(completed: Boolean) {
-        val currentStartTime = startTime ?: return
+    private fun saveSession(timerType: TimerType, completed: Boolean) {
+        val currentStartTime = startTime
+        if (currentStartTime == null) {
+            Log.w("TimerViewModel", "Cannot save session - startTime is null")
+            return
+        }
+
         val endTime = LocalDateTime.now()
-        val currentType = _uiState.value.currentType
-        val durationMinutes = when (currentType) {
+        val durationMinutes = when (timerType) {
             TimerType.POMODORO -> _uiState.value.settings.pomodoroMinutes
             TimerType.SHORT_BREAK -> _uiState.value.settings.shortBreakMinutes
             TimerType.LONG_BREAK -> _uiState.value.settings.longBreakMinutes
         }
 
+        Log.d("TimerViewModel", "Saving session: type=$timerType, duration=${durationMinutes}min, completed=$completed, start=$currentStartTime, end=$endTime")
+
         viewModelScope.launch {
-            saveTimerSessionUseCase(
-                type = currentType,
-                durationMinutes = durationMinutes,
-                completed = completed,
-                startTime = currentStartTime,
-                endTime = endTime
-            )
+            try {
+                saveTimerSessionUseCase(
+                    type = timerType,
+                    durationMinutes = durationMinutes,
+                    completed = completed,
+                    startTime = currentStartTime,
+                    endTime = endTime
+                )
+                Log.d("TimerViewModel", "Session saved successfully")
+            } catch (e: Exception) {
+                Log.e("TimerViewModel", "Error saving session", e)
+                // Emit error effect to show user
+                _effect.emit(TimerEffect.ShowMessage("Failed to save session"))
+            }
         }
     }
 
     override fun onCleared() {
+        Log.d("TimerViewModel", "ViewModel cleared - unbinding service")
         super.onCleared()
         timerServiceManager.unbindService()
     }

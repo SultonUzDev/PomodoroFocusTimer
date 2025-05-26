@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -14,7 +13,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.sultonuzdev.pft.MainActivity
 import com.sultonuzdev.pft.R
-import com.sultonuzdev.pft.core.language.LanguageManager
 import com.sultonuzdev.pft.core.util.Constants.MILLIS_IN_SECOND
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
@@ -42,9 +40,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
-import java.util.Locale
 import javax.inject.Inject
 
 private const val TAG = "TimerService"
@@ -89,11 +85,23 @@ class TimerService : Service() {
     private val _formattedTime = MutableStateFlow("25:00")
     val formattedTime: StateFlow<String> = _formattedTime.asStateFlow()
 
-    private val _completedPomodoros = MutableStateFlow(0)
-    val completedPomodoros: StateFlow<Int> = _completedPomodoros.asStateFlow()
+
 
     private val _completedSessions = MutableStateFlow(0)
     val completedSessions: StateFlow<Int> = _completedSessions.asStateFlow()
+
+
+
+    private val _completedPomodoros = MutableStateFlow(0) // Total lifetime count
+    val completedPomodoros: StateFlow<Int> = _completedPomodoros.asStateFlow()
+
+    private val _currentSessionPomodoros = MutableStateFlow(0) // Current session count
+    val currentSessionPomodoros: StateFlow<Int> = _currentSessionPomodoros.asStateFlow()
+
+    private val _totalSessions = MutableStateFlow(0) // Total completed sessions
+    val totalSessions: StateFlow<Int> = _totalSessions.asStateFlow()
+
+
 
     private val binder = TimerBinder()
 
@@ -108,33 +116,7 @@ class TimerService : Service() {
         observeTimerSettings()
     }
 
-    @Inject
-    lateinit var languageManager: LanguageManager
 
-    // Add this method to get localized strings:
-    private fun getLocalizedString(stringRes: Int, vararg formatArgs: Any): String {
-        return try {
-            // Get current language
-            val currentLanguage = runBlocking { languageManager.getCurrentLanguage() }
-            val locale = Locale(currentLanguage.code)
-            val config = Configuration(resources.configuration)
-            config.setLocale(locale)
-            val localizedContext = createConfigurationContext(config)
-
-            if (formatArgs.isNotEmpty()) {
-                localizedContext.getString(stringRes, *formatArgs)
-            } else {
-                localizedContext.getString(stringRes)
-            }
-        } catch (e: Exception) {
-            // Fallback to default
-            if (formatArgs.isNotEmpty()) {
-                getString(stringRes, *formatArgs)
-            } else {
-                getString(stringRes)
-            }
-        }
-    }
 
     private fun observeTimerSettings() {
         settingsJob = serviceScope.launch {
@@ -153,6 +135,108 @@ class TimerService : Service() {
             }
         }
     }
+
+
+
+
+
+    private fun getNextTimerType(): TimerType {
+        val currentType = _currentTimerType.value
+        val sessionPomodoros = _currentSessionPomodoros.value // Use session count, not total
+        val pomodorosBeforeLongBreak = currentSettings.pomodorosBeforeLongBreak
+
+        Log.d(TAG, "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, pomodorosBeforeLongBreak=$pomodorosBeforeLongBreak")
+
+        return when (currentType) {
+            TimerType.POMODORO -> {
+                // Check if we've completed enough pomodoros in this session for a long break
+                if (sessionPomodoros >= pomodorosBeforeLongBreak) {
+                    Log.d(TAG, "Session complete - taking long break")
+                    TimerType.LONG_BREAK
+                } else {
+                    Log.d(TAG, "Taking short break")
+                    TimerType.SHORT_BREAK
+                }
+            }
+            TimerType.SHORT_BREAK -> {
+                Log.d(TAG, "Short break over - back to Pomodoro")
+                TimerType.POMODORO
+            }
+            TimerType.LONG_BREAK -> {
+                Log.d(TAG, "Long break over - starting new session")
+                // Reset session when long break is over
+                _currentSessionPomodoros.value = 0
+                _totalSessions.value += 1
+                TimerType.POMODORO
+            }
+        }
+    }
+
+    // Update your timerCompleted method:
+    private fun timerCompleted() {
+        Log.d(TAG, "timerCompleted")
+
+        timerJob?.cancel()
+        timerJob = null
+
+        val currentType = _currentTimerType.value
+
+        // Update state
+        _timerState.value = TimerState.COMPLETED
+        _remainingTimeMillis.value = 0
+        _formattedTime.value = "00:00"
+        _progressFraction.value = 1.0f
+
+        // Update counters if it was a Pomodoro
+        if (currentType == TimerType.POMODORO) {
+            _completedPomodoros.value += 1 // Lifetime total
+            _currentSessionPomodoros.value += 1 // Current session
+            Log.d(TAG, "Pomodoro completed - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}")
+        }
+
+        updateNotification(completed = true)
+        startTime = null
+
+        // Auto-transition to next timer type after delay
+        serviceScope.launch {
+            delay(2000) // 2 second delay to show completion
+            val nextType = getNextTimerType()
+            changeTimerType(nextType)
+        }
+    }
+
+    // Update your skipTimer method similarly:
+    fun skipTimer() {
+        Log.d(TAG, "skipTimer called")
+
+        timerJob?.cancel()
+        timerJob = null
+
+        // Mark as completed
+        _timerState.value = TimerState.COMPLETED
+        _remainingTimeMillis.value = 0
+        _formattedTime.value = "00:00"
+        _progressFraction.value = 1.0f
+
+        // Update completed count if it was a Pomodoro
+        if (_currentTimerType.value == TimerType.POMODORO) {
+            _completedPomodoros.value += 1 // Lifetime total
+            _currentSessionPomodoros.value += 1 // Current session
+            Log.d(TAG, "Pomodoro skipped - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}")
+        }
+
+        updateNotification(completed = true)
+        startTime = null
+
+        // Auto-transition after a short delay
+        serviceScope.launch {
+            delay(2000)
+            val nextType = getNextTimerType()
+            changeTimerType(nextType)
+        }
+    }
+
+
 
     private fun updateTimerDurationsFromSettings() {
         val duration = getDurationForTimerType(_currentTimerType.value)
@@ -208,6 +292,10 @@ class TimerService : Service() {
         super.onDestroy()
     }
 
+
+
+    // Here's the complete fixed TimerService with proper pause/resume functionality:
+
     fun startTimer(timerType: TimerType, durationMillis: Long) {
         Log.d(TAG, "startTimer: type=$timerType, duration=$durationMillis")
 
@@ -239,12 +327,23 @@ class TimerService : Service() {
         }
 
         // Start the timer coroutine
+        startTimerCoroutine()
+    }
+
+    private fun startTimerCoroutine() {
         timerJob = serviceScope.launch {
             try {
-                while (_remainingTimeMillis.value > 0 && _timerState.value == TimerState.RUNNING) {
+                while (_remainingTimeMillis.value > 0) {
+                    // Check if we should continue (not paused or stopped)
+                    if (_timerState.value != TimerState.RUNNING) {
+                        Log.d(TAG, "Timer coroutine paused/stopped, waiting...")
+                        delay(100) // Small delay to prevent tight loop
+                        continue
+                    }
+
                     delay(MILLIS_IN_SECOND)
 
-                    // Only update if still running (not paused)
+                    // Only update if still running
                     if (_timerState.value == TimerState.RUNNING) {
                         val newRemainingTime = (_remainingTimeMillis.value - MILLIS_IN_SECOND).coerceAtLeast(0)
                         val newProgress = calculateProgress(
@@ -273,23 +372,30 @@ class TimerService : Service() {
     }
 
     fun pauseTimer() {
-        Log.d(TAG, "pauseTimer called")
+        Log.d(TAG, "pauseTimer called, current state: ${_timerState.value}")
         if (_timerState.value == TimerState.RUNNING) {
+            // Just change state - coroutine will detect this and pause
             _timerState.value = TimerState.PAUSED
             updateNotification()
+            Log.d(TAG, "Timer paused at ${_formattedTime.value}")
+        } else {
+            Log.d(TAG, "Timer not running, cannot pause")
         }
     }
 
     fun resumeTimer() {
-        Log.d(TAG, "resumeTimer called")
+        Log.d(TAG, "resumeTimer called, current state: ${_timerState.value}")
         if (_timerState.value == TimerState.PAUSED) {
+            // Just change state - coroutine will detect this and resume
             _timerState.value = TimerState.RUNNING
             updateNotification()
-
-            // Resume the timer coroutine with remaining time
-            startTimer(_currentTimerType.value, _remainingTimeMillis.value)
+            Log.d(TAG, "Timer resumed at ${_formattedTime.value}")
+        } else {
+            Log.d(TAG, "Timer not paused, cannot resume")
         }
     }
+
+
 
     fun stopTimer() {
         Log.d(TAG, "stopTimer called")
@@ -318,65 +424,7 @@ class TimerService : Service() {
         startTime = null
     }
 
-    fun skipTimer() {
-        Log.d(TAG, "skipTimer called")
 
-        // Cancel timer coroutine
-        timerJob?.cancel()
-        timerJob = null
-
-        // Mark as completed
-        _timerState.value = TimerState.COMPLETED
-        _remainingTimeMillis.value = 0
-        _formattedTime.value = "00:00"
-        _progressFraction.value = 1.0f
-
-        // Update completed count if it was a Pomodoro
-        if (_currentTimerType.value == TimerType.POMODORO) {
-            _completedPomodoros.value += 1
-        }
-
-        updateNotification(completed = true)
-        startTime = null
-
-        // Auto-transition after a short delay
-        serviceScope.launch {
-            delay(2000) // 2 second delay
-            val nextType = getNextTimerType()
-            changeTimerType(nextType)
-        }
-    }
-
-    private fun timerCompleted() {
-        Log.d(TAG, "timerCompleted")
-
-        timerJob?.cancel()
-        timerJob = null
-
-        val currentType = _currentTimerType.value
-
-        // Update state
-        _timerState.value = TimerState.COMPLETED
-        _remainingTimeMillis.value = 0
-        _formattedTime.value = "00:00"
-        _progressFraction.value = 1.0f
-
-        // Update completed count if it was a Pomodoro
-        if (currentType == TimerType.POMODORO) {
-            _completedPomodoros.value += 1
-            _completedSessions.value += 1
-        }
-
-        updateNotification(completed = true)
-        startTime = null
-
-        // Auto-transition to next timer type after delay
-        serviceScope.launch {
-            delay(2000) // 2 second delay to show completion
-            val nextType = getNextTimerType()
-            changeTimerType(nextType)
-        }
-    }
 
     private fun changeTimerType(type: TimerType) {
         Log.d(TAG, "changeTimerType to $type")
@@ -398,23 +446,6 @@ class TimerService : Service() {
         startTime = null
     }
 
-    private fun getNextTimerType(): TimerType {
-        val currentType = _currentTimerType.value
-        val completedPomodoros = _completedPomodoros.value
-        val pomodorosBeforeLongBreak = currentSettings.pomodorosBeforeLongBreak
-
-        return when (currentType) {
-            TimerType.POMODORO -> {
-                // After X pomodoros, take a long break, otherwise take a short break
-                if (completedPomodoros % pomodorosBeforeLongBreak == 0) {
-                    TimerType.LONG_BREAK
-                } else {
-                    TimerType.SHORT_BREAK
-                }
-            }
-            TimerType.SHORT_BREAK, TimerType.LONG_BREAK -> TimerType.POMODORO
-        }
-    }
 
     // Expose method to manually change timer type (called from ViewModel)
     fun changeTimerTypeManually(type: TimerType) {

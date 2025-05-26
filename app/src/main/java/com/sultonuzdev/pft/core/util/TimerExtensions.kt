@@ -38,3 +38,20 @@ fun calculateProgress(elapsedTimeMillis: Long, totalTimeMillis: Long): Float {
 fun LocalDateTime.formatToDate(): String {
     return this.format(DateTimeFormatter.ISO_DATE)
 }
+
+// Helper function for formatting focus time
+ fun Int.formatFocusTime(): String {
+    return when {
+        this < 60 -> "${this}m"
+        this < 1440 -> { // Less than 24 hours
+            val hours = this / 60
+            val minutes = this % 60
+            if (minutes == 0) "${hours}h" else "${hours}h ${minutes}m"
+        }
+        else -> { // 24+ hours
+            val days = this / 1440
+            val hours = (this % 1440) / 60
+            if (hours == 0) "${days}d" else "${days}d ${hours}h"
+        }
+    }
+}

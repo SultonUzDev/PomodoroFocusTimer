@@ -2,12 +2,12 @@ package com.sultonuzdev.pft.core.util
 
 object Constants {
     // Default durations in minutes
-    const val DEFAULT_POMODORO_MINUTES = 25
-    const val DEFAULT_SHORT_BREAK_MINUTES = 5
-    const val DEFAULT_LONG_BREAK_MINUTES = 15
+    const val DEFAULT_POMODORO_MINUTES: Int = 25
+    const val DEFAULT_SHORT_BREAK_MINUTES: Int = 5
+    const val DEFAULT_LONG_BREAK_MINUTES: Int = 15
 
     // After how many pomodoros should a long break occur
-    const val DEFAULT_POMODOROS_BEFORE_LONG_BREAK = 4
+    const val DEFAULT_POMODOROS_BEFORE_LONG_BREAK: Int = 4
 
     // Millisecond conversions
     const val MILLIS_IN_SECOND = 1000L

@@ -73,7 +73,7 @@ fun TimerControlButton(
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 color = tint
             )
         }

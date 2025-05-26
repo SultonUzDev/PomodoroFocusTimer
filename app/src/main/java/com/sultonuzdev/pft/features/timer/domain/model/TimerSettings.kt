@@ -2,8 +2,8 @@ package com.sultonuzdev.pft.features.timer.domain.model
 
 
 import com.sultonuzdev.pft.core.util.Constants.DEFAULT_LONG_BREAK_MINUTES
-import com.sultonuzdev.pft.core.util.Constants.DEFAULT_POMODORO_MINUTES
 import com.sultonuzdev.pft.core.util.Constants.DEFAULT_POMODOROS_BEFORE_LONG_BREAK
+import com.sultonuzdev.pft.core.util.Constants.DEFAULT_POMODORO_MINUTES
 import com.sultonuzdev.pft.core.util.Constants.DEFAULT_SHORT_BREAK_MINUTES
 
 /**
@@ -16,5 +16,6 @@ data class TimerSettings(
     val pomodorosBeforeLongBreak: Int = DEFAULT_POMODOROS_BEFORE_LONG_BREAK,
     val vibrationEnabled: Boolean = true,
     val soundEnabled: Boolean = true,
-    val enableFocusMode: Boolean = false
+    val enableFocusMode: Boolean = false,
 )
+

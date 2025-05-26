@@ -1,20 +1,25 @@
 package com.sultonuzdev.pft.features.timer.presentation
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -22,6 +27,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
+import com.sultonuzdev.pft.features.timer.domain.model.TimerSettings
+import com.sultonuzdev.pft.features.timer.domain.model.TodayStats
 import com.sultonuzdev.pft.features.timer.presentation.components.CircularTimer
 import com.sultonuzdev.pft.features.timer.presentation.components.NotificationPermissionHandler
 import com.sultonuzdev.pft.features.timer.presentation.components.SessionSummary
@@ -71,12 +81,12 @@ fun TimerScreenRoot(
             when (event) {
                 Lifecycle.Event.ON_START -> {
                     // Screen becomes visible, ensure service connection
-                    // ViewModel already handles this in init, but we can add extra safety here
                 }
+
                 Lifecycle.Event.ON_STOP -> {
                     // Screen goes to background, but keep service connection
-                    // We don't unbind here because we want to keep observing timer state
                 }
+
                 else -> {}
             }
         }
@@ -104,7 +114,21 @@ fun TimerScreenRoot(
     )
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(
+    name = "Light Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true
+)
+@Preview(
+    name = "Dark Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true
+)
+@Preview(
+    name = "Tablet",
+    device = "spec:width=1280dp,height=800dp,dpi=240",
+    showBackground = true
+)
 @Composable
 private fun TimerScreenPreview() {
     PomodoroAppTheme {
@@ -112,7 +136,27 @@ private fun TimerScreenPreview() {
             navigateToSettings = {},
             navigateToStats = {},
             feedbackDisplay = remember { SnackbarHostState() },
-            uiState = TimerUiState(),
+            uiState = TimerUiState(
+                currentType = TimerType.POMODORO,
+                timerState = TimerState.IDLE,
+                currentTimeMillis = 1500000,
+                totalTimeMillis = 1500000,
+                progressFraction = 1.0f,
+                formattedTime = "25:00",
+                currentSessionPomodoros = 2,
+                todayStats = TodayStats(
+                    completedPomodoros = 8,
+                    completedSessions = 2,
+                    focusTimeMinutes = 122
+                ),
+                settings = TimerSettings(
+                    pomodoroMinutes = 25,
+                    shortBreakMinutes = 5,
+                    longBreakMinutes = 15,
+                    pomodorosBeforeLongBreak = 4,
+                    enableFocusMode = true
+                )
+            ),
             onTypeSelected = {},
             onStartClick = {},
             onPauseClick = {},
@@ -124,8 +168,7 @@ private fun TimerScreenPreview() {
 }
 
 /**
- * Main timer screen composable
- * Enhanced with better state handling and visual feedback
+ * Main timer screen composable with responsive design
  */
 @Composable
 fun TimerScreen(
@@ -140,6 +183,10 @@ fun TimerScreen(
     onStopClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Scaffold(
         topBar = {
             TimerTopBar(
@@ -149,141 +196,385 @@ fun TimerScreen(
         },
         snackbarHost = { SnackbarHost(feedbackDisplay) }
     ) { paddingValues ->
-        Surface(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            color = MaterialTheme.colorScheme.background
+                .background(
+                    when (uiState.currentType) {
+                        TimerType.POMODORO -> Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                            )
+                        )
+
+                        TimerType.SHORT_BREAK -> Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
+                            )
+                        )
+
+                        TimerType.LONG_BREAK -> Brush.verticalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.background,
+                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.05f)
+                            )
+                        )
+                    }
+                )
         ) {
-            Column {
-                HorizontalDivider(thickness = 2.dp)
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Session summary showing completed pomodoros
-                    SessionSummary(
-                        completedPomodoros = uiState.completedPomodoros,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Timer type selector - disabled while timer is running to prevent confusion
-                    TimerTypeTabs(
-                        modifier = Modifier,
-                        selectedTimerType = uiState.currentType,
-                        onTimerTypeSelected = { type ->
-                            if (uiState.timerState == TimerState.IDLE) {
-                                onTypeSelected(type)
-                            }
-                        }
-                    )
-
-                    // Enhanced status display
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Timer state indicator
-                        Text(
-                            text = when (uiState.timerState) {
-                                TimerState.IDLE -> "Ready to start"
-                                TimerState.RUNNING -> "Timer running"
-                                TimerState.PAUSED -> "Timer paused"
-                                TimerState.COMPLETED -> "Timer completed!"
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = when (uiState.timerState) {
-                                TimerState.RUNNING -> MaterialTheme.colorScheme.primary
-                                TimerState.PAUSED -> MaterialTheme.colorScheme.secondary
-                                TimerState.COMPLETED -> MaterialTheme.colorScheme.tertiary
-                                else -> MaterialTheme.colorScheme.onSurface
-                            },
-                            textAlign = TextAlign.Center
-                        )
-
-                        // Pomodoro count indicator
-                        if (uiState.completedPomodoros > 0) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Completed: ${uiState.completedPomodoros} pomodoro${if (uiState.completedPomodoros != 1) "s" else ""}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Circular timer with enhanced visual feedback
-                    CircularTimer(
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .aspectRatio(1f),
-                        progress = uiState.progressFraction,
-                        timeText = uiState.formattedTime,
-                        progressColor = when (uiState.currentType) {
-                            TimerType.POMODORO -> MaterialTheme.colorScheme.primary
-                            TimerType.SHORT_BREAK -> MaterialTheme.colorScheme.secondary
-                            TimerType.LONG_BREAK -> MaterialTheme.colorScheme.tertiary
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Timer controls with enhanced UX
-                    TimerControls(
-                        timerState = uiState.timerState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
-                        onSkipClick = onSkipClick
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Focus mode indicator (shown only when in focus mode and running)
-                    if (uiState.settings.enableFocusMode &&
-                        uiState.timerState == TimerState.RUNNING &&
-                        uiState.currentType == TimerType.POMODORO) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "🎯 Focus Mode Active",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Stay concentrated on your task!",
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                            )
-                        }
-                    }
-
-                    // Show helpful tips when timer is idle
-                    if (uiState.timerState == TimerState.IDLE && uiState.completedPomodoros == 0) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "💡 Tip: Start with a 25-minute focus session",
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+            if (isTablet || isLandscape) {
+                // Tablet/Landscape layout
+                TabletTimerLayout(
+                    uiState = uiState,
+                    onTypeSelected = onTypeSelected,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onStopClick = onStopClick,
+                    onSkipClick = onSkipClick,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            } else {
+                // Phone/Portrait layout
+                PhoneTimerLayout(
+                    uiState = uiState,
+                    onTypeSelected = onTypeSelected,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onStopClick = onStopClick,
+                    onSkipClick = onSkipClick,
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun PhoneTimerLayout(
+    uiState: TimerUiState,
+    onTypeSelected: (TimerType) -> Unit,
+    onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onResumeClick: () -> Unit,
+    onStopClick: () -> Unit,
+    onSkipClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
+    ) {
+        // Session Summary
+        SessionSummary(
+            currentSessionPomodoros = uiState.currentSessionPomodoros,
+            pomodorosBeforeLongBreak = uiState.settings.pomodorosBeforeLongBreak,
+            todayPomodoros = uiState.todayStats.completedPomodoros,
+            todaySessions = uiState.todayStats.completedSessions,
+            todayFocusTimeMinutes = uiState.todayStats.focusTimeMinutes,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        // Timer Type Tabs
+        TimerTypeTabs(
+            selectedTimerType = uiState.currentType,
+            onTimerTypeSelected = { type ->
+                if (uiState.timerState == TimerState.IDLE) {
+                    onTypeSelected(type)
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        // Status Display
+        TimerStatusDisplay(
+            timerState = uiState.timerState,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        // Circular timer with enhanced visual feedback
+        CircularTimer(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .aspectRatio(1f),
+            progress = uiState.progressFraction,
+            timeText = uiState.formattedTime,
+            progressColor = getTimerColor(uiState.currentType),
+        )
+
+
+        // Timer Controls
+        TimerControls(
+            timerState = uiState.timerState,
+            onStartClick = onStartClick,
+            onPauseClick = onPauseClick,
+            onResumeClick = onResumeClick,
+            onStopClick = onStopClick,
+            onSkipClick = onSkipClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        // Focus Mode Indicator
+        AnimatedVisibility(
+            visible = uiState.settings.enableFocusMode &&
+                    uiState.timerState == TimerState.RUNNING &&
+                    uiState.currentType == TimerType.POMODORO
+        ) {
+            FocusModeIndicator()
+        }
+
+        // Tips and Encouragement
+        TipsAndEncouragement(
+            timerState = uiState.timerState,
+            todayStats = uiState.todayStats,
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+    }
+}
+
+@Composable
+private fun TabletTimerLayout(
+    uiState: TimerUiState,
+    onTypeSelected: (TimerType) -> Unit,
+    onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onResumeClick: () -> Unit,
+    onStopClick: () -> Unit,
+    onSkipClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Start),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Left side - Timer and controls
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+
+            // Circular timer with enhanced visual feedback
+            CircularTimer(
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .aspectRatio(1f),
+                progress = uiState.progressFraction,
+                timeText = uiState.formattedTime,
+                progressColor = getTimerColor(uiState.currentType),
+            )
+
+
+            // Timer Controls
+            TimerControls(
+                timerState = uiState.timerState,
+                onStartClick = onStartClick,
+                onPauseClick = onPauseClick,
+                onResumeClick = onResumeClick,
+                onStopClick = onStopClick,
+                onSkipClick = onSkipClick,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            )
+        }
+
+        // Right side - Info and stats
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)
+        ) {
+            // Session Summary
+            SessionSummary(
+                currentSessionPomodoros = uiState.currentSessionPomodoros,
+                pomodorosBeforeLongBreak = uiState.settings.pomodorosBeforeLongBreak,
+                todayPomodoros = uiState.todayStats.completedPomodoros,
+                todaySessions = uiState.todayStats.completedSessions,
+                todayFocusTimeMinutes = uiState.todayStats.focusTimeMinutes,
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+
+            )
+
+            // Timer Type Tabs
+            TimerTypeTabs(
+                selectedTimerType = uiState.currentType,
+                onTimerTypeSelected = { type ->
+                    if (uiState.timerState == TimerState.IDLE) {
+                        onTypeSelected(type)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(0.9f)
+            )
+
+            // Status Display
+            TimerStatusDisplay(
+                timerState = uiState.timerState,
+                modifier = Modifier.fillMaxWidth(0.9f)
+            )
+
+            // Focus Mode Indicator
+            AnimatedVisibility(
+                visible = uiState.settings.enableFocusMode &&
+                        uiState.timerState == TimerState.RUNNING &&
+                        uiState.currentType == TimerType.POMODORO
+            ) {
+                FocusModeIndicator()
+            }
+
+            // Tips and Encouragement
+            TipsAndEncouragement(
+                timerState = uiState.timerState,
+                todayStats = uiState.todayStats,
+                modifier = Modifier.fillMaxWidth(0.9f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimerStatusDisplay(
+    timerState: TimerState,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Timer state
+            Text(
+                text = when (timerState) {
+                    TimerState.IDLE -> "Ready to focus"
+                    TimerState.RUNNING -> "Stay focused!"
+                    TimerState.PAUSED -> "Paused - Take a breath"
+                    TimerState.COMPLETED -> "Well done! 🎉"
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = when (timerState) {
+                    TimerState.RUNNING -> MaterialTheme.colorScheme.primary
+                    TimerState.PAUSED -> MaterialTheme.colorScheme.secondary
+                    TimerState.COMPLETED -> MaterialTheme.colorScheme.tertiary
+                    else -> MaterialTheme.colorScheme.onSurface
+                }
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun FocusModeIndicator(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "🎯",
+                fontSize = 20.sp
+            )
+            Column {
+                Text(
+                    text = "Focus Mode Active",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Stay concentrated!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TipsAndEncouragement(
+    timerState: TimerState,
+    todayStats: TodayStats,
+    modifier: Modifier = Modifier
+) {
+    if (timerState == TimerState.IDLE) {
+        Card(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Text(
+                text = when {
+                    todayStats.completedPomodoros == 0 -> "💡 Start with a 25-minute focus session"
+                    todayStats.completedPomodoros == 1 -> "🌟 Great start! Keep going"
+                    todayStats.completedPomodoros < 4 -> "🔥 ${todayStats.completedPomodoros} down! You're doing great"
+                    todayStats.completedPomodoros < 8 -> "💪 Impressive focus today!"
+                    else -> "🚀 You're a productivity master!"
+                },
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun getTimerColor(timerType: TimerType): Color {
+    return when (timerType) {
+        TimerType.POMODORO -> MaterialTheme.colorScheme.primary
+        TimerType.SHORT_BREAK -> MaterialTheme.colorScheme.secondary
+        TimerType.LONG_BREAK -> MaterialTheme.colorScheme.tertiary
+    }
+}
+
+// Add this for AnimatedVisibility
+@Composable
+private fun AnimatedVisibility(
+    visible: Boolean,
+    content: @Composable () -> Unit
+) {
+    if (visible) {
+        content()
     }
 }

@@ -102,6 +102,23 @@ class TimerServiceManager @Inject constructor(
             emptyFlow()
         }
 
+
+    // Add these new flow accessors to your TimerServiceManager.kt:
+
+
+    val currentSessionPomodoros: Flow<Int>
+        get() = timerService?.currentSessionPomodoros ?: run {
+            Log.w(TAG, "Service not connected, returning empty flow for currentSessionPomodoros")
+            emptyFlow()
+        }
+
+    val totalSessions: Flow<Int>
+        get() = timerService?.totalSessions ?: run {
+            Log.w(TAG, "Service not connected, returning empty flow for totalSessions")
+            emptyFlow()
+        }
+
+
     /**
      * Binds to the TimerService
      */
