@@ -2,7 +2,7 @@ package com.sultonuzdev.pft.di
 
 
 import com.sultonuzdev.pft.features.settings.domain.repository.TimerSettingsRepository
-import com.sultonuzdev.pft.features.stats.data.repository.SessionRepository
+import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepository
 import com.sultonuzdev.pft.features.timer.domain.usecase.GetTimerSettingsUseCase
 import com.sultonuzdev.pft.features.timer.domain.usecase.SaveTimerSessionUseCase
 import dagger.Module
@@ -29,7 +29,7 @@ object DomainModule {
     @Provides
     @ViewModelScoped
     fun provideSaveTimerSessionUseCase(
-        repository: SessionRepository
+        repository: PomodoroRepository
     ): SaveTimerSessionUseCase {
         return SaveTimerSessionUseCase(repository)
     }

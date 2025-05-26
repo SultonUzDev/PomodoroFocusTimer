@@ -7,7 +7,7 @@ import com.sultonuzdev.pft.features.stats.data.datasource.SessionDao
 import com.sultonuzdev.pft.features.stats.data.entity.toDomainModel
 import com.sultonuzdev.pft.features.stats.data.entity.toEntity
 import com.sultonuzdev.pft.features.stats.domain.model.DailyStats
-import com.sultonuzdev.pft.features.stats.domain.model.TimerSession
+import com.sultonuzdev.pft.features.stats.domain.model.Pomodoro
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -18,22 +18,22 @@ import javax.inject.Inject
 /**
  * Implementation of SessionRepository that uses Room database for persistence
  */
-class SessionRepositoryImpl @Inject constructor(
+class PomodoroRepositoryImpl @Inject constructor(
     private val sessionDao: SessionDao
-) : SessionRepository {
+) : PomodoroRepository {
 
-    override suspend fun saveSession(session: TimerSession) {
-        val entity = session.toEntity()
+    override suspend fun savePomodoro(pomodoro: Pomodoro) {
+        val entity = pomodoro.toEntity()
         sessionDao.insertSession(entity)
     }
 
-    override fun getAllSessions(): Flow<List<TimerSession>> {
+    override fun getAllPomodoros(): Flow<List<Pomodoro>> {
         return sessionDao.getAllSessions().map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    override fun getSessionsByDate(date: LocalDate): Flow<List<TimerSession>> {
+    override fun getPomodoroByDate(date: LocalDate): Flow<List<Pomodoro>> {
         // Convert LocalDate to LocalDateTime at start of day
         val startOfDay = date.atStartOfDay()
         val endOfDay = date.atTime(LocalTime.MAX)
@@ -44,7 +44,7 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override fun getDailyStats(date: LocalDate): Flow<DailyStats> {
-        return getSessionsByDate(date).map { sessions ->
+        return getPomodoroByDate(date).map { sessions ->
             val completedPomodoros = sessions.count {
                 it.type == TimerType.POMODORO && it.completed
             }
@@ -70,7 +70,7 @@ class SessionRepositoryImpl @Inject constructor(
         // Generate the 7 days of the week
         val dates = (0..6).map { startDate.plusDays(it.toLong()) }
 
-        return getAllSessions().map { allSessions ->
+        return getAllPomodoros().map { allSessions ->
             dates.map { date ->
                 // Filter sessions for this date
                 val sessionsForDay = allSessions.filter { session ->

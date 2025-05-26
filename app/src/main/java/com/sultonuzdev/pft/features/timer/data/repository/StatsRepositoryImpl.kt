@@ -1,7 +1,7 @@
 package com.sultonuzdev.pft.features.timer.data.repository
 
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.features.stats.data.repository.SessionRepository
+import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepository
 import com.sultonuzdev.pft.features.timer.domain.model.AllTimeStats
 import com.sultonuzdev.pft.features.timer.domain.model.TodayStats
 import com.sultonuzdev.pft.features.timer.domain.repository.StatsRepository
@@ -17,17 +17,17 @@ import javax.inject.Inject
  */
 
 class StatsRepositoryImpl @Inject constructor(
-    private val sessionRepository: SessionRepository
+    private val pomodoroRepository: PomodoroRepository
 ) : StatsRepository {
 
     override suspend fun getTodayStats(): TodayStats {
         val today = LocalDate.now()
 
         // Use your existing getDailyStats method
-        val dailyStats = sessionRepository.getDailyStats(today)
+        val dailyStats = pomodoroRepository.getDailyStats(today)
 
         // Get today's sessions to calculate completed sessions
-        val todaySessions = sessionRepository.getSessionsByDate(today)
+        val todaySessions = pomodoroRepository.getPomodoroByDate(today)
 
         // ✅ FIXED: Proper Flow handling
         return combine(dailyStats, todaySessions) { stats, sessions ->
@@ -49,8 +49,8 @@ class StatsRepositoryImpl @Inject constructor(
         val today = LocalDate.now()
 
         // Use your existing methods
-        val dailyStats = sessionRepository.getDailyStats(today)
-        val todaySessions = sessionRepository.getSessionsByDate(today)
+        val dailyStats = pomodoroRepository.getDailyStats(today)
+        val todaySessions = pomodoroRepository.getPomodoroByDate(today)
 
         return combine(dailyStats, todaySessions) { stats, sessions ->
             // Calculate completed sessions (count of long breaks completed)
@@ -69,7 +69,7 @@ class StatsRepositoryImpl @Inject constructor(
 
     override suspend fun getAllTimeStats(): AllTimeStats {
         // ✅ FIXED: Proper Flow handling
-        return sessionRepository.getAllSessions().map { sessions ->
+        return pomodoroRepository.getAllPomodoros().map { sessions ->
             val totalPomodoros = sessions.count {
                 it.type == TimerType.POMODORO && it.completed
             }
@@ -97,7 +97,7 @@ class StatsRepositoryImpl @Inject constructor(
     }
 
     override fun getAllTimeStatsFlow(): Flow<AllTimeStats> {
-        return sessionRepository.getAllSessions().map { sessions ->
+        return pomodoroRepository.getAllPomodoros().map { sessions ->
             val totalPomodoros = sessions.count {
                 it.type == TimerType.POMODORO && it.completed
             }

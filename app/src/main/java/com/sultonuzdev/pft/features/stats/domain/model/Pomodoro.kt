@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 /**
  * Data class representing a completed timer session
  */
-data class TimerSession(
+data class Pomodoro(
     val id: Long = 0,
     val type: TimerType,
     val durationMinutes: Int,

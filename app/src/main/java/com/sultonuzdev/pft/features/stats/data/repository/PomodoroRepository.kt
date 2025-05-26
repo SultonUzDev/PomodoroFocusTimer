@@ -1,17 +1,17 @@
 package com.sultonuzdev.pft.features.stats.data.repository
 
 import com.sultonuzdev.pft.features.stats.domain.model.DailyStats
-import com.sultonuzdev.pft.features.stats.domain.model.TimerSession
+import com.sultonuzdev.pft.features.stats.domain.model.Pomodoro
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 /**
  * Repository interface for saving and retrieving timer sessions
  */
-interface SessionRepository {
-    suspend fun saveSession(session: TimerSession)
-    fun getAllSessions(): Flow<List<TimerSession>>
-    fun getSessionsByDate(date: LocalDate): Flow<List<TimerSession>>
+interface PomodoroRepository {
+    suspend fun savePomodoro(pomodoro: Pomodoro)
+    fun getAllPomodoros(): Flow<List<Pomodoro>>
+    fun getPomodoroByDate(date: LocalDate): Flow<List<Pomodoro>>
     fun getDailyStats(date: LocalDate): Flow<DailyStats>
     fun getWeeklyStats(startDate: LocalDate): Flow<List<DailyStats>>
 

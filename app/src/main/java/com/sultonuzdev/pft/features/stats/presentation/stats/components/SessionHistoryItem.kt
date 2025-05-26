@@ -27,7 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.features.stats.domain.model.TimerSession
+import com.sultonuzdev.pft.features.stats.domain.model.Pomodoro
 import java.time.format.DateTimeFormatter
 
 /**
@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun SessionHistoryItem(
-    session: TimerSession,
+    session: Pomodoro,
     onClick: () -> Unit
 ) {
     Row(

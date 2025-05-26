@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.features.stats.data.repository.SessionRepository
+import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepository
 import com.sultonuzdev.pft.features.stats.presentation.stats.utils.StatsEffect
 import com.sultonuzdev.pft.features.stats.presentation.stats.utils.StatsIntent
 import com.sultonuzdev.pft.features.stats.presentation.stats.utils.StatsUiState
@@ -30,7 +30,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository
+    private val pomodoroRepository: PomodoroRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StatsUiState())
@@ -128,7 +128,7 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                sessionRepository.getDailyStats(date).collectLatest { stats ->
+                pomodoroRepository.getDailyStats(date).collectLatest { stats ->
                     _uiState.update {
                         it.copy(
                             dailyStats = stats, isLoading = false
@@ -154,7 +154,7 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                sessionRepository.getWeeklyStats(startDate).collectLatest { weekStats ->
+                pomodoroRepository.getWeeklyStats(startDate).collectLatest { weekStats ->
                     _uiState.update {
                         it.copy(
                             weeklyStats = weekStats, isLoading = false
@@ -180,7 +180,7 @@ class StatsViewModel @Inject constructor(
     private fun calculateAggregateStats() {
         viewModelScope.launch {
             try {
-                val allSessions = sessionRepository.getAllSessions().first()
+                val allSessions = pomodoroRepository.getAllPomodoros().first()
 
                 // Calculate total completed pomodoros
                 val totalPomodoros = allSessions.count {

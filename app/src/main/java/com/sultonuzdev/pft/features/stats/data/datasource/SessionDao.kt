@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.sultonuzdev.pft.features.stats.data.entity.SessionEntity
+import com.sultonuzdev.pft.features.stats.data.entity.PomodoroEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -14,16 +14,16 @@ import java.time.LocalDateTime
 @Dao
 interface SessionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: SessionEntity): Long
+    suspend fun insertSession(session: PomodoroEntity): Long
 
     @Query("SELECT * FROM sessions ORDER BY startTime DESC")
-    fun getAllSessions(): Flow<List<SessionEntity>>
+    fun getAllSessions(): Flow<List<PomodoroEntity>>
 
     @Query("SELECT * FROM sessions WHERE date(startTime) = date(:dateTime) ORDER BY startTime DESC")
-    fun getSessionsByDate(dateTime: LocalDateTime): Flow<List<SessionEntity>>
+    fun getSessionsByDate(dateTime: LocalDateTime): Flow<List<PomodoroEntity>>
 
     @Query("SELECT * FROM sessions WHERE startTime BETWEEN :startDate AND :endDate ORDER BY startTime")
-    fun getSessionsByDateRange(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<SessionEntity>>
+    fun getSessionsByDateRange(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<PomodoroEntity>>
 
 
 }

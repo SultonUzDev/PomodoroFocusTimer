@@ -6,8 +6,8 @@ import com.sultonuzdev.pft.core.data.db.AppDatabase
 import com.sultonuzdev.pft.features.settings.data.repository.TimerSettingsRepositoryImpl
 import com.sultonuzdev.pft.features.settings.domain.repository.TimerSettingsRepository
 import com.sultonuzdev.pft.features.stats.data.datasource.SessionDao
-import com.sultonuzdev.pft.features.stats.data.repository.SessionRepository
-import com.sultonuzdev.pft.features.stats.data.repository.SessionRepositoryImpl
+import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepository
+import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepositoryImpl
 import com.sultonuzdev.pft.features.timer.data.repository.StatsRepositoryImpl
 import com.sultonuzdev.pft.features.timer.domain.repository.StatsRepository
 import dagger.Module
@@ -40,13 +40,13 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideSessionRepository(sessionDao: SessionDao): SessionRepository {
-        return SessionRepositoryImpl(sessionDao)
+    fun provideSessionRepository(sessionDao: SessionDao): PomodoroRepository {
+        return PomodoroRepositoryImpl(sessionDao)
     }
 
     @Provides
     @Singleton
     fun provideStatsRepository(
-        sessionRepository: SessionRepository
-    ): StatsRepository = StatsRepositoryImpl(sessionRepository)
+        pomodoroRepository: PomodoroRepository
+    ): StatsRepository = StatsRepositoryImpl(pomodoroRepository)
 }

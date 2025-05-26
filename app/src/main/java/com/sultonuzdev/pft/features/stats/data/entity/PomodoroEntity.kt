@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.features.stats.data.converter.DateTimeConverter
 import com.sultonuzdev.pft.features.stats.data.converter.TimerTypeConverter
-import com.sultonuzdev.pft.features.stats.domain.model.TimerSession
+import com.sultonuzdev.pft.features.stats.domain.model.Pomodoro
 import java.time.LocalDateTime
 
 /**
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
  */
 @Entity(tableName = "sessions")
 @TypeConverters(DateTimeConverter::class, TimerTypeConverter::class)
-data class SessionEntity(
+data class PomodoroEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val type: TimerType,
@@ -28,8 +28,8 @@ data class SessionEntity(
 /**
  * Extension function to convert from entity to domain model
  */
-fun SessionEntity.toDomainModel(): TimerSession {
-    return TimerSession(
+fun PomodoroEntity.toDomainModel(): Pomodoro         {
+    return Pomodoro(
         id = id,
         type = type,
         durationMinutes = durationMinutes,
@@ -42,8 +42,8 @@ fun SessionEntity.toDomainModel(): TimerSession {
 /**
  * Extension function to convert from domain model to entity
  */
-fun TimerSession.toEntity(): SessionEntity {
-    return SessionEntity(
+fun Pomodoro.toEntity(): PomodoroEntity {
+    return PomodoroEntity(
         id = id,
         type = type,
         durationMinutes = durationMinutes,
