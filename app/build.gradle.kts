@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+
 android {
     namespace = "com.sultonuzdev.pft"
     //noinspection GradleDependency
@@ -17,8 +18,8 @@ android {
         applicationId = "com.sultonuzdev.pft"
         minSdk = 27
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,6 +30,17 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources=true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
+        debug {
+            isMinifyEnabled = true
+            isShrinkResources=true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -46,6 +58,7 @@ android {
     }
 
     buildFeatures {
+
         compose = true
     }
 
@@ -65,7 +78,6 @@ dependencies {
     // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.google.material)
     implementation(libs.androidx.activity.compose)
     // Lifecycle
     implementation(libs.bundles.lifecycle)

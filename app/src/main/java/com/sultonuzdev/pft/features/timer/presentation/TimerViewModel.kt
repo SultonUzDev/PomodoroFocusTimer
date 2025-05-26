@@ -34,7 +34,7 @@ import javax.inject.Inject
  * - Timer type change handling
  */
 @HiltViewModel
-class TimerViewModel @Inject constructor(
+class  TimerViewModel @Inject constructor(
     private val getTimerSettingsUseCase: GetTimerSettingsUseCase,
     private val saveTimerSessionUseCase: SaveTimerSessionUseCase,
     private val timerServiceManager: TimerServiceManager,
@@ -240,7 +240,7 @@ class TimerViewModel @Inject constructor(
         // Save incomplete session if it was a Pomodoro
         if (_uiState.value.currentType == TimerType.POMODORO && startTime != null) {
             Log.d("TimerViewModel", "Saving incomplete Pomodoro session")
-            saveSession(_uiState.value.currentType, false)
+            savePomodoro(_uiState.value.currentType, false)
         }
 
         startTime = null
@@ -255,7 +255,7 @@ class TimerViewModel @Inject constructor(
             startTime != null
         ) {
             Log.d("TimerViewModel", "Saving skipped Pomodoro session")
-            saveSession(_uiState.value.currentType, false)
+            savePomodoro(_uiState.value.currentType, false)
         }
 
         timerServiceManager.skipTimer()
@@ -287,7 +287,7 @@ class TimerViewModel @Inject constructor(
                 if (completedType == TimerType.POMODORO) {
                     Log.d("TimerViewModel", "Pomodoro completed - showing quote and saving session")
                     _effect.emit(TimerEffect.ShowQuote(quotes.random()))
-                    saveSession(completedType, true) // Save completed session
+                    savePomodoro(completedType, true) // Save completed session
                 } else {
                     Log.d("TimerViewModel", "Break completed - not saving session")
                 }
@@ -305,7 +305,7 @@ class TimerViewModel @Inject constructor(
         }
     }
 
-    private fun saveSession(timerType: TimerType, completed: Boolean) {
+    private fun savePomodoro(timerType: TimerType, completed: Boolean) {
         val currentStartTime = startTime
         if (currentStartTime == null) {
             Log.w("TimerViewModel", "Cannot save session - startTime is null")

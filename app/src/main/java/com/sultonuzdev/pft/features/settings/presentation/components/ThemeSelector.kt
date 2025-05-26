@@ -58,7 +58,6 @@ fun ThemeSelector(
         )
 
         ThemeModeOption(
-            themeMode = ThemeMode.SYSTEM,
             icon = Icons.Default.PhoneAndroid,
             label = "System Default",
             description = "Follow system theme settings",
@@ -67,7 +66,6 @@ fun ThemeSelector(
         )
 
         ThemeModeOption(
-            themeMode = ThemeMode.LIGHT,
             icon = Icons.Default.LightMode,
             label = "Light",
             description = "Always use light theme",
@@ -76,7 +74,6 @@ fun ThemeSelector(
         )
 
         ThemeModeOption(
-            themeMode = ThemeMode.DARK,
             icon = Icons.Default.DarkMode,
             label = "Dark",
             description = "Always use dark theme",
@@ -88,7 +85,6 @@ fun ThemeSelector(
 
 @Composable
 private fun ThemeModeOption(
-    themeMode: ThemeMode,
     icon: ImageVector,
     label: String,
     description: String,
