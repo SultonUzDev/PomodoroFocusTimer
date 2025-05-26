@@ -1,0 +1,1 @@
+Pomodoro Focus Timer does not collect, store, or share any personal or usage data. All timer settings and preferences are stored locally on your device and can be deleted at any time by uninstalling the app.
