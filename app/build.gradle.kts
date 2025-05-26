@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel
+
 // build.gradle.kts (app-level)
 plugins {
     alias(libs.plugins.android.application)
@@ -18,8 +20,8 @@ android {
         applicationId = "com.sultonuzdev.pft"
         minSdk = 27
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,6 +31,10 @@ android {
 
     buildTypes {
         release {
+
+            ndk {
+                debugSymbolLevel = DebugSymbolLevel.SYMBOL_TABLE.toString()
+            }
             isMinifyEnabled = true
             isShrinkResources=true
             proguardFiles(
@@ -38,8 +44,8 @@ android {
         }
 
         debug {
-            isMinifyEnabled = true
-            isShrinkResources=true
+            isMinifyEnabled = false
+            isShrinkResources=false
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

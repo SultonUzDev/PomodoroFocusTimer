@@ -17,7 +17,6 @@ sealed class SettingsIntent : UiIntent {
     data class UpdateSoundEnabled(val enabled: Boolean) : SettingsIntent()
     data class UpdateThemeMode(val themeMode: ThemeMode) : SettingsIntent()
     data class UpdateFocusModeEnabled(val enabled: Boolean) : SettingsIntent()
-    data class UpdateLanguage(val language: Language) : SettingsIntent()
     data object ResetToDefaults : SettingsIntent()
 
 }

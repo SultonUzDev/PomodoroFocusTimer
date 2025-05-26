@@ -7,11 +7,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.sultonuzdev.pft.core.data.db.AppDatabase
-import com.sultonuzdev.pft.features.settings.data.repository.LanguageRepositoryImpl
-import com.sultonuzdev.pft.features.settings.data.repository.ThemePreferencesRepositoryImpl
-import com.sultonuzdev.pft.features.settings.domain.repository.LanguageRepository
-import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
 import com.sultonuzdev.pft.core.util.Constants.DATABASE_NAME
+import com.sultonuzdev.pft.features.settings.data.repository.ThemePreferencesRepositoryImpl
+import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,10 +52,4 @@ object AppModule {
     @Provides
     fun provideThemeRepository(dataStore: DataStore<Preferences>): ThemePreferencesRepository =
         ThemePreferencesRepositoryImpl(dataStore)
-
-    @Provides
-    @Singleton
-    fun provideLanguageRepository(
-        languageRepositoryImpl: LanguageRepositoryImpl
-    ): LanguageRepository = languageRepositoryImpl
 }

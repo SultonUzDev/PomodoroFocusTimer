@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.Icon
@@ -58,7 +59,7 @@ fun ChartTypeToggle(
         ChartTypeButton(
             selected = selectedType == ChartType.LINE,
             onClick = { onTypeSelected(ChartType.LINE) },
-            icon = Icons.Default.ShowChart,
+            icon = Icons.AutoMirrored.Filled.ShowChart,
             label = "Line"
         )
     }

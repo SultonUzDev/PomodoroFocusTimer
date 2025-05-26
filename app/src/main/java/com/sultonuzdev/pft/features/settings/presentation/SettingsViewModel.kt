@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.core.util.Language
-import com.sultonuzdev.pft.features.settings.domain.repository.LanguageRepository
 import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
 import com.sultonuzdev.pft.features.settings.domain.repository.TimerSettingsRepository
 import com.sultonuzdev.pft.features.settings.presentation.utils.SettingsEffect
@@ -36,7 +35,6 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: TimerSettingsRepository,
     private val themePreferencesRepository: ThemePreferencesRepository,
-    private val languageRepository: LanguageRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -49,20 +47,8 @@ class SettingsViewModel @Inject constructor(
     init {
         loadSettings()
         loadThemeMode()
-        loadLanguage()
     }
 
-    private fun loadLanguage() {
-        viewModelScope.launch {
-            try {
-                languageRepository.getLanguageFlow().collectLatest { language ->
-                    _uiState.update { it.copy(selectedLanguage = language) }
-                }
-            } catch (e: Exception) {
-                // Handle error silently
-            }
-        }
-    }
 
     private fun loadThemeMode() {
         viewModelScope.launch {
@@ -143,33 +129,7 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
-            is SettingsIntent.UpdateLanguage -> {
-                viewModelScope.launch {
-                    try {
-                        val currentLanguage = _uiState.value.selectedLanguage
 
-                        // Only proceed if language is actually different
-                        if (intent.language != currentLanguage) {
-                            // Save the language preference
-                            languageRepository.setLanguage(intent.language)
-
-                            // Update local state
-                            _uiState.update { it.copy(selectedLanguage = intent.language) }
-
-                            // Show message
-                            _effect.emit(SettingsEffect.ShowMessage("Changing language..."))
-
-                            // Small delay to show the message
-                            delay(800)
-
-                            // Recreate the activity to apply language change
-                            recreateActivity()
-                        }
-                    } catch (e: Exception) {
-                        _effect.emit(SettingsEffect.ShowMessage("Failed to change language"))
-                    }
-                }
-            }
 
             is SettingsIntent.ResetToDefaults -> {
                 viewModelScope.launch {
@@ -185,7 +145,6 @@ class SettingsViewModel @Inject constructor(
                         val systemLanguage = Language.getSystemLanguage()
                         val currentLanguage = _uiState.value.selectedLanguage
 
-                        languageRepository.setLanguage(systemLanguage)
 
                         // Update UI state
                         _uiState.update {

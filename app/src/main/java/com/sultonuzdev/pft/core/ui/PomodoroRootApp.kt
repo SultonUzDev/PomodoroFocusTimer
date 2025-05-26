@@ -3,17 +3,9 @@ package com.sultonuzdev.pft.core.ui
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
-import com.sultonuzdev.pft.core.util.Language
-import com.sultonuzdev.pft.core.language.LanguageManager
 import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
-
 
 
 @Composable

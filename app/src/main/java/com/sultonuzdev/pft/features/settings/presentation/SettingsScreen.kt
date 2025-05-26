@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
@@ -102,9 +103,7 @@ fun SettingsScreenRoot(
         updateThemeMode = { themeMode ->
             settingsViewModel.processIntent(SettingsIntent.UpdateThemeMode(themeMode))
         },
-        updateLanguage = { language ->
-            settingsViewModel.processIntent(SettingsIntent.UpdateLanguage(language))
-        },
+
         onResetDefaults = {
             showResetDialog = true
         }
@@ -153,7 +152,6 @@ private fun SettingsScreenPreview() {
             updateSoundEnabled = {},
             updateFocusModeEnabled = {},
             updateThemeMode = {},
-            updateLanguage = {},
             onResetDefaults = {}
         )
     }
@@ -174,7 +172,6 @@ fun SettingsScreen(
     updateSoundEnabled: (Boolean) -> Unit,
     updateFocusModeEnabled: (Boolean) -> Unit,
     updateThemeMode: (ThemeMode) -> Unit,
-    updateLanguage: (Language) -> Unit,
     onResetDefaults: () -> Unit
 ) {
     Scaffold(
@@ -184,7 +181,7 @@ fun SettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
                         )
                     }
