@@ -1,6 +1,7 @@
 package com.sultonuzdev.pft.features.timer.presentation
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -456,12 +457,7 @@ private fun TimerStatusDisplay(
     timerState: TimerState,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
-    ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -487,7 +483,6 @@ private fun TimerStatusDisplay(
                 }
             )
 
-        }
     }
 }
 
