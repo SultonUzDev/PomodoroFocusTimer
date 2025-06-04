@@ -91,4 +91,4 @@ SOFTWARE.
 
 ```
 
-Made with ❤️ using Kotlin and Jetpack Compose.
+Made with SultonUzdev using Kotlin and Jetpack Compose.
