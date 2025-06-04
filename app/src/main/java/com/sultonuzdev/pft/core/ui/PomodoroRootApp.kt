@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
-import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
+import com.sultonuzdev.pft.domain.repository.ThemePreferencesRepository
 
 
 @Composable

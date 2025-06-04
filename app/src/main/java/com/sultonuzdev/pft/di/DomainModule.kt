@@ -1,10 +1,10 @@
 package com.sultonuzdev.pft.di
 
 
-import com.sultonuzdev.pft.features.settings.domain.repository.TimerSettingsRepository
-import com.sultonuzdev.pft.features.stats.data.repository.PomodoroRepository
-import com.sultonuzdev.pft.features.timer.domain.usecase.GetTimerSettingsUseCase
-import com.sultonuzdev.pft.features.timer.domain.usecase.SaveTimerSessionUseCase
+import com.sultonuzdev.pft.domain.repository.TimerSettingsRepository
+import com.sultonuzdev.pft.domain.repository.PomodoroRepository
+import com.sultonuzdev.pft.domain.usecase.GetTimerSettingsUseCase
+import com.sultonuzdev.pft.domain.usecase.SaveTimerSessionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

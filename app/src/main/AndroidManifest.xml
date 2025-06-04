@@ -31,7 +31,7 @@
         </activity>
 
         <service
-            android:name=".service.TimerService"
+            android:name=".presentation.service.TimerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse">

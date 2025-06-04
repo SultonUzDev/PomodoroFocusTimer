@@ -1,4 +1,3 @@
-// com.sultonuzdev.pft.AppTheme.kt
 package com.sultonuzdev.pft.core.ui.theme
 
 import android.os.Build

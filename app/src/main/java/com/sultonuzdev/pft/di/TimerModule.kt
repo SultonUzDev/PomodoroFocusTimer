@@ -1,7 +1,7 @@
 package com.sultonuzdev.pft.di
 
 import android.content.Context
-import com.sultonuzdev.pft.service.TimerServiceManager
+import com.sultonuzdev.pft.presentation.service.TimerServiceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

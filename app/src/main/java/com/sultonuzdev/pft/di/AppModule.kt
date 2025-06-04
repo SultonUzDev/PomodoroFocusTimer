@@ -6,10 +6,10 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.sultonuzdev.pft.core.data.db.AppDatabase
+import com.sultonuzdev.pft.data.db.AppDatabase
 import com.sultonuzdev.pft.core.util.Constants.DATABASE_NAME
-import com.sultonuzdev.pft.features.settings.data.repository.ThemePreferencesRepositoryImpl
-import com.sultonuzdev.pft.features.settings.domain.repository.ThemePreferencesRepository
+import com.sultonuzdev.pft.data.repository.ThemePreferencesRepositoryImpl
+import com.sultonuzdev.pft.domain.repository.ThemePreferencesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
