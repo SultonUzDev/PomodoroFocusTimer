@@ -171,7 +171,7 @@ fun StatsScreen(
                 title = {
                     Text(
                         "Statistics",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
                     )
                 },
                 navigationIcon = {

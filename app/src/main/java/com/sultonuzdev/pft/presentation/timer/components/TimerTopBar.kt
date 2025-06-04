@@ -38,8 +38,8 @@ fun TimerTopBar(
     TopAppBar(
         title = {
             Text(
-                "Pomodoro Focus Timer",
-                style = MaterialTheme.typography.titleLarge,
+               text =  "Pomodoro Focus Timer",
+                style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             )
         },
         actions = {
