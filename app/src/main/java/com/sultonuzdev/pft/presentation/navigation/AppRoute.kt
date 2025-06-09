@@ -16,7 +16,4 @@ sealed class AppRoute {
 
     @Serializable
     data object SETTINGS : AppRoute()
-
-
-
 }
