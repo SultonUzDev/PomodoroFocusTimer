@@ -1,6 +1,7 @@
 package com.sultonuzdev.pft.domain.repository
 
 
+import com.sultonuzdev.pft.domain.model.DailyStats
 import com.sultonuzdev.pft.domain.model.TodayStats
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -8,6 +9,12 @@ import java.time.LocalDate
 interface StatsRepository {
 
     fun getTodayStatsFlow(): Flow<TodayStats>
+    
+    fun getWeeklyStats(startDate: LocalDate): Flow<List<DailyStats>>
+    
+    fun getTotalCompletedPomodoros(): Flow<Int>
+    
+    fun getTotalFocusMinutes(): Flow<Int>
 
 
 

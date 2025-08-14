@@ -1,6 +1,10 @@
 package com.sultonuzdev.pft.di
 
 import android.content.Context
+import com.sultonuzdev.pft.domain.repository.PomodoroRepository
+import com.sultonuzdev.pft.domain.repository.TimerSettingsRepository
+import com.sultonuzdev.pft.domain.usecase.GetTimerSettingsUseCase
+import com.sultonuzdev.pft.domain.usecase.SaveTimerSessionUseCase
 import com.sultonuzdev.pft.presentation.service.TimerServiceManager
 import dagger.Module
 import dagger.Provides
@@ -19,5 +23,21 @@ object TimerModule {
         @ApplicationContext context: Context
     ): TimerServiceManager {
         return TimerServiceManager(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetTimerSettingsUseCaseSingleton(
+        repository: TimerSettingsRepository
+    ): GetTimerSettingsUseCase {
+        return GetTimerSettingsUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaveTimerSessionUseCaseSingleton(
+        repository: PomodoroRepository
+    ): SaveTimerSessionUseCase {
+        return SaveTimerSessionUseCase(repository)
     }
 }

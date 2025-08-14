@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.repository.PomodoroRepository
+import com.sultonuzdev.pft.domain.repository.StatsRepository
 import com.sultonuzdev.pft.presentation.stats.utils.StatsEffect
 import com.sultonuzdev.pft.presentation.stats.utils.StatsIntent
 import com.sultonuzdev.pft.presentation.stats.utils.StatsUiState
@@ -20,9 +21,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
-import java.time.temporal.WeekFields
-import java.util.Locale
+import java.time.DayOfWeek
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 /**
@@ -30,7 +30,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val pomodoroRepository: PomodoroRepository
+    private val pomodoroRepository: PomodoroRepository,
+    private val statsRepository: StatsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StatsUiState())
@@ -154,7 +155,7 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                pomodoroRepository.getWeeklyStats(startDate).collectLatest { weekStats ->
+                statsRepository.getWeeklyStats(startDate).collectLatest { weekStats ->
                     _uiState.update {
                         it.copy(
                             weeklyStats = weekStats, isLoading = false
@@ -180,21 +181,12 @@ class StatsViewModel @Inject constructor(
     private fun calculateAggregateStats() {
         viewModelScope.launch {
             try {
-                val allSessions = pomodoroRepository.getAllPomodoros().first()
-
-                // Calculate total completed pomodoros
-                val totalPomodoros = allSessions.count {
-                    it.type == TimerType.POMODORO && it.completed
-                }
-
-                // Calculate total focus minutes
-                val totalMinutes = allSessions.filter { it.type == TimerType.POMODORO }.sumOf {
-                    val minutes = ChronoUnit.MINUTES.between(it.startTime, it.endTime)
-                    Log.d("mlog", "Overall totalFocusMinutes: $minutes ")
-                    minutes.toInt()
-                }
+                // Use StatsRepository methods for aggregate calculations
+                val totalPomodoros = statsRepository.getTotalCompletedPomodoros().first()
+                val totalMinutes = statsRepository.getTotalFocusMinutes().first()
 
                 // Calculate average daily focus minutes (only for days that have sessions)
+                val allSessions = pomodoroRepository.getAllPomodoros().first()
                 val distinctDays = allSessions.map { it.startTime.toLocalDate() }.distinct().count()
 
                 val avgDailyMinutes = if (distinctDays > 0) {
@@ -220,15 +212,9 @@ class StatsViewModel @Inject constructor(
 
     /**
      * Get the start date of a week containing the provided date
+     * Uses Monday as the first day of the week for consistency
      */
     private fun getStartOfWeek(date: LocalDate): LocalDate {
-        val weekFields = WeekFields.of(Locale.getDefault())
-        val firstDayOfWeek = weekFields.firstDayOfWeek
-
-        // Find how many days to subtract to get back to the first day of the week
-        val currentDayOfWeek = date.dayOfWeek
-        val daysDifference = (7 + (currentDayOfWeek.value - firstDayOfWeek.value)) % 7
-
-        return date.minusDays(daysDifference.toLong())
+        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
 }

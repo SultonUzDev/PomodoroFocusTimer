@@ -13,11 +13,6 @@ import com.sultonuzdev.pft.presentation.timer.TimerScreenRoot
 /**
  * Main navigation graph composable
  */
-
-
-/**
- * Main navigation graph composable
- */
 @Composable
 fun SetUpNavGraph(
     navController: NavHostController,

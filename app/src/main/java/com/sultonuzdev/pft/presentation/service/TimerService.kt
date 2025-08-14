@@ -20,6 +20,7 @@ import com.sultonuzdev.pft.core.util.calculateProgress
 import com.sultonuzdev.pft.core.util.formatToMinutesAndSeconds
 import com.sultonuzdev.pft.domain.model.TimerSettings
 import com.sultonuzdev.pft.domain.usecase.GetTimerSettingsUseCase
+import com.sultonuzdev.pft.domain.usecase.SaveTimerSessionUseCase
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_PAUSE
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_RESUME
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_SKIP
@@ -55,6 +56,9 @@ class TimerService : Service() {
 
     @Inject
     lateinit var getTimerSettingsUseCase: GetTimerSettingsUseCase
+
+    @Inject
+    lateinit var saveTimerSessionUseCase: SaveTimerSessionUseCase
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
     private var timerJob: Job? = null
@@ -180,6 +184,25 @@ class TimerService : Service() {
         timerJob = null
 
         val currentType = _currentTimerType.value
+        val sessionStartTime = startTime
+
+        // Save session to database if it was a Pomodoro
+        if (currentType == TimerType.POMODORO && sessionStartTime != null) {
+            serviceScope.launch {
+                try {
+                    saveTimerSessionUseCase(
+                        type = currentType,
+                        durationMinutes = currentSettings.pomodoroMinutes,
+                        completed = true,
+                        startTime = sessionStartTime,
+                        endTime = LocalDateTime.now()
+                    )
+                    Log.d(TAG, "Completed Pomodoro session saved to database")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to save completed session", e)
+                }
+            }
+        }
 
         // Update state
         _timerState.value = TimerState.COMPLETED
@@ -212,6 +235,27 @@ class TimerService : Service() {
         timerJob?.cancel()
         timerJob = null
 
+        val currentType = _currentTimerType.value
+        val sessionStartTime = startTime
+
+        // Save session to database if it was a Pomodoro (marked as completed since user manually skipped)
+        if (currentType == TimerType.POMODORO && sessionStartTime != null) {
+            serviceScope.launch {
+                try {
+                    saveTimerSessionUseCase(
+                        type = currentType,
+                        durationMinutes = currentSettings.pomodoroMinutes,
+                        completed = true, // Count skipped as completed
+                        startTime = sessionStartTime,
+                        endTime = LocalDateTime.now()
+                    )
+                    Log.d(TAG, "Skipped Pomodoro session saved to database")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to save skipped session", e)
+                }
+            }
+        }
+
         // Mark as completed
         _timerState.value = TimerState.COMPLETED
         _remainingTimeMillis.value = 0
@@ -219,7 +263,7 @@ class TimerService : Service() {
         _progressFraction.value = 1.0f
 
         // Update completed count if it was a Pomodoro
-        if (_currentTimerType.value == TimerType.POMODORO) {
+        if (currentType == TimerType.POMODORO) {
             _completedPomodoros.value += 1 // Lifetime total
             _currentSessionPomodoros.value += 1 // Current session
             Log.d(TAG, "Pomodoro skipped - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}")

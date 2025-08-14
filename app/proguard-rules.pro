@@ -114,3 +114,7 @@
 ############## Optional Debugging Helps ##############
 # Keep ViewModels for easier debugging
 -keep class *ViewModel { *; }
+
+############## Error Prone Annotations ##############
+# Suppress warnings for Google Error Prone annotations that might be missing at runtime
+-dontwarn com.google.errorprone.annotations.MustBeClosed

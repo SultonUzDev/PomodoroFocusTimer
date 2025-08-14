@@ -13,24 +13,12 @@ import dagger.hilt.android.scopes.ViewModelScoped
 
 /**
  * Hilt module for providing domain layer dependencies
+ * Use cases are now provided in SingletonComponent (TimerModule) for broader access
  */
 @Module
 @InstallIn(ViewModelComponent::class)
 object DomainModule {
 
-    @Provides
-    @ViewModelScoped
-    fun provideGetTimerSettingsUseCase(
-        repository: TimerSettingsRepository
-    ): GetTimerSettingsUseCase {
-        return GetTimerSettingsUseCase(repository)
-    }
+    // Use cases moved to TimerModule for singleton access by both ViewModels and Services
 
-    @Provides
-    @ViewModelScoped
-    fun provideSaveTimerSessionUseCase(
-        repository: PomodoroRepository
-    ): SaveTimerSessionUseCase {
-        return SaveTimerSessionUseCase(repository)
-    }
 }

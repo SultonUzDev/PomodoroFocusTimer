@@ -48,11 +48,11 @@ import com.sultonuzdev.pft.domain.model.TimerSettings
 import com.sultonuzdev.pft.domain.model.TodayStats
 import com.sultonuzdev.pft.presentation.timer.components.CircularTimer
 import com.sultonuzdev.pft.presentation.timer.components.NotificationPermissionHandler
-import com.sultonuzdev.pft.presentation.timer.components.SessionSummary
-import com.sultonuzdev.pft.presentation.timer.components.TimerControls
+import com.sultonuzdev.pft.presentation.timer.components.SimpleTimerControls
 import com.sultonuzdev.pft.presentation.timer.components.TimerEffectsHandler
 import com.sultonuzdev.pft.presentation.timer.components.TimerTopBar
 import com.sultonuzdev.pft.presentation.timer.components.TimerTypeTabs
+import com.sultonuzdev.pft.presentation.timer.components.TodayProgressCard
 import com.sultonuzdev.pft.presentation.timer.utils.TimerIntent
 import com.sultonuzdev.pft.presentation.timer.utils.TimerUiState
 
@@ -273,11 +273,10 @@ private fun PhoneTimerLayout(
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
     ) {
         // Session Summary
-        SessionSummary(
+        TodayProgressCard(
             currentSessionPomodoros = uiState.currentSessionPomodoros,
             pomodoroCycleLength = uiState.settings.pomodoroCycleLength,
-            todayPomodoros = uiState.todayStats.completedPomodoros,
-            todayFocusTimeMinutes = uiState.todayStats.focusTimeMinutes,
+            todayStats = uiState.todayStats,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -322,7 +321,7 @@ private fun PhoneTimerLayout(
 
 
         // Timer Controls
-        TimerControls(
+        SimpleTimerControls(
             timerState = uiState.timerState,
             onStartClick = onStartClick,
             onPauseClick = onPauseClick,
@@ -382,6 +381,7 @@ private fun TabletTimerLayout(
             // Circular timer with enhanced visual feedback
             CircularTimer(
                 modifier = Modifier
+                    .padding(16.dp)
                     .fillMaxWidth(0.7f)
                     .aspectRatio(1f),
                 progress = uiState.progressFraction,
@@ -391,7 +391,7 @@ private fun TabletTimerLayout(
 
 
             // Timer Controls
-            TimerControls(
+            SimpleTimerControls(
                 timerState = uiState.timerState,
                 onStartClick = onStartClick,
                 onPauseClick = onPauseClick,
@@ -411,15 +411,12 @@ private fun TabletTimerLayout(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)
         ) {
-            // Session Summary
-            SessionSummary(
+
+            TodayProgressCard(
                 currentSessionPomodoros = uiState.currentSessionPomodoros,
                 pomodoroCycleLength = uiState.settings.pomodoroCycleLength,
-                todayPomodoros = uiState.todayStats.completedPomodoros,
-                todayFocusTimeMinutes = uiState.todayStats.focusTimeMinutes,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-
+                todayStats = uiState.todayStats,
+                modifier = Modifier.fillMaxWidth(0.9f)
             )
 
             Text(
