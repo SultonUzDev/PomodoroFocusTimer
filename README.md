@@ -64,9 +64,9 @@ cd PomodoroFocusTimer
 
 <div align="center">
   <img src="img/img1.png" width="200" />
+  <img src="img/img1_1.png" width="200" />
   <img src="img/img4.png" width="200" />
   <img src="img/img5.png" width="200" />
-  <img src="img/img6.png" width="200" />
 </div>
 
 
