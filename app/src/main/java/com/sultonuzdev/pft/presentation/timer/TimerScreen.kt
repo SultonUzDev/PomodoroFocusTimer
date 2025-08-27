@@ -364,6 +364,7 @@ private fun TabletTimerLayout(
     Row(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Start),
         verticalAlignment = Alignment.CenterVertically
@@ -406,8 +407,7 @@ private fun TabletTimerLayout(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState()),
+                .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)
         ) {
