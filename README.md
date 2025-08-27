@@ -63,10 +63,10 @@ cd PomodoroFocusTimer
 ## ✦ Screenshots
 
 <div align="center">
-  <img src="img/image1.jpeg" width="678"  alt=""/>
-  <img src="img/image1_2.jpeg" width="678" />
-  <img src="img/image1_3.jpeg" width="678" />
-  <img src="img/image1_4.jpeg" width="678" />
+  <img src="img/image1.jpeg" width="200"  alt=""/>
+  <img src="img/image1_2.jpeg" width="200" />
+  <img src="img/image1_3.jpeg" width="200" />
+  <img src="img/image1_4.jpeg" width="200" />
   <img src="img/feature_graphic.png" width="1024"  alt=""/>
 </div>
 
