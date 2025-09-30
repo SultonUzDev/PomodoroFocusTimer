@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -44,8 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.domain.model.TimerSettings
-import com.sultonuzdev.pft.domain.model.TodayStats
+import com.sultonuzdev.pft.domain.model.DailyStats
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.presentation.timer.components.CircularTimer
 import com.sultonuzdev.pft.presentation.timer.components.NotificationPermissionHandler
 import com.sultonuzdev.pft.presentation.timer.components.SimpleTimerControls
@@ -55,6 +58,7 @@ import com.sultonuzdev.pft.presentation.timer.components.TimerTypeTabs
 import com.sultonuzdev.pft.presentation.timer.components.TodayProgressCard
 import com.sultonuzdev.pft.presentation.timer.utils.TimerIntent
 import com.sultonuzdev.pft.presentation.timer.utils.TimerUiState
+import java.time.LocalDate
 
 /**
  * Root composable for the Timer screen that handles ViewModel integration and navigation
@@ -145,11 +149,13 @@ private fun TimerScreenPreview() {
                 progressFraction = 1.0f,
                 formattedTime = "25:00",
                 currentSessionPomodoros = 2,
-                todayStats = TodayStats(
+                todayStats = DailyStats(
                     completedPomodoros = 8,
-                    focusTimeMinutes = 122
+                    totalFocusMinutes = 122,
+                    date = LocalDate.now()
+
                 ),
-                settings = TimerSettings(
+                settings = PomodoroTimerSettings(
                     pomodoroMinutes = 25,
                     shortBreakMinutes = 5,
                     longBreakMinutes = 15,
@@ -194,7 +200,8 @@ fun TimerScreen(
                 navigateToStats = navigateToStats
             )
         },
-        snackbarHost = { SnackbarHost(feedbackDisplay) }
+        snackbarHost = { SnackbarHost(feedbackDisplay) },
+        contentWindowInsets = WindowInsets.safeDrawing
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -538,7 +545,7 @@ private fun FocusModeIndicator(
 @Composable
 private fun TipsAndEncouragement(
     timerState: TimerState,
-    todayStats: TodayStats,
+    todayStats: DailyStats,
     modifier: Modifier = Modifier
 ) {
     if (timerState == TimerState.IDLE) {

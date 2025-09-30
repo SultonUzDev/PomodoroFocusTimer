@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -80,7 +83,7 @@ fun StatsScreenRoot(
     viewModel: StatsViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
 
-) {
+    ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -210,10 +213,15 @@ fun StatsScreen(
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets.safeDrawing
     ) { paddingValues ->
 
-        Column(modifier = modifier.padding(paddingValues)) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             HorizontalDivider(thickness = 2.dp)
             if (uiState.isLoading) {
                 Box(

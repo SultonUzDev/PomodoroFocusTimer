@@ -2,15 +2,16 @@ package com.sultonuzdev.pft.presentation.timer.utils
 
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.domain.model.TimerSettings
-import com.sultonuzdev.pft.domain.model.TodayStats
+import com.sultonuzdev.pft.domain.model.DailyStats
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
+import java.time.LocalDate
 
 /**
  * UI state for the Timer screen with enhanced statistics
  */
 data class TimerUiState(
     // Timer state
-    val settings: TimerSettings = TimerSettings(),
+    val settings: PomodoroTimerSettings = PomodoroTimerSettings(),
     val currentType: TimerType = TimerType.POMODORO,
     val timerState: TimerState = TimerState.IDLE,
     val totalTimeMillis: Long = 25 * 60 * 1000L,
@@ -23,7 +24,11 @@ data class TimerUiState(
     val currentSessionPomodoros: Int = 0,
 
     // Today's statistics
-    val todayStats: TodayStats = TodayStats(),
+    val todayStats: DailyStats = DailyStats(
+        date = LocalDate.now(),
+        completedPomodoros = 0,
+        totalFocusMinutes = 0
+    ),
 
 
 

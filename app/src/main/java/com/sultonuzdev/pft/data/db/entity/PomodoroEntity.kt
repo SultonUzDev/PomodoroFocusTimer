@@ -1,4 +1,3 @@
-// com.sultonuzdev.pft.features.stats.data.entity.SessionEntity.kt
 package com.sultonuzdev.pft.data.db.entity
 
 import androidx.room.Entity
@@ -7,21 +6,21 @@ import androidx.room.TypeConverters
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.data.db.converter.DateTimeConverter
 import com.sultonuzdev.pft.data.db.converter.TimerTypeConverter
-import com.sultonuzdev.pft.domain.model.Pomodoro
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 /**
  * Room entity for timer sessions
  */
 @Entity(tableName = "pomodoros")
-@TypeConverters(DateTimeConverter::class, TimerTypeConverter::class)
+@TypeConverters(TimerTypeConverter::class)
 data class PomodoroEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val type: TimerType,
-    val durationMinutes: Int,
-    val completed: Boolean,
-        val startTime: LocalDateTime,
-    val endTime: LocalDateTime
+    val timerType: TimerType,             // FOCUS, SHORT_BREAK, LONG_BREAK
+    val plannedDurationSeconds: Long,      // scheduled session length in seconds
+    val focusedDurationSeconds: Long,      // how much time was actually focused
+
+    val isCompleted: Boolean,             // true if session ran fully
+    val startedAt: String,           // session start timestamp
 )
 

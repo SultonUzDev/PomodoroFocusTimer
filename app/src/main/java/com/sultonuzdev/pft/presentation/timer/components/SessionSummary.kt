@@ -26,7 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.util.formatFocusTime
-import com.sultonuzdev.pft.domain.model.TodayStats
+import com.sultonuzdev.pft.domain.model.DailyStats
+import java.time.LocalDate
 
 @Preview(showBackground = true)
 @Composable
@@ -40,9 +41,13 @@ private fun SessionSummaryPreview() {
         ) {
             // TodayProgressCard states to preview
             TodayProgressCard(
-                todayStats = TodayStats(),
+                todayStats = DailyStats(
+                    completedPomodoros = 10,
+                    totalFocusMinutes = 60,
+                    date = LocalDate.now()
+                ),
                 currentSessionPomodoros = 4,
-                pomodoroCycleLength =3
+                pomodoroCycleLength = 3
             )
         }
     }
@@ -50,7 +55,7 @@ private fun SessionSummaryPreview() {
 
 @Composable
 fun TodayProgressCard(
-    todayStats: TodayStats,
+    todayStats: DailyStats,
     currentSessionPomodoros: Int,
     pomodoroCycleLength: Int,
     modifier: Modifier = Modifier
@@ -87,7 +92,7 @@ fun TodayProgressCard(
                     icon = "🍅"
                 )
                 ProgressItem(
-                    value = "${todayStats.focusTimeMinutes}m",
+                    value = "${todayStats.totalFocusMinutes}m",
                     label = "Focus Time",
                     icon = "⏰"
                 )
@@ -130,6 +135,7 @@ private fun ProgressItem(
         )
     }
 }
+
 /**
  * Enhanced SessionSummary with clearer session progress explanation
  */

@@ -35,7 +35,6 @@ import java.time.format.DateTimeFormatter
  */
 
 
-
 @Composable
 fun SessionHistoryItem(
     session: Pomodoro,
@@ -54,7 +53,7 @@ fun SessionHistoryItem(
                 .size(48.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(
-                    when (session.type) {
+                    when (session.timerType) {
                         TimerType.POMODORO -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         TimerType.SHORT_BREAK -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
                         TimerType.LONG_BREAK -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
@@ -63,13 +62,13 @@ fun SessionHistoryItem(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = when (session.type) {
-                    TimerType.POMODORO -> if (session.completed) Icons.Default.Check else Icons.Default.Close
+                imageVector = when (session.timerType) {
+                    TimerType.POMODORO -> if (session.isCompleted) Icons.Default.Check else Icons.Default.Close
                     TimerType.SHORT_BREAK -> Icons.Default.Coffee
                     TimerType.LONG_BREAK -> Icons.Default.Weekend
                 },
                 contentDescription = null,
-                tint = when (session.type) {
+                tint = when (session.timerType) {
                     TimerType.POMODORO -> MaterialTheme.colorScheme.primary
                     TimerType.SHORT_BREAK -> MaterialTheme.colorScheme.tertiary
                     TimerType.LONG_BREAK -> MaterialTheme.colorScheme.secondary
@@ -82,7 +81,7 @@ fun SessionHistoryItem(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = when (session.type) {
+                text = when (session.timerType) {
                     TimerType.POMODORO -> "Pomodoro"
                     TimerType.SHORT_BREAK -> "Short Break"
                     TimerType.LONG_BREAK -> "Long Break"
@@ -91,7 +90,7 @@ fun SessionHistoryItem(
             )
 
             Text(
-                text = "${session.durationMinutes} minutes ${if (session.completed) "completed" else "interrupted"}",
+                text = "${session.plannedDurationSeconds} minutes ${if (session.isCompleted) "completed" else "interrupted"}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -99,13 +98,13 @@ fun SessionHistoryItem(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = session.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                text = session.startedAt.format(DateTimeFormatter.ofPattern("HH:mm")),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Medium
             )
 
             Text(
-                text = session.startTime.format(DateTimeFormatter.ofPattern("E, MMM d")),
+                text = session.startedAt.format(DateTimeFormatter.ofPattern("E, MMM d")),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

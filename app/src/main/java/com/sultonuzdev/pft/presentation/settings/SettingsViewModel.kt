@@ -1,21 +1,14 @@
 package com.sultonuzdev.pft.presentation.settings
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
-import com.sultonuzdev.pft.core.util.Language
-import com.sultonuzdev.pft.domain.repository.ThemePreferencesRepository
-import com.sultonuzdev.pft.domain.repository.TimerSettingsRepository
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
+import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsEffect
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsIntent
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsUiState
-import com.sultonuzdev.pft.domain.model.TimerSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,9 +26,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: TimerSettingsRepository,
-    private val themePreferencesRepository: ThemePreferencesRepository,
-    @ApplicationContext private val context: Context
+    private val pomodoroUseCases: PomodoroUseCases,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -53,7 +44,7 @@ class SettingsViewModel @Inject constructor(
     private fun loadThemeMode() {
         viewModelScope.launch {
             try {
-                themePreferencesRepository.getThemeMode().collectLatest { themeMode ->
+                pomodoroUseCases.getThemeMode().collectLatest { themeMode ->
                     _uiState.update { it.copy(themeMode = themeMode) }
                 }
             } catch (e: Exception) {
@@ -67,7 +58,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                settingsRepository.getSettings().collectLatest { settings ->
+                pomodoroUseCases.getPomodoroSetting().collectLatest { settings ->
                     _uiState.update {
                         it.copy(
                             settings = settings,
@@ -120,7 +111,7 @@ class SettingsViewModel @Inject constructor(
             is SettingsIntent.UpdateThemeMode -> {
                 viewModelScope.launch {
                     try {
-                        themePreferencesRepository.setThemeMode(intent.themeMode)
+                        pomodoroUseCases.updateThemeMode(intent.themeMode)
                         _uiState.update { it.copy(themeMode = intent.themeMode) }
                         _effect.emit(SettingsEffect.ShowMessage("Theme updated"))
                     } catch (e: Exception) {
@@ -130,20 +121,15 @@ class SettingsViewModel @Inject constructor(
             }
 
 
-
             is SettingsIntent.ResetToDefaults -> {
                 viewModelScope.launch {
                     try {
                         // Reset to default settings
-                        val defaultSettings = TimerSettings()
-                        settingsRepository.updateSettings(defaultSettings)
+                        val defaultSettings = PomodoroTimerSettings()
+                        pomodoroUseCases.updatePomodoroSettings(defaultSettings)
 
                         // Reset theme to system default
-                        themePreferencesRepository.setThemeMode(ThemeMode.SYSTEM)
-
-                        // Reset language to system default
-                        val systemLanguage = Language.Companion.getSystemLanguage()
-                        val currentLanguage = _uiState.value.selectedLanguage
+                        pomodoroUseCases.updateThemeMode(ThemeMode.SYSTEM)
 
 
                         // Update UI state
@@ -151,18 +137,11 @@ class SettingsViewModel @Inject constructor(
                             it.copy(
                                 settings = defaultSettings,
                                 themeMode = ThemeMode.SYSTEM,
-                                selectedLanguage = systemLanguage
                             )
                         }
 
                         // Show message
                         _effect.emit(SettingsEffect.ShowMessage("Settings reset to defaults"))
-
-                        // Recreate activity if language changed
-                        if (systemLanguage != currentLanguage) {
-                            delay(800)
-                            recreateActivity()
-                        }
                     } catch (e: Exception) {
                         _effect.emit(SettingsEffect.ShowMessage("Failed to reset settings"))
                     }
@@ -171,7 +150,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun updateSettings(update: (TimerSettings) -> TimerSettings) {
+    private fun updateSettings(update: (PomodoroTimerSettings) -> PomodoroTimerSettings) {
         viewModelScope.launch {
             try {
                 val currentSettings = _uiState.value.settings
@@ -181,7 +160,7 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(settings = newSettings) }
 
                 // Persist settings
-                settingsRepository.updateSettings(newSettings)
+                pomodoroUseCases.updatePomodoroSettings(newSettings)
 
                 // Show success message
                 _effect.emit(SettingsEffect.ShowMessage("Settings updated"))
@@ -190,34 +169,5 @@ class SettingsViewModel @Inject constructor(
                 _effect.emit(SettingsEffect.ShowMessage("Failed to update settings: ${e.message}"))
             }
         }
-    }
-
-    /**
-     * Find and recreate the current activity
-     */
-    private fun recreateActivity() {
-        try {
-            val activity = findActivity(context)
-            activity?.recreate()
-        } catch (e: Exception) {
-            // If recreation fails, show a message to manually restart
-            viewModelScope.launch {
-                _effect.emit(SettingsEffect.ShowMessage("Please restart the app to apply language changes"))
-            }
-        }
-    }
-
-    /**
-     * Find the activity from the context
-     */
-    private fun findActivity(context: Context): Activity? {
-        var ctx = context
-        while (ctx is ContextWrapper) {
-            if (ctx is Activity) {
-                return ctx
-            }
-            ctx = ctx.baseContext
-        }
-        return null
     }
 }

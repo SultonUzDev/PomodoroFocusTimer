@@ -15,8 +15,8 @@ android {
         applicationId = "com.sultonuzdev.pft"
         minSdk = 27
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -37,29 +37,15 @@ android {
         }
 
         debug {
-            // ✅ ADDED: Debug symbols for debug builds too
             ndk {
                 debugSymbolLevel = "FULL"
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
 
-    // ✅ ADDED: Bundle configuration for better Play Console integration
     bundle {
         abi {
             enableSplit = true
-        }
-        // Enable code transparency for better security analysis
-        codeTransparency {
-            signing {
-                // This will be configured automatically by Play Console
-            }
         }
     }
 
@@ -74,12 +60,6 @@ android {
 
     buildFeatures {
         compose = true
-        // ✅ ADDED: Explicitly disable unused features for smaller APK
-        buildConfig = false
-        aidl = false
-        renderScript = false
-        resValues = false
-        shaders = false
     }
 
     composeOptions {
@@ -89,37 +69,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            // ✅ ADDED: Additional exclusions for smaller APK
-            excludes += "/META-INF/DEPENDENCIES"
-            excludes += "/META-INF/LICENSE"
-            excludes += "/META-INF/LICENSE.txt"
-            excludes += "/META-INF/license.txt"
-            excludes += "/META-INF/NOTICE"
-            excludes += "/META-INF/NOTICE.txt"
-            excludes += "/META-INF/notice.txt"
-            excludes += "/META-INF/ASL2.0"
-            excludes += "/META-INF/*.kotlin_module"
-        }
-    }
-
-    // ✅ ADDED: Lint configuration for better code quality
-    lint {
-        // Disable checks that are not relevant for this project
-        disable += "MissingTranslation"
-        disable += "ExtraTranslation"
-        // Enable important checks
-        enable += "RtlHardcoded"
-        enable += "RtlCompat"
-        enable += "RtlEnabled"
-        // Treat warnings as errors for release builds
-        warningsAsErrors = false
-        abortOnError = false
-    }
-
-    // ✅ ADDED: Test options for better testing
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
         }
     }
 }

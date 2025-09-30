@@ -2,7 +2,7 @@ package com.sultonuzdev.pft.data.db.converter
 
 import android.annotation.SuppressLint
 import androidx.room.TypeConverter
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
@@ -14,13 +14,13 @@ class DateTimeConverter {
 
     @SuppressLint("NewApi")
     @TypeConverter
-    fun fromString(value: String?): LocalDateTime? {
-        return value?.let { LocalDateTime.parse(it, formatter) }
+    fun fromString(value: String?): LocalDate? {
+        return value?.let { LocalDate.parse(it, formatter) }
     }
 
     @SuppressLint("NewApi")
     @TypeConverter
-    fun toString(dateTime: LocalDateTime?): String? {
+    fun toString(dateTime: LocalDate?): String? {
         return dateTime?.format(formatter)
     }
 }

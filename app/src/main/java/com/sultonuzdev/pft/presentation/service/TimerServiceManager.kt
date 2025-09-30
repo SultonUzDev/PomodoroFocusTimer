@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.domain.model.TimerSettings
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_START
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -162,7 +162,7 @@ class TimerServiceManager @Inject constructor(
      * Starts the timer service with the specified timer type and duration
      * Duration is now calculated from settings in the service
      */
-    fun startTimer(timerType: TimerType, settings: TimerSettings) {
+    fun startTimer(timerType: TimerType, settings: PomodoroTimerSettings) {
         Log.d(TAG, "Starting timer: type=$timerType")
 
         val durationMillis = when (timerType) {
@@ -201,7 +201,7 @@ class TimerServiceManager @Inject constructor(
     /**
      * Gets current settings from the service
      */
-    fun getCurrentSettings(): TimerSettings? {
+    fun getCurrentSettings(): PomodoroTimerSettings? {
         return timerService?.getCurrentSettings()
     }
 

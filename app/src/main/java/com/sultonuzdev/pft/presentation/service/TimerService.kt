@@ -18,9 +18,9 @@ import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.core.util.calculateProgress
 import com.sultonuzdev.pft.core.util.formatToMinutesAndSeconds
-import com.sultonuzdev.pft.domain.model.TimerSettings
-import com.sultonuzdev.pft.domain.usecase.GetTimerSettingsUseCase
-import com.sultonuzdev.pft.domain.usecase.SaveTimerSessionUseCase
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
+import com.sultonuzdev.pft.domain.usecase.pomodoro.AddPomodoro
+import com.sultonuzdev.pft.domain.usecase.settings.GetPomodoroSettings
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_PAUSE
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_RESUME
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_SKIP
@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.LocalDate
 import javax.inject.Inject
 
 private const val TAG = "TimerService"
@@ -55,20 +55,20 @@ private const val TAG = "TimerService"
 class TimerService : Service() {
 
     @Inject
-    lateinit var getTimerSettingsUseCase: GetTimerSettingsUseCase
+    lateinit var getPomodoroSettings: GetPomodoroSettings
 
     @Inject
-    lateinit var saveTimerSessionUseCase: SaveTimerSessionUseCase
+    lateinit var addPomodoro: AddPomodoro
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
     private var timerJob: Job? = null
     private var settingsJob: Job? = null
 
     // Start time for session tracking
-    private var startTime: LocalDateTime? = null
+    private var startTime: LocalDate? = null
 
     // Current settings cache
-    private var currentSettings: TimerSettings = TimerSettings()
+    private var currentSettings: PomodoroTimerSettings = PomodoroTimerSettings()
 
     // Timer state flows - These are the single source of truth
     private val _timerState = MutableStateFlow(TimerState.IDLE)
@@ -77,10 +77,12 @@ class TimerService : Service() {
     private val _currentTimerType = MutableStateFlow(TimerType.POMODORO)
     val currentTimerType: StateFlow<TimerType> = _currentTimerType.asStateFlow()
 
-    private val _remainingTimeMillis = MutableStateFlow(25 * 60 * 1000L) // Will be updated from settings
+    private val _remainingTimeMillis =
+        MutableStateFlow(25 * 60 * 1000L) // Will be updated from settings
     val remainingTimeMillis: StateFlow<Long> = _remainingTimeMillis.asStateFlow()
 
-    private val _totalTimeMillis = MutableStateFlow(25 * 60 * 1000L) // Will be updated from settings
+    private val _totalTimeMillis =
+        MutableStateFlow(25 * 60 * 1000L) // Will be updated from settings
     val totalTimeMillis: StateFlow<Long> = _totalTimeMillis.asStateFlow()
 
     private val _progressFraction = MutableStateFlow(1.0f)
@@ -90,10 +92,8 @@ class TimerService : Service() {
     val formattedTime: StateFlow<String> = _formattedTime.asStateFlow()
 
 
-
     private val _completedSessions = MutableStateFlow(0)
     val completedSessions: StateFlow<Int> = _completedSessions.asStateFlow()
-
 
 
     private val _completedPomodoros = MutableStateFlow(0) // Total lifetime count
@@ -104,7 +104,6 @@ class TimerService : Service() {
 
     private val _totalSessions = MutableStateFlow(0) // Total completed sessions
     val totalSessions: StateFlow<Int> = _totalSessions.asStateFlow()
-
 
 
     private val binder = TimerBinder()
@@ -121,11 +120,10 @@ class TimerService : Service() {
     }
 
 
-
     private fun observeTimerSettings() {
         settingsJob = serviceScope.launch {
             try {
-                getTimerSettingsUseCase().collectLatest { settings ->
+                getPomodoroSettings().collectLatest { settings ->
                     Log.d(TAG, "Settings updated: $settings")
                     currentSettings = settings
 
@@ -141,15 +139,15 @@ class TimerService : Service() {
     }
 
 
-
-
-
     private fun getNextTimerType(): TimerType {
         val currentType = _currentTimerType.value
         val sessionPomodoros = _currentSessionPomodoros.value // Use session count, not total
         val pomodorosBeforeLongBreak = currentSettings.pomodoroCycleLength
 
-        Log.d(TAG, "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, pomodorosBeforeLongBreak=$pomodorosBeforeLongBreak")
+        Log.d(
+            TAG,
+            "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, pomodorosBeforeLongBreak=$pomodorosBeforeLongBreak"
+        )
 
         return when (currentType) {
             TimerType.POMODORO -> {
@@ -162,10 +160,12 @@ class TimerService : Service() {
                     TimerType.SHORT_BREAK
                 }
             }
+
             TimerType.SHORT_BREAK -> {
                 Log.d(TAG, "Short break over - back to Pomodoro")
                 TimerType.POMODORO
             }
+
             TimerType.LONG_BREAK -> {
                 Log.d(TAG, "Long break over - starting new session")
                 // Reset session when long break is over
@@ -190,12 +190,12 @@ class TimerService : Service() {
         if (currentType == TimerType.POMODORO && sessionStartTime != null) {
             serviceScope.launch {
                 try {
-                    saveTimerSessionUseCase(
+                    addPomodoro(
                         type = currentType,
                         durationMinutes = currentSettings.pomodoroMinutes,
                         completed = true,
-                        startTime = sessionStartTime,
-                        endTime = LocalDateTime.now()
+                        startedTime = sessionStartTime,
+                        focusedDurationSeconds = totalTimeMillis.value - remainingTimeMillis.value,
                     )
                     Log.d(TAG, "Completed Pomodoro session saved to database")
                 } catch (e: Exception) {
@@ -214,7 +214,10 @@ class TimerService : Service() {
         if (currentType == TimerType.POMODORO) {
             _completedPomodoros.value += 1 // Lifetime total
             _currentSessionPomodoros.value += 1 // Current session
-            Log.d(TAG, "Pomodoro completed - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}")
+            Log.d(
+                TAG,
+                "Pomodoro completed - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}"
+            )
         }
 
         updateNotification(completed = true)
@@ -242,12 +245,12 @@ class TimerService : Service() {
         if (currentType == TimerType.POMODORO && sessionStartTime != null) {
             serviceScope.launch {
                 try {
-                    saveTimerSessionUseCase(
+                    addPomodoro(
                         type = currentType,
                         durationMinutes = currentSettings.pomodoroMinutes,
                         completed = true, // Count skipped as completed
-                        startTime = sessionStartTime,
-                        endTime = LocalDateTime.now()
+                        startedTime = sessionStartTime,
+                        focusedDurationSeconds = totalTimeMillis.value - remainingTimeMillis.value,
                     )
                     Log.d(TAG, "Skipped Pomodoro session saved to database")
                 } catch (e: Exception) {
@@ -266,7 +269,10 @@ class TimerService : Service() {
         if (currentType == TimerType.POMODORO) {
             _completedPomodoros.value += 1 // Lifetime total
             _currentSessionPomodoros.value += 1 // Current session
-            Log.d(TAG, "Pomodoro skipped - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}")
+            Log.d(
+                TAG,
+                "Pomodoro skipped - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}"
+            )
         }
 
         updateNotification(completed = true)
@@ -279,7 +285,6 @@ class TimerService : Service() {
             changeTimerType(nextType)
         }
     }
-
 
 
     private fun updateTimerDurationsFromSettings() {
@@ -306,14 +311,20 @@ class TimerService : Service() {
             when (intent.action) {
                 ACTION_START -> {
                     val timerType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        intent.getSerializableExtra(EXTRA_TIMER_TYPE, TimerType::class.java) ?: TimerType.POMODORO
+                        intent.getSerializableExtra(EXTRA_TIMER_TYPE, TimerType::class.java)
+                            ?: TimerType.POMODORO
                     } else {
                         @Suppress("DEPRECATION")
-                        intent.getSerializableExtra(EXTRA_TIMER_TYPE) as? TimerType ?: TimerType.POMODORO
+                        intent.getSerializableExtra(EXTRA_TIMER_TYPE) as? TimerType
+                            ?: TimerType.POMODORO
                     }
-                    val duration = intent.getLongExtra(EXTRA_TIMER_DURATION, getDurationForTimerType(timerType))
+                    val duration = intent.getLongExtra(
+                        EXTRA_TIMER_DURATION,
+                        getDurationForTimerType(timerType)
+                    )
                     startTimer(timerType, duration)
                 }
+
                 ACTION_PAUSE -> pauseTimer()
                 ACTION_RESUME -> resumeTimer()
                 ACTION_STOP -> stopTimer()
@@ -335,7 +346,6 @@ class TimerService : Service() {
         settingsJob?.cancel()
         super.onDestroy()
     }
-
 
 
     // Here's the complete fixed TimerService with proper pause/resume functionality:
@@ -361,7 +371,7 @@ class TimerService : Service() {
         _progressFraction.value = 1.0f
         _timerState.value = TimerState.RUNNING
 
-        startTime = LocalDateTime.now()
+        startTime = LocalDate.now()
 
         // Start foreground service
         try {
@@ -389,7 +399,8 @@ class TimerService : Service() {
 
                     // Only update if still running
                     if (_timerState.value == TimerState.RUNNING) {
-                        val newRemainingTime = (_remainingTimeMillis.value - MILLIS_IN_SECOND).coerceAtLeast(0)
+                        val newRemainingTime =
+                            (_remainingTimeMillis.value - MILLIS_IN_SECOND).coerceAtLeast(0)
                         val newProgress = calculateProgress(
                             _totalTimeMillis.value - newRemainingTime,
                             _totalTimeMillis.value
@@ -440,7 +451,6 @@ class TimerService : Service() {
     }
 
 
-
     fun stopTimer() {
         Log.d(TAG, "stopTimer called")
 
@@ -467,7 +477,6 @@ class TimerService : Service() {
 
         startTime = null
     }
-
 
 
     private fun changeTimerType(type: TimerType) {
@@ -508,7 +517,7 @@ class TimerService : Service() {
     }
 
     // Expose method to get current settings
-    fun getCurrentSettings(): TimerSettings = currentSettings
+    fun getCurrentSettings(): PomodoroTimerSettings = currentSettings
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -597,17 +606,24 @@ class TimerService : Service() {
                 builder.addAction(createAction(ACTION_STOP, "Stop", R.drawable.ic_stop))
                 builder.addAction(createAction(ACTION_SKIP, "Skip", R.drawable.ic_skip))
             }
+
             TimerState.PAUSED -> {
                 builder.addAction(createAction(ACTION_RESUME, "Resume", R.drawable.ic_play))
                 builder.addAction(createAction(ACTION_STOP, "Stop", R.drawable.ic_stop))
             }
-            else -> { /* No actions for idle/completed */ }
+
+            else -> { /* No actions for idle/completed */
+            }
         }
 
         return builder.build()
     }
 
-    private fun createAction(action: String, title: String, iconRes: Int): NotificationCompat.Action {
+    private fun createAction(
+        action: String,
+        title: String,
+        iconRes: Int
+    ): NotificationCompat.Action {
         val intent = Intent(this, TimerService::class.java).apply {
             this.action = action
         }

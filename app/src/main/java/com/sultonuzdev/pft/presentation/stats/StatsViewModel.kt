@@ -3,9 +3,7 @@ package com.sultonuzdev.pft.presentation.stats
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.domain.repository.PomodoroRepository
-import com.sultonuzdev.pft.domain.repository.StatsRepository
+import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
 import com.sultonuzdev.pft.presentation.stats.utils.StatsEffect
 import com.sultonuzdev.pft.presentation.stats.utils.StatsIntent
 import com.sultonuzdev.pft.presentation.stats.utils.StatsUiState
@@ -21,8 +19,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.DayOfWeek
-import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 /**
@@ -30,8 +26,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val pomodoroRepository: PomodoroRepository,
-    private val statsRepository: StatsRepository
+    private val pomodoroUseCases: PomodoroUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StatsUiState())
@@ -43,7 +38,7 @@ class StatsViewModel @Inject constructor(
     init {
         // Set initial week start date to the beginning of the current week
         val today = LocalDate.now()
-        val weekStart = getStartOfWeek(today)
+        val weekStart = pomodoroUseCases.getStartOfWeek(today)
 
         _uiState.update {
             it.copy(
@@ -66,7 +61,7 @@ class StatsViewModel @Inject constructor(
             }
 
             is StatsIntent.LoadWeeklyStats -> {
-                val weekStart = getStartOfWeek(_uiState.value.selectedDate)
+                val weekStart = pomodoroUseCases.getStartOfWeek(_uiState.value.selectedDate)
                 _uiState.update { it.copy(weekStartDate = weekStart) }
                 loadWeeklyStats(weekStart)
             }
@@ -87,7 +82,12 @@ class StatsViewModel @Inject constructor(
                 val today = LocalDate.now()
 
                 // Don't navigate past the current week
-                if (newWeekStart.isBefore(today) || newWeekStart.isEqual(getStartOfWeek(today))) {
+                if (newWeekStart.isBefore(today) || newWeekStart.isEqual(
+                        pomodoroUseCases.getStartOfWeek(
+                            today
+                        )
+                    )
+                ) {
                     _uiState.update {
                         it.copy(
                             weekStartDate = newWeekStart, selectedDate = newWeekStart
@@ -129,7 +129,7 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                pomodoroRepository.getDailyStats(date).collectLatest { stats ->
+                pomodoroUseCases.getDailyStats(date).collectLatest { stats ->
                     _uiState.update {
                         it.copy(
                             dailyStats = stats, isLoading = false
@@ -155,7 +155,7 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                statsRepository.getWeeklyStats(startDate).collectLatest { weekStats ->
+                pomodoroUseCases.getWeeklyAvgStats(startDate).collectLatest { weekStats ->
                     _uiState.update {
                         it.copy(
                             weeklyStats = weekStats, isLoading = false
@@ -182,18 +182,20 @@ class StatsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // Use StatsRepository methods for aggregate calculations
-                val totalPomodoros = statsRepository.getTotalCompletedPomodoros().first()
-                val totalMinutes = statsRepository.getTotalFocusMinutes().first()
+                val totalPomodoros =
+                    pomodoroUseCases.getCompletedPomodoros.invoke(uiState.value.selectedDate)
+                        .first()
+                val totalMinutes = pomodoroUseCases.getTotalFocusTime.invoke().first()
 
                 // Calculate average daily focus minutes (only for days that have sessions)
-                val allSessions = pomodoroRepository.getAllPomodoros().first()
-                val distinctDays = allSessions.map { it.startTime.toLocalDate() }.distinct().count()
-
-                val avgDailyMinutes = if (distinctDays > 0) {
-                    totalMinutes / distinctDays
-                } else {
-                    0
-                }
+                val weeklyStats =
+                    pomodoroUseCases.getWeeklyAvgStats.invoke(date = LocalDate.now())
+                        .first()
+                
+                val daysWithSessions = weeklyStats.filter { it.totalFocusMinutes > 0 }.size
+                val avgDailyMinutes = if (daysWithSessions > 0) {
+                    weeklyStats.sumOf { it.totalFocusMinutes } / daysWithSessions
+                } else 0
 
                 _uiState.update {
                     it.copy(
@@ -210,11 +212,4 @@ class StatsViewModel @Inject constructor(
     }
 
 
-    /**
-     * Get the start date of a week containing the provided date
-     * Uses Monday as the first day of the week for consistency
-     */
-    private fun getStartOfWeek(date: LocalDate): LocalDate {
-        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
 }

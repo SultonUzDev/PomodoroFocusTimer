@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.9.23"
-agp = "8.4.2"
+agp = "8.9.0"
 compose = "1.6.7"
 hilt = "2.51.1"
 room = "2.6.1"

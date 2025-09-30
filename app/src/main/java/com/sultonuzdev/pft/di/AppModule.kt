@@ -6,10 +6,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.sultonuzdev.pft.data.db.AppDatabase
+import com.sultonuzdev.pft.data.db.PomodoroDatabase
 import com.sultonuzdev.pft.core.util.Constants.DATABASE_NAME
-import com.sultonuzdev.pft.data.repository.ThemePreferencesRepositoryImpl
-import com.sultonuzdev.pft.domain.repository.ThemePreferencesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,22 +32,4 @@ object AppModule {
         }
     }
 
-
-    @Provides
-    @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            DATABASE_NAME
-        )
-            .fallbackToDestructiveMigrationOnDowngrade()
-            .fallbackToDestructiveMigration() // For simplicity in development
-            .build()
-    }
-
-    @Singleton
-    @Provides
-    fun provideThemeRepository(dataStore: DataStore<Preferences>): ThemePreferencesRepository =
-        ThemePreferencesRepositoryImpl(dataStore)
 }

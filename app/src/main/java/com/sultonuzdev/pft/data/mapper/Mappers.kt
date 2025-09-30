@@ -1,20 +1,20 @@
 package com.sultonuzdev.pft.data.mapper
 
 import com.sultonuzdev.pft.data.db.entity.PomodoroEntity
-import com.sultonuzdev.pft.domain.model.DailySession
 import com.sultonuzdev.pft.domain.model.Pomodoro
+import java.time.LocalDate
 
 /**
  * Extension function to convert from entity to domain model
  */
-fun PomodoroEntity.toDomainModel(): Pomodoro         {
+fun PomodoroEntity.toDomainModel(): Pomodoro {
     return Pomodoro(
         id = id,
-        type = type,
-        durationMinutes = durationMinutes,
-        completed = completed,
-        startTime = startTime,
-        endTime = endTime
+        timerType = timerType,
+        plannedDurationSeconds = plannedDurationSeconds,
+        focusedDurationSeconds = focusedDurationSeconds,
+        isCompleted = isCompleted,
+        startedAt = LocalDate.parse(startedAt),
     )
 }
 
@@ -24,10 +24,14 @@ fun PomodoroEntity.toDomainModel(): Pomodoro         {
 fun Pomodoro.toEntity(): PomodoroEntity {
     return PomodoroEntity(
         id = id,
-        type = type,
-        durationMinutes = durationMinutes,
-        completed = completed,
-        startTime = startTime,
-        endTime = endTime
+        timerType = timerType,
+        plannedDurationSeconds = plannedDurationSeconds,
+        focusedDurationSeconds = focusedDurationSeconds,
+        isCompleted = isCompleted,
+        startedAt = startedAt.toString(),
     )
+}
+
+fun List<PomodoroEntity>.toDomainModel(): List<Pomodoro> {
+    return map { it.toDomainModel() }
 }

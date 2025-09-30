@@ -5,13 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.domain.repository.StatsRepository
-import com.sultonuzdev.pft.domain.usecase.GetTimerSettingsUseCase
-import com.sultonuzdev.pft.domain.usecase.SaveTimerSessionUseCase
+import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
+import com.sultonuzdev.pft.presentation.service.TimerServiceManager
 import com.sultonuzdev.pft.presentation.timer.utils.TimerEffect
 import com.sultonuzdev.pft.presentation.timer.utils.TimerIntent
 import com.sultonuzdev.pft.presentation.timer.utils.TimerUiState
-import com.sultonuzdev.pft.presentation.service.TimerServiceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +32,9 @@ import javax.inject.Inject
  * - Timer type change handling
  */
 @HiltViewModel
-class  TimerViewModel @Inject constructor(
-    private val getTimerSettingsUseCase: GetTimerSettingsUseCase,
-    private val saveTimerSessionUseCase: SaveTimerSessionUseCase,
+class TimerViewModel @Inject constructor(
     private val timerServiceManager: TimerServiceManager,
-    private val statsRepository: StatsRepository
+    private val pomodoroUseCases: PomodoroUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TimerUiState())
@@ -72,7 +68,7 @@ class  TimerViewModel @Inject constructor(
     private fun loadSettings() {
         viewModelScope.launch {
             try {
-                getTimerSettingsUseCase().collectLatest { settings ->
+                pomodoroUseCases.getPomodoroSetting().collectLatest { settings ->
                     _uiState.update { currentState ->
                         // Always update settings, but don't override service state
                         currentState.copy(settings = settings)
@@ -88,7 +84,7 @@ class  TimerViewModel @Inject constructor(
         // Observe today's stats
         viewModelScope.launch {
             try {
-                statsRepository.getTodayStatsFlow().collectLatest { todayStats ->
+                pomodoroUseCases.getTodayPomodoro().collectLatest { todayStats ->
                     Log.d("TimerViewModel", "Today stats updated: $todayStats")
                     _uiState.update { it.copy(todayStats = todayStats) }
                 }
@@ -117,7 +113,10 @@ class  TimerViewModel @Inject constructor(
         // Observe timer state - Enhanced completion detection
         viewModelScope.launch {
             timerServiceManager.timerState.collectLatest { serviceState ->
-                Log.d("TimerViewModel", "Service state changed: $previousTimerState -> $serviceState")
+                Log.d(
+                    "TimerViewModel",
+                    "Service state changed: $previousTimerState -> $serviceState"
+                )
 
                 // Detect when timer completes
                 if (serviceState == TimerState.COMPLETED && previousTimerState == TimerState.RUNNING) {
@@ -206,7 +205,10 @@ class  TimerViewModel @Inject constructor(
 
     private fun startTimer() {
         startTime = LocalDateTime.now()
-        Log.d("TimerViewModel", "Timer started at: $startTime for type: ${_uiState.value.currentType}")
+        Log.d(
+            "TimerViewModel",
+            "Timer started at: $startTime for type: ${_uiState.value.currentType}"
+        )
         timerServiceManager.startTimer(
             _uiState.value.currentType,
             _uiState.value.settings
@@ -309,16 +311,19 @@ class  TimerViewModel @Inject constructor(
             TimerType.LONG_BREAK -> _uiState.value.settings.longBreakMinutes
         }
 
-        Log.d("TimerViewModel", "Saving session: type=$timerType, duration=${durationMinutes}min, completed=$completed, start=$currentStartTime, end=$endTime")
+        Log.d(
+            "TimerViewModel",
+            "Saving session: type=$timerType, duration=${durationMinutes}min, completed=$completed, start=$currentStartTime, end=$endTime"
+        )
 
         viewModelScope.launch {
             try {
-                saveTimerSessionUseCase(
+                pomodoroUseCases.addPomodoro(
                     type = timerType,
-                    durationMinutes = durationMinutes,
+                    durationMinutes = durationMinutes * 60,
                     completed = completed,
-                    startTime = currentStartTime,
-                    endTime = endTime
+                    startedTime = currentStartTime.toLocalDate(),
+                    focusedDurationSeconds = (endTime.second - currentStartTime.second).toLong()
                 )
                 Log.d("TimerViewModel", "Session saved successfully")
             } catch (e: Exception) {
