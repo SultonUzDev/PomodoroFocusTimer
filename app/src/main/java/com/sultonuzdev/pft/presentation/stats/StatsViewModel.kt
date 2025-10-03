@@ -155,7 +155,12 @@ class StatsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
+                Log.d("StatsViewModel", "Loading weekly stats for week starting: $startDate")
                 pomodoroUseCases.getWeeklyAvgStats(startDate).collectLatest { weekStats ->
+                    Log.d("StatsViewModel", "Received weekly stats: ${weekStats.size} days")
+                    weekStats.forEachIndexed { index, stat ->
+                        Log.d("StatsViewModel", "  Day $index: ${stat.date} - ${stat.completedPomodoros} pomodoros, ${stat.totalFocusMinutes} minutes")
+                    }
                     _uiState.update {
                         it.copy(
                             weeklyStats = weekStats, isLoading = false
@@ -163,6 +168,7 @@ class StatsViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                Log.e("StatsViewModel", "Error loading weekly stats", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,

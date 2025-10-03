@@ -21,13 +21,22 @@ class GetTodayPomodoro @Inject constructor(
                 it.timerType == TimerType.POMODORO && it.isCompleted
             }
 
-            val totalFocusMinutes = sessions
+            val totalFocusSeconds = sessions
                 .filter { it.timerType == TimerType.POMODORO }
                 .sumOf { it.focusedDurationSeconds }
+
+            val totalFocusMinutes = (totalFocusSeconds / 60).toInt()
+
+            // Count completed cycles (each completed LONG_BREAK = 1 cycle)
+            val completedCycles = sessions.count {
+                it.timerType == TimerType.LONG_BREAK && it.isCompleted
+            }
+
             DailyStats(
                 date = today,
                 completedPomodoros = completedPomodoros,
-                totalFocusMinutes = totalFocusMinutes.toInt()
+                totalFocusMinutes = totalFocusMinutes,
+                completedCycles = completedCycles
             )
         }
 

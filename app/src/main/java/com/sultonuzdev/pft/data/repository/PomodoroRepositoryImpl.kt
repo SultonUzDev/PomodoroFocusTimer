@@ -51,9 +51,9 @@ class PomodoroRepositoryImpl @Inject constructor(
                 longBreakMinutes = preferences[LONG_BREAK_MINUTES] ?: DEFAULT_LONG_BREAK_MINUTES,
                 pomodoroCycleLength = preferences[POMODOROS_BEFORE_LONG_BREAK]
                     ?: DEFAULT_POMODORO_CYCLE_LENGTH,
-                vibrationEnabled = preferences[Companion.VIBRATION_ENABLED] != false,
-                soundEnabled = preferences[SOUND_ENABLED] != false,
-                enableFocusMode = preferences[Companion.FOCUS_MODE_ENABLED] == true
+                vibrationEnabled = preferences[VIBRATION_ENABLED] ?: true,
+                soundEnabled = preferences[SOUND_ENABLED] ?: true,
+                enableFocusMode = preferences[FOCUS_MODE_ENABLED] ?: false
             )
         }
     }
@@ -64,7 +64,7 @@ class PomodoroRepositoryImpl @Inject constructor(
             preferences[SHORT_BREAK_MINUTES] = settings.shortBreakMinutes
             preferences[LONG_BREAK_MINUTES] = settings.longBreakMinutes
             preferences[POMODOROS_BEFORE_LONG_BREAK] = settings.pomodoroCycleLength
-            preferences[Companion.VIBRATION_ENABLED] = settings.vibrationEnabled
+            preferences[VIBRATION_ENABLED] = settings.vibrationEnabled
             preferences[SOUND_ENABLED] = settings.soundEnabled
             preferences[FOCUS_MODE_ENABLED] = settings.enableFocusMode
         }

@@ -14,7 +14,7 @@ class AddPomodoro @Inject constructor(
 ) {
     suspend operator fun invoke(
         type: TimerType,
-        durationMinutes: Int,
+        plannedDurationSeconds: Long,
         completed: Boolean,
         startedTime: LocalDate,
         focusedDurationSeconds: Long,
@@ -22,7 +22,7 @@ class AddPomodoro @Inject constructor(
         val session = Pomodoro(
             id = 0,
             timerType = type,
-            plannedDurationSeconds = durationMinutes.toLong(),
+            plannedDurationSeconds = plannedDurationSeconds,
             isCompleted = completed,
             startedAt = startedTime,
             focusedDurationSeconds = focusedDurationSeconds

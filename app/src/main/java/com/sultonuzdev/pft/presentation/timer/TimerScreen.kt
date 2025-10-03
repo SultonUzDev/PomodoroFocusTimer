@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
@@ -26,7 +25,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,11 +38,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTENT_WIDTH
+import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTROLS_WIDTH
+import com.sultonuzdev.pft.core.util.Constants.TIMER_CIRCLE_SIZE_PHONE
+import com.sultonuzdev.pft.core.util.Constants.TIMER_CIRCLE_SIZE_TABLET
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
@@ -55,7 +54,7 @@ import com.sultonuzdev.pft.presentation.timer.components.SimpleTimerControls
 import com.sultonuzdev.pft.presentation.timer.components.TimerEffectsHandler
 import com.sultonuzdev.pft.presentation.timer.components.TimerTopBar
 import com.sultonuzdev.pft.presentation.timer.components.TimerTypeTabs
-import com.sultonuzdev.pft.presentation.timer.components.TodayProgressCard
+import com.sultonuzdev.pft.presentation.timer.components.SessionSummary
 import com.sultonuzdev.pft.presentation.timer.utils.TimerIntent
 import com.sultonuzdev.pft.presentation.timer.utils.TimerUiState
 import java.time.LocalDate
@@ -72,36 +71,12 @@ fun TimerScreenRoot(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     // Request notification permission
     NotificationPermissionHandler()
 
     // Handle timer effects (sounds, vibrations, messages)
     TimerEffectsHandler(viewModel, snackbarHostState)
-
-    // Handle lifecycle events to manage service connection properly
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                    // Screen becomes visible, ensure service connection
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    // Screen goes to background, but keep service connection
-                }
-
-                else -> {}
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     TimerScreen(
         navigateToSettings = navigateToSettings,
@@ -280,9 +255,7 @@ private fun PhoneTimerLayout(
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
     ) {
         // Session Summary
-        TodayProgressCard(
-            currentSessionPomodoros = uiState.currentSessionPomodoros,
-            pomodoroCycleLength = uiState.settings.pomodoroCycleLength,
+        SessionSummary(
             todayStats = uiState.todayStats,
             modifier = Modifier.fillMaxWidth()
         )
@@ -319,7 +292,7 @@ private fun PhoneTimerLayout(
         // Circular timer with enhanced visual feedback
         CircularTimer(
             modifier = Modifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth(TIMER_CIRCLE_SIZE_PHONE)
                 .aspectRatio(1f),
             progress = uiState.progressFraction,
             timeText = uiState.formattedTime,
@@ -390,7 +363,7 @@ private fun TabletTimerLayout(
             CircularTimer(
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(TIMER_CIRCLE_SIZE_TABLET)
                     .aspectRatio(1f),
                 progress = uiState.progressFraction,
                 timeText = uiState.formattedTime,
@@ -406,7 +379,7 @@ private fun TabletTimerLayout(
                 onResumeClick = onResumeClick,
                 onStopClick = onStopClick,
                 onSkipClick = onSkipClick,
-                modifier = Modifier.fillMaxWidth(0.8f)
+                modifier = Modifier.fillMaxWidth(TABLET_CONTROLS_WIDTH)
             )
         }
 
@@ -419,11 +392,9 @@ private fun TabletTimerLayout(
             verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)
         ) {
 
-            TodayProgressCard(
-                currentSessionPomodoros = uiState.currentSessionPomodoros,
-                pomodoroCycleLength = uiState.settings.pomodoroCycleLength,
+            SessionSummary(
                 todayStats = uiState.todayStats,
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
             )
 
             Text(
@@ -443,13 +414,13 @@ private fun TabletTimerLayout(
                         onTypeSelected(type)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
             )
 
             // Status Display
             TimerStatusDisplay(
                 timerState = uiState.timerState,
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
             )
 
             // Focus Mode Indicator
@@ -465,7 +436,7 @@ private fun TabletTimerLayout(
             TipsAndEncouragement(
                 timerState = uiState.timerState,
                 todayStats = uiState.todayStats,
-                modifier = Modifier.fillMaxWidth(0.9f)
+                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
             )
         }
     }
@@ -579,16 +550,5 @@ private fun getTimerColor(timerType: TimerType): Color {
         TimerType.POMODORO -> MaterialTheme.colorScheme.primary
         TimerType.SHORT_BREAK -> MaterialTheme.colorScheme.secondary
         TimerType.LONG_BREAK -> MaterialTheme.colorScheme.tertiary
-    }
-}
-
-// Add this for AnimatedVisibility
-@Composable
-private fun AnimatedVisibility(
-    visible: Boolean,
-    content: @Composable () -> Unit
-) {
-    if (visible) {
-        content()
     }
 }

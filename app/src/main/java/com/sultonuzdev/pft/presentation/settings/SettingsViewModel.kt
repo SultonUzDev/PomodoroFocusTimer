@@ -80,31 +80,45 @@ class SettingsViewModel @Inject constructor(
 
     fun processIntent(intent: SettingsIntent) {
         when (intent) {
-            is SettingsIntent.UpdatePomodoroMinutes -> updateSettings {
+            is SettingsIntent.UpdatePomodoroMinutes -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(pomodoroMinutes = intent.minutes.coerceIn(5, 60))
             }
 
-            is SettingsIntent.UpdateShortBreakMinutes -> updateSettings {
+            is SettingsIntent.UpdateShortBreakMinutes -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(shortBreakMinutes = intent.minutes.coerceIn(1, 30))
             }
 
-            is SettingsIntent.UpdateLongBreakMinutes -> updateSettings {
+            is SettingsIntent.UpdateLongBreakMinutes -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(longBreakMinutes = intent.minutes.coerceIn(5, 60))
             }
 
-            is SettingsIntent.UpdatePomodorosBeforeLongBreak -> updateSettings {
+            is SettingsIntent.UpdatePomodorosBeforeLongBreak -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(pomodoroCycleLength = intent.count.coerceIn(1, 10))
             }
 
-            is SettingsIntent.UpdateVibrationEnabled -> updateSettings {
+            is SettingsIntent.UpdateVibrationEnabled -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(vibrationEnabled = intent.enabled)
             }
 
-            is SettingsIntent.UpdateSoundEnabled -> updateSettings {
+            is SettingsIntent.UpdateSoundEnabled -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(soundEnabled = intent.enabled)
             }
 
-            is SettingsIntent.UpdateFocusModeEnabled -> updateSettings {
+            is SettingsIntent.UpdateFocusModeEnabled -> updateSettings(
+                showMessage = false
+            ) {
                 it.copy(enableFocusMode = intent.enabled)
             }
 
@@ -150,7 +164,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun updateSettings(update: (PomodoroTimerSettings) -> PomodoroTimerSettings) {
+    private fun updateSettings(
+        showMessage: Boolean = true,
+        update: (PomodoroTimerSettings) -> PomodoroTimerSettings
+    ) {
         viewModelScope.launch {
             try {
                 val currentSettings = _uiState.value.settings
@@ -162,10 +179,12 @@ class SettingsViewModel @Inject constructor(
                 // Persist settings
                 pomodoroUseCases.updatePomodoroSettings(newSettings)
 
-                // Show success message
-                _effect.emit(SettingsEffect.ShowMessage("Settings updated"))
+                // Show success message only if requested
+                if (showMessage) {
+                    _effect.emit(SettingsEffect.ShowMessage("Settings updated"))
+                }
             } catch (e: Exception) {
-                // Show error
+                // Always show error messages
                 _effect.emit(SettingsEffect.ShowMessage("Failed to update settings: ${e.message}"))
             }
         }

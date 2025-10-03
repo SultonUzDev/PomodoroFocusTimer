@@ -9,11 +9,15 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.sultonuzdev.pft.MainActivity
 import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.util.Constants.MILLIS_IN_SECOND
+import com.sultonuzdev.pft.core.util.Constants.NOTIFICATION_UPDATE_INTERVAL_MILLIS
+import com.sultonuzdev.pft.core.util.Constants.PAUSE_LOOP_DELAY_MILLIS
+import com.sultonuzdev.pft.core.util.Constants.TIMER_COMPLETION_DELAY_MILLIS
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.core.util.calculateProgress
@@ -66,6 +70,13 @@ class TimerService : Service() {
 
     // Start time for session tracking
     private var startTime: LocalDate? = null
+
+    // Timer tracking using SystemClock for reliability during device lock
+    private var timerStartElapsedTime: Long = 0L  // When timer started (SystemClock)
+    private var pausedElapsedTime: Long = 0L      // Total time spent paused
+
+    // Notification update throttling
+    private var lastNotificationUpdateTime: Long = 0L
 
     // Current settings cache
     private var currentSettings: PomodoroTimerSettings = PomodoroTimerSettings()
@@ -186,18 +197,29 @@ class TimerService : Service() {
         val currentType = _currentTimerType.value
         val sessionStartTime = startTime
 
-        // Save session to database if it was a Pomodoro
-        if (currentType == TimerType.POMODORO && sessionStartTime != null) {
+        // Save ALL timer types to database (POMODORO, SHORT_BREAK, LONG_BREAK)
+        if (sessionStartTime != null) {
             serviceScope.launch {
                 try {
+                    // Calculate focused duration in seconds (not milliseconds)
+                    val focusedMillis = totalTimeMillis.value - remainingTimeMillis.value
+                    val focusedSeconds = (focusedMillis / 1000).coerceAtLeast(0)
+
+                    // Get planned duration based on timer type
+                    val plannedSeconds = when (currentType) {
+                        TimerType.POMODORO -> (currentSettings.pomodoroMinutes * 60).toLong()
+                        TimerType.SHORT_BREAK -> (currentSettings.shortBreakMinutes * 60).toLong()
+                        TimerType.LONG_BREAK -> (currentSettings.longBreakMinutes * 60).toLong()
+                    }
+
                     addPomodoro(
                         type = currentType,
-                        durationMinutes = currentSettings.pomodoroMinutes,
+                        plannedDurationSeconds = plannedSeconds,
                         completed = true,
                         startedTime = sessionStartTime,
-                        focusedDurationSeconds = totalTimeMillis.value - remainingTimeMillis.value,
+                        focusedDurationSeconds = focusedSeconds,
                     )
-                    Log.d(TAG, "Completed Pomodoro session saved to database")
+                    Log.d(TAG, "Completed $currentType session saved to database (${focusedSeconds}s)")
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to save completed session", e)
                 }
@@ -225,7 +247,7 @@ class TimerService : Service() {
 
         // Auto-transition to next timer type after delay
         serviceScope.launch {
-            delay(2000) // 2 second delay to show completion
+            delay(TIMER_COMPLETION_DELAY_MILLIS) // Delay to show completion
             val nextType = getNextTimerType()
             changeTimerType(nextType)
         }
@@ -241,18 +263,29 @@ class TimerService : Service() {
         val currentType = _currentTimerType.value
         val sessionStartTime = startTime
 
-        // Save session to database if it was a Pomodoro (marked as completed since user manually skipped)
-        if (currentType == TimerType.POMODORO && sessionStartTime != null) {
+        // Save ALL timer types to database (marked as NOT completed since user skipped)
+        if (sessionStartTime != null) {
             serviceScope.launch {
                 try {
+                    // Calculate focused duration in seconds (not milliseconds)
+                    val focusedMillis = totalTimeMillis.value - remainingTimeMillis.value
+                    val focusedSeconds = (focusedMillis / 1000).coerceAtLeast(0)
+
+                    // Get planned duration based on timer type
+                    val plannedSeconds = when (currentType) {
+                        TimerType.POMODORO -> (currentSettings.pomodoroMinutes * 60).toLong()
+                        TimerType.SHORT_BREAK -> (currentSettings.shortBreakMinutes * 60).toLong()
+                        TimerType.LONG_BREAK -> (currentSettings.longBreakMinutes * 60).toLong()
+                    }
+
                     addPomodoro(
                         type = currentType,
-                        durationMinutes = currentSettings.pomodoroMinutes,
-                        completed = true, // Count skipped as completed
+                        plannedDurationSeconds = plannedSeconds,
+                        completed = false, // Skipped sessions are NOT completed
                         startedTime = sessionStartTime,
-                        focusedDurationSeconds = totalTimeMillis.value - remainingTimeMillis.value,
+                        focusedDurationSeconds = focusedSeconds,
                     )
-                    Log.d(TAG, "Skipped Pomodoro session saved to database")
+                    Log.d(TAG, "Skipped $currentType session saved to database as incomplete (${focusedSeconds}s)")
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to save skipped session", e)
                 }
@@ -280,7 +313,7 @@ class TimerService : Service() {
 
         // Auto-transition after a short delay
         serviceScope.launch {
-            delay(2000)
+            delay(TIMER_COMPLETION_DELAY_MILLIS)
             val nextType = getNextTimerType()
             changeTimerType(nextType)
         }
@@ -385,13 +418,18 @@ class TimerService : Service() {
     }
 
     private fun startTimerCoroutine() {
+        // Record when timer starts using SystemClock (survives screen lock)
+        timerStartElapsedTime = SystemClock.elapsedRealtime()
+        pausedElapsedTime = 0L
+        lastNotificationUpdateTime = 0L  // Force immediate notification update
+
         timerJob = serviceScope.launch {
             try {
                 while (_remainingTimeMillis.value > 0) {
                     // Check if we should continue (not paused or stopped)
                     if (_timerState.value != TimerState.RUNNING) {
                         Log.d(TAG, "Timer coroutine paused/stopped, waiting...")
-                        delay(100) // Small delay to prevent tight loop
+                        delay(PAUSE_LOOP_DELAY_MILLIS) // Small delay to prevent tight loop
                         continue
                     }
 
@@ -399,19 +437,27 @@ class TimerService : Service() {
 
                     // Only update if still running
                     if (_timerState.value == TimerState.RUNNING) {
-                        val newRemainingTime =
-                            (_remainingTimeMillis.value - MILLIS_IN_SECOND).coerceAtLeast(0)
+                        // Calculate elapsed time using SystemClock (reliable during screen lock)
+                        val currentElapsedTime = SystemClock.elapsedRealtime()
+                        val actualElapsedTime = currentElapsedTime - timerStartElapsedTime - pausedElapsedTime
+                        val newRemainingTime = (_totalTimeMillis.value - actualElapsedTime).coerceAtLeast(0)
+
                         val newProgress = calculateProgress(
                             _totalTimeMillis.value - newRemainingTime,
                             _totalTimeMillis.value
                         )
 
-                        // Update state flows
+                        // Update state flows (UI updates every second for smooth animation)
                         _remainingTimeMillis.value = newRemainingTime
                         _formattedTime.value = newRemainingTime.formatToMinutesAndSeconds()
                         _progressFraction.value = newProgress
 
-                        updateNotification()
+                        // Update notification only every 5 seconds to save battery
+                        val timeSinceLastUpdate = currentElapsedTime - lastNotificationUpdateTime
+                        if (timeSinceLastUpdate >= NOTIFICATION_UPDATE_INTERVAL_MILLIS) {
+                            updateNotification()
+                            lastNotificationUpdateTime = currentElapsedTime
+                        }
 
                         // Check if timer completed
                         if (newRemainingTime <= 0) {
@@ -429,9 +475,16 @@ class TimerService : Service() {
     fun pauseTimer() {
         Log.d(TAG, "pauseTimer called, current state: ${_timerState.value}")
         if (_timerState.value == TimerState.RUNNING) {
-            // Just change state - coroutine will detect this and pause
+            // Record when we paused (to calculate pause duration later)
+            val pauseStartTime = SystemClock.elapsedRealtime()
+
+            // Change state - coroutine will detect this and pause
             _timerState.value = TimerState.PAUSED
-            updateNotification()
+            updateNotification()  // Update immediately for state change
+
+            // Store pause start time for resume calculation
+            timerStartElapsedTime = pauseStartTime - (timerStartElapsedTime + pausedElapsedTime)
+
             Log.d(TAG, "Timer paused at ${_formattedTime.value}")
         } else {
             Log.d(TAG, "Timer not running, cannot pause")
@@ -441,9 +494,23 @@ class TimerService : Service() {
     fun resumeTimer() {
         Log.d(TAG, "resumeTimer called, current state: ${_timerState.value}")
         if (_timerState.value == TimerState.PAUSED) {
-            // Just change state - coroutine will detect this and resume
+            // Calculate how long we were paused and add to total pause time
+            val resumeTime = SystemClock.elapsedRealtime()
+            pausedElapsedTime += (resumeTime - timerStartElapsedTime)
+
+            // Reset start time to current moment
+            timerStartElapsedTime = SystemClock.elapsedRealtime()
+
+            // Adjust for remaining time
+            val currentRemaining = _remainingTimeMillis.value
+            _totalTimeMillis.value = currentRemaining
+            timerStartElapsedTime = SystemClock.elapsedRealtime()
+            pausedElapsedTime = 0L
+
+            // Change state - coroutine will detect this and resume
             _timerState.value = TimerState.RUNNING
-            updateNotification()
+            updateNotification()  // Update immediately for state change
+            lastNotificationUpdateTime = SystemClock.elapsedRealtime()  // Reset throttle timer
             Log.d(TAG, "Timer resumed at ${_formattedTime.value}")
         } else {
             Log.d(TAG, "Timer not paused, cannot resume")
@@ -457,6 +524,10 @@ class TimerService : Service() {
         // Cancel timer coroutine
         timerJob?.cancel()
         timerJob = null
+
+        // Reset timer tracking variables
+        timerStartElapsedTime = 0L
+        pausedElapsedTime = 0L
 
         // Reset state to initial values based on current settings
         val defaultDuration = getDurationForTimerType(_currentTimerType.value)
