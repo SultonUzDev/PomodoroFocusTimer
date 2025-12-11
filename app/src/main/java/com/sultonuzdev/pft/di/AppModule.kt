@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import com.sultonuzdev.pft.data.db.PomodoroDatabase
 import com.sultonuzdev.pft.core.util.Constants.DATABASE_NAME
+import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +31,12 @@ object AppModule {
         return PreferenceDataStoreFactory.create {
             context.preferencesDataStoreFile(PREFERENCES_NAME)
         }
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferencesManager(dataStore: DataStore<Preferences>): PreferencesManager {
+        return PreferencesManager(dataStore)
     }
 
 }

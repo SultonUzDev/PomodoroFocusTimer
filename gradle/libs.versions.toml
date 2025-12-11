@@ -19,6 +19,7 @@ arch-testing = "2.2.0"
 junit-ext = "1.1.5"
 espresso = "3.5.1"
 ksp = "1.9.23-1.0.20"
+window = "1.5.1"
 
 [libraries]
 
@@ -63,6 +64,7 @@ androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testin
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-ext" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose" }
+androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
 
 [bundles]
 compose = [

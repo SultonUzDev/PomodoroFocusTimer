@@ -13,6 +13,5 @@ sealed class TimerIntent : UiIntent {
     data object ResumeTimer : TimerIntent()
     data object StopTimer : TimerIntent()
     data object SkipTimer : TimerIntent()
-    data class ChangeTimerType(val type: TimerType) : TimerIntent()
 }
 

@@ -572,20 +572,7 @@ class TimerService : Service() {
 
 
     // Expose method to manually change timer type (called from ViewModel)
-    fun changeTimerTypeManually(type: TimerType) {
-        if (_timerState.value == TimerState.IDLE) {
-            changeTimerType(type)
-        } else {
-            // Stop the current timer first, then change type
-            Log.d(TAG, "Stopping current timer to change type")
-            stopTimer()
-            // Small delay to ensure stop completes, then change type
-            serviceScope.launch {
-                delay(100)
-                changeTimerType(type)
-            }
-        }
-    }
+
 
     // Expose method to get current settings
     fun getCurrentSettings(): PomodoroTimerSettings = currentSettings

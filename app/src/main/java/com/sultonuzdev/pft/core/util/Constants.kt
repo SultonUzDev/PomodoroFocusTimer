@@ -23,7 +23,7 @@ object Constants {
     const val NOTIFICATION_UPDATE_INTERVAL_MILLIS = 5000L  // Update notification every 5 seconds
 
     // UI scaling factors
-    const val TIMER_CIRCLE_SIZE_PHONE = 0.7f        // 70% of screen width for phone
+    const val TIMER_CIRCLE_SIZE_PHONE = 0.8f        // 70% of screen width for phone
     const val TIMER_CIRCLE_SIZE_TABLET = 0.7f       // 70% of screen width for tablet
     const val TABLET_CONTENT_WIDTH = 0.9f           // 90% width for tablet content
     const val TABLET_CONTROLS_WIDTH = 0.8f          // 80% width for tablet controls

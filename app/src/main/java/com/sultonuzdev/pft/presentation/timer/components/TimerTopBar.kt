@@ -2,7 +2,9 @@ package com.sultonuzdev.pft.presentation.timer.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.ui.theme.settingsIconColor
 import com.sultonuzdev.pft.core.ui.theme.statsIconColor
+import com.sultonuzdev.pft.core.ui.theme.timerStyleIconColor
 
 /**
  * Top app bar for the Timer screen
@@ -23,7 +26,11 @@ import com.sultonuzdev.pft.core.ui.theme.statsIconColor
 @Composable
 private fun TimerAppBarPreview() {
     PomodoroAppTheme {
-        TimerTopBar(navigateToSettings = {}, navigateToStats = {})
+        TimerTopBar(
+            navigateToSettings = {},
+            navigateToStats = {},
+            navigateToStyles = {}
+        )
     }
 }
 
@@ -31,18 +38,28 @@ private fun TimerAppBarPreview() {
 @Composable
 fun TimerTopBar(
     navigateToSettings: () -> Unit,
-    navigateToStats: () -> Unit
+    navigateToStats: () -> Unit,
+    navigateToStyles: () -> Unit
 ) {
 
 
     TopAppBar(
         title = {
             Text(
-               text =  "Pomodoro Focus Timer",
+                text = "Pomodoro Focus Timer",
                 style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             )
         },
         actions = {
+            // Stats button
+            IconButton(onClick = navigateToStyles) {
+                Icon(
+                    imageVector = Icons.Default.MoreTime,
+                    contentDescription = "Styles",
+                    tint = timerStyleIconColor
+                )
+            }
+
             // Stats button
             IconButton(onClick = navigateToStats) {
                 Icon(

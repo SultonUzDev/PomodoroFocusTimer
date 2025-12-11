@@ -7,9 +7,9 @@ import androidx.compose.ui.graphics.Color
 
 
 val statsIconColor = Color(0xFFFF5722)     // Deep Orange
+val timerStyleIconColor = Color(0xFF27C93F)     // Green
 val settingsIconColor = Color(0xFF2196F3)  // Blue
 // Light Theme Colors
-
 val LightColorScheme = lightColorScheme(
     primary = Color(0xFFFF5757),         // Vibrant Coral for Pomodoro
     onPrimary = Color.White,

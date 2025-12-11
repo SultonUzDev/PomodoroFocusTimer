@@ -3,6 +3,7 @@ package com.sultonuzdev.pft.di
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.sultonuzdev.pft.data.db.dao.PomodoroDao
+import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import com.sultonuzdev.pft.data.repository.PomodoroRepositoryImpl
 import com.sultonuzdev.pft.domain.repository.PomodoroRepository
 import dagger.Module
@@ -22,8 +23,8 @@ object RepositoryModule {
     @Singleton
     fun providePomodoroRepository(
         dao: PomodoroDao,
-        dataStore: DataStore<Preferences>
+       preferencesManager: PreferencesManager
     ): PomodoroRepository {
-        return PomodoroRepositoryImpl(dao, dataStore)
+        return PomodoroRepositoryImpl(dao, preferencesManager)
     }
 }

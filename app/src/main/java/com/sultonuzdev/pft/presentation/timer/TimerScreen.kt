@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -64,10 +63,11 @@ import java.time.LocalDate
  * Now properly manages service lifecycle with the screen
  */
 @Composable
-fun TimerScreenRoot(
+fun TimerScreen(
     viewModel: TimerViewModel = hiltViewModel(),
     navigateToSettings: () -> Unit,
-    navigateToStats: () -> Unit
+    navigateToStats: () -> Unit,
+    navigateToStyles: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,43 +78,36 @@ fun TimerScreenRoot(
     // Handle timer effects (sounds, vibrations, messages)
     TimerEffectsHandler(viewModel, snackbarHostState)
 
-    TimerScreen(
+    TimerScreenContent(
         navigateToSettings = navigateToSettings,
         navigateToStats = navigateToStats,
+        navigateToStyles = navigateToStyles,
         feedbackDisplay = snackbarHostState,
         uiState = uiState,
-        onTypeSelected = { type ->
-            viewModel.processIntent(TimerIntent.ChangeTimerType(type))
-        },
         onStartClick = { viewModel.processIntent(TimerIntent.StartTimer) },
         onPauseClick = { viewModel.processIntent(TimerIntent.PauseTimer) },
         onResumeClick = { viewModel.processIntent(TimerIntent.ResumeTimer) },
         onStopClick = { viewModel.processIntent(TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerIntent.SkipTimer) }
+        onSkipClick = { viewModel.processIntent(TimerIntent.SkipTimer) },
+
     )
 }
 
 @Preview(
     name = "Light Mode",
     uiMode = Configuration.UI_MODE_NIGHT_NO,
-    showBackground = true
-)
-@Preview(
-    name = "Dark Mode",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    showBackground = true
-)
-@Preview(
-    name = "Tablet",
-    device = "spec:width=1280dp,height=800dp,dpi=240",
-    showBackground = true
+    showBackground = true,
+    device = "id:pixel_2",
+    fontScale = 1.0f
+
 )
 @Composable
 private fun TimerScreenPreview() {
     PomodoroAppTheme {
-        TimerScreen(
+        TimerScreenContent(
             navigateToSettings = {},
             navigateToStats = {},
+            navigateToStyles = {},
             feedbackDisplay = remember { SnackbarHostState() },
             uiState = TimerUiState(
                 currentType = TimerType.POMODORO,
@@ -138,12 +131,12 @@ private fun TimerScreenPreview() {
                     enableFocusMode = true
                 )
             ),
-            onTypeSelected = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onStopClick = {},
-            onSkipClick = {}
+            onSkipClick = {},
+
         )
     }
 }
@@ -152,17 +145,18 @@ private fun TimerScreenPreview() {
  * Main timer screen composable with responsive design
  */
 @Composable
-fun TimerScreen(
+fun TimerScreenContent(
     navigateToSettings: () -> Unit,
     navigateToStats: () -> Unit,
+    navigateToStyles: () -> Unit,
     feedbackDisplay: SnackbarHostState,
     uiState: TimerUiState,
-    onTypeSelected: (TimerType) -> Unit,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
     onStopClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSkipClick: () -> Unit,
+
 ) {
     val configuration = LocalConfiguration.current
     val isTablet = configuration.screenWidthDp >= 600
@@ -172,7 +166,8 @@ fun TimerScreen(
         topBar = {
             TimerTopBar(
                 navigateToSettings = navigateToSettings,
-                navigateToStats = navigateToStats
+                navigateToStats = navigateToStats,
+                navigateToStyles = navigateToStyles
             )
         },
         snackbarHost = { SnackbarHost(feedbackDisplay) },
@@ -181,36 +176,12 @@ fun TimerScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    when (uiState.currentType) {
-                        TimerType.POMODORO -> Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.background,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
-                            )
-                        )
-
-                        TimerType.SHORT_BREAK -> Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.background,
-                                MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)
-                            )
-                        )
-
-                        TimerType.LONG_BREAK -> Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.background,
-                                MaterialTheme.colorScheme.tertiary.copy(alpha = 0.05f)
-                            )
-                        )
-                    }
-                )
+                .background(MaterialTheme.colorScheme.background,)
         ) {
             if (isTablet || isLandscape) {
                 // Tablet/Landscape layout
                 TabletTimerLayout(
                     uiState = uiState,
-                    onTypeSelected = onTypeSelected,
                     onStartClick = onStartClick,
                     onPauseClick = onPauseClick,
                     onResumeClick = onResumeClick,
@@ -222,7 +193,6 @@ fun TimerScreen(
                 // Phone/Portrait layout
                 PhoneTimerLayout(
                     uiState = uiState,
-                    onTypeSelected = onTypeSelected,
                     onStartClick = onStartClick,
                     onPauseClick = onPauseClick,
                     onResumeClick = onResumeClick,
@@ -238,7 +208,6 @@ fun TimerScreen(
 @Composable
 private fun PhoneTimerLayout(
     uiState: TimerUiState,
-    onTypeSelected: (TimerType) -> Unit,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
@@ -273,11 +242,6 @@ private fun PhoneTimerLayout(
         // Timer Type Tabs
         TimerTypeTabs(
             selectedTimerType = uiState.currentType,
-            onTimerTypeSelected = { type ->
-                if (uiState.timerState == TimerState.IDLE) {
-                    onTypeSelected(type)
-                }
-            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -333,7 +297,6 @@ private fun PhoneTimerLayout(
 @Composable
 private fun TabletTimerLayout(
     uiState: TimerUiState,
-    onTypeSelected: (TimerType) -> Unit,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
@@ -409,11 +372,6 @@ private fun TabletTimerLayout(
             // Timer Type Tabs
             TimerTypeTabs(
                 selectedTimerType = uiState.currentType,
-                onTimerTypeSelected = { type ->
-                    if (uiState.timerState == TimerState.IDLE) {
-                        onTypeSelected(type)
-                    }
-                },
                 modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
             )
 
@@ -448,32 +406,27 @@ private fun TimerStatusDisplay(
     modifier: Modifier = Modifier
 ) {
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Timer state
-        Text(
-            text = when (timerState) {
-                TimerState.IDLE -> "Ready to focus"
-                TimerState.RUNNING -> "Stay focused!"
-                TimerState.PAUSED -> "Paused - Take a breath"
-                TimerState.COMPLETED -> "Well done! 🎉"
-            },
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = when (timerState) {
-                TimerState.RUNNING -> MaterialTheme.colorScheme.primary
-                TimerState.PAUSED -> MaterialTheme.colorScheme.secondary
-                TimerState.COMPLETED -> MaterialTheme.colorScheme.tertiary
-                else -> MaterialTheme.colorScheme.onSurface
-            }
-        )
 
-    }
+
+    Text(
+         modifier = modifier.fillMaxWidth().padding(8.dp),
+        text = when (timerState) {
+            TimerState.IDLE -> "Ready to focus"
+            TimerState.RUNNING -> "Stay focused!"
+            TimerState.PAUSED -> "Paused - Take a breath"
+            TimerState.COMPLETED -> "Well done! 🎉"
+        },
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        color = when (timerState) {
+            TimerState.RUNNING -> MaterialTheme.colorScheme.primary
+            TimerState.PAUSED -> MaterialTheme.colorScheme.secondary
+            TimerState.COMPLETED -> MaterialTheme.colorScheme.tertiary
+            else -> MaterialTheme.colorScheme.onSurface
+        }
+    )
+
 }
 
 @Composable

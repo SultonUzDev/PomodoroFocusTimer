@@ -7,7 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sultonuzdev.pft.presentation.settings.SettingsScreenRoot
 import com.sultonuzdev.pft.presentation.stats.StatsScreenRoot
-import com.sultonuzdev.pft.presentation.timer.TimerScreenRoot
+import com.sultonuzdev.pft.presentation.timer.TimerScreen
+import com.sultonuzdev.pft.presentation.timer_styles.TimerListScreen
 
 
 /**
@@ -20,27 +21,34 @@ fun SetUpNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppRoute.TIMER,
+        startDestination = AppRoute.Timer,
         modifier = modifier
     ) {
-        composable<AppRoute.TIMER> {
-            TimerScreenRoot(
-                navigateToSettings = { navController.navigate(AppRoute.SETTINGS) },
-                navigateToStats = { navController.navigate(AppRoute.STATS) }
+        composable<AppRoute.Timer> {
+            TimerScreen(
+                navigateToSettings = { navController.navigate(AppRoute.Settings) },
+                navigateToStats = { navController.navigate(AppRoute.Statistics) },
+                navigateToStyles = { navController.navigate(AppRoute.TimerStyles) }
             )
         }
 
-        composable<AppRoute.STATS> {
+        composable<AppRoute.Statistics> {
             StatsScreenRoot(
                 onBackClick = { navController.navigateUp() },
             )
         }
 
-        composable<AppRoute.SETTINGS> {
+        composable<AppRoute.Settings> {
             SettingsScreenRoot(
                 onBackClick = { navController.navigateUp() },
 
                 )
+        }
+
+        composable<AppRoute.TimerStyles> {
+            TimerListScreen(
+                navigateUp = { navController.navigateUp() },
+            )
         }
     }
 }

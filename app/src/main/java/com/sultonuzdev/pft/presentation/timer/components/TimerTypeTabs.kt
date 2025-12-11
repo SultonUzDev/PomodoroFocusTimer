@@ -29,8 +29,7 @@ import com.sultonuzdev.pft.core.util.TimerType
 private fun TimerTypeTabsPreview() {
     PomodoroAppTheme {
         TimerTypeTabs(
-            selectedTimerType = TimerType.POMODORO,
-            onTimerTypeSelected = {}
+            selectedTimerType = TimerType.LONG_BREAK,
         )
     }
 }
@@ -38,7 +37,6 @@ private fun TimerTypeTabsPreview() {
 @Composable
 fun TimerTypeTabs(
     selectedTimerType: TimerType,
-    onTimerTypeSelected: (TimerType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -48,13 +46,11 @@ fun TimerTypeTabs(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.extraLarge
             )
-            .padding(4.dp)
     ) {
         TimerTypeTab(
             text = "Pomodoro",
             selected = selectedTimerType == TimerType.POMODORO,
             color = MaterialTheme.colorScheme.primary,
-            onClick = { onTimerTypeSelected(TimerType.POMODORO) },
             modifier = Modifier.weight(1f)
         )
 
@@ -62,7 +58,6 @@ fun TimerTypeTabs(
             text = "Short Break",
             selected = selectedTimerType == TimerType.SHORT_BREAK,
             color = MaterialTheme.colorScheme.secondary,
-            onClick = { onTimerTypeSelected(TimerType.SHORT_BREAK) },
             modifier = Modifier.weight(1f)
         )
 
@@ -70,7 +65,6 @@ fun TimerTypeTabs(
             text = "Long Break",
             selected = selectedTimerType == TimerType.LONG_BREAK,
             color = MaterialTheme.colorScheme.tertiary,
-            onClick = { onTimerTypeSelected(TimerType.LONG_BREAK) },
             modifier = Modifier.weight(1f)
         )
     }
@@ -81,15 +75,14 @@ fun TimerTypeTab(
     text: String,
     selected: Boolean,
     color: Color,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .clip(MaterialTheme.shapes.extraLarge)
             .background(if (selected) color else Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
+            .padding(12.dp)
+            ,
         contentAlignment = Alignment.Center
     ) {
         Text(

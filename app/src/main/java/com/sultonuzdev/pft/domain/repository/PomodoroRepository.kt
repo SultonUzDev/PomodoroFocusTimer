@@ -1,5 +1,6 @@
 package com.sultonuzdev.pft.domain.repository
 
+import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.domain.model.Pomodoro
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
@@ -23,5 +24,9 @@ interface PomodoroRepository {
 
     fun getThemeMode(): Flow<ThemeMode>
     suspend fun setThemeMode(themeMode: ThemeMode)
+
+
+    fun getTimerStyle(): Flow<TimerStyle>
+    suspend fun setTimerStyle(style: TimerStyle)
 
 }

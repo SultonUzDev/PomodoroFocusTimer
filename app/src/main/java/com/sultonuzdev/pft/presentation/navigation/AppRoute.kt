@@ -6,14 +6,17 @@ import kotlinx.serialization.Serializable
  * Route definitions for app navigation
  */
 
-sealed class AppRoute {
+sealed interface AppRoute {
 
     @Serializable
-    data object TIMER : AppRoute()
+    data object Timer : AppRoute
 
     @Serializable
-    data object STATS : AppRoute()
+    data object Statistics : AppRoute
 
     @Serializable
-    data object SETTINGS : AppRoute()
+    data object Settings : AppRoute
+
+    @Serializable
+    data object TimerStyles: AppRoute
 }

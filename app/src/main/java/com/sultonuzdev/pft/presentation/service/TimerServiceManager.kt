@@ -188,22 +188,9 @@ class TimerServiceManager @Inject constructor(
         }
     }
 
-    /**
-     * Changes timer type manually (only when timer is idle)
-     */
-    fun changeTimerType(timerType: TimerType) {
-        Log.d(TAG, "Changing timer type to: $timerType")
 
-        // Call service directly if bound
-        timerService?.changeTimerTypeManually(timerType)
-    }
 
-    /**
-     * Gets current settings from the service
-     */
-    fun getCurrentSettings(): PomodoroTimerSettings? {
-        return timerService?.getCurrentSettings()
-    }
+
 
     /**
      * Pauses the current timer

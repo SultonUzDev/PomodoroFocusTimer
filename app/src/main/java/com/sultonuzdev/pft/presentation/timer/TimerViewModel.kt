@@ -196,7 +196,6 @@ class TimerViewModel @Inject constructor(
             is TimerIntent.ResumeTimer -> resumeTimer()
             is TimerIntent.StopTimer -> stopTimer()
             is TimerIntent.SkipTimer -> skipTimer()
-            is TimerIntent.ChangeTimerType -> changeTimerType(intent.type)
         }
     }
 
@@ -220,21 +219,15 @@ class TimerViewModel @Inject constructor(
 
     private fun stopTimer() {
         Log.d("TimerViewModel", "Stopping timer")
-        // Note: Session saving is handled by TimerService
         timerServiceManager.stopTimer()
     }
 
     private fun skipTimer() {
         Log.d("TimerViewModel", "Skipping timer")
-        // Note: Session saving is handled by TimerService
         timerServiceManager.skipTimer()
     }
 
-    private fun changeTimerType(type: TimerType) {
-        Log.d("TimerViewModel", "Changing timer type to: $type")
-        // Only call service, let it update the state - service is the single source of truth
-        timerServiceManager.changeTimerType(type)
-    }
+
 
     private fun handleTimerCompletion(completedType: TimerType) {
         Log.d("TimerViewModel", "Handling completion for type: $completedType")

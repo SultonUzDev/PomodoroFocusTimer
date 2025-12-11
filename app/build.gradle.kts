@@ -84,6 +84,7 @@ dependencies {
 
     // Compose UI
     implementation(libs.bundles.compose)
+    implementation(libs.androidx.window)
     debugImplementation(libs.bundles.compose.debug)
 
     // Navigation
