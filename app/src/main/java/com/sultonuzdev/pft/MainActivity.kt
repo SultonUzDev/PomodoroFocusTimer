@@ -1,19 +1,19 @@
 package com.sultonuzdev.pft
 
 import android.os.Bundle
-import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import androidx.window.layout.WindowMetricsCalculator
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.presentation.MainViewModel
@@ -41,12 +41,16 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
             }
+
             PomodoroAppTheme(
-                darkTheme = isDarkTheme
+                darkTheme = isDarkTheme,
             ) {
                 Surface(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .background( MaterialTheme.colorScheme.background)
+                        .fillMaxSize()
+                        .safeDrawingPadding()
+                    ,
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()

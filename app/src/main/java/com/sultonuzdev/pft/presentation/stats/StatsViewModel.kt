@@ -3,6 +3,7 @@ package com.sultonuzdev.pft.presentation.stats
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sultonuzdev.pft.core.util.getStartOfTheWeek
 import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
 import com.sultonuzdev.pft.presentation.stats.utils.StatsEffect
 import com.sultonuzdev.pft.presentation.stats.utils.StatsIntent
@@ -38,7 +39,7 @@ class StatsViewModel @Inject constructor(
     init {
         // Set initial week start date to the beginning of the current week
         val today = LocalDate.now()
-        val weekStart = pomodoroUseCases.getStartOfWeek(today)
+        val weekStart = today.getStartOfTheWeek()
 
         _uiState.update {
             it.copy(
@@ -61,7 +62,7 @@ class StatsViewModel @Inject constructor(
             }
 
             is StatsIntent.LoadWeeklyStats -> {
-                val weekStart = pomodoroUseCases.getStartOfWeek(_uiState.value.selectedDate)
+                val weekStart = _uiState.value.selectedDate.getStartOfTheWeek()
                 _uiState.update { it.copy(weekStartDate = weekStart) }
                 loadWeeklyStats(weekStart)
             }
@@ -82,11 +83,8 @@ class StatsViewModel @Inject constructor(
                 val today = LocalDate.now()
 
                 // Don't navigate past the current week
-                if (newWeekStart.isBefore(today) || newWeekStart.isEqual(
-                        pomodoroUseCases.getStartOfWeek(
-                            today
-                        )
-                    )
+                if (newWeekStart.isBefore(today) ||
+                    newWeekStart.isEqual(today.getStartOfTheWeek())
                 ) {
                     _uiState.update {
                         it.copy(
@@ -159,7 +157,10 @@ class StatsViewModel @Inject constructor(
                 pomodoroUseCases.getWeeklyAvgStats(startDate).collectLatest { weekStats ->
                     Log.d("StatsViewModel", "Received weekly stats: ${weekStats.size} days")
                     weekStats.forEachIndexed { index, stat ->
-                        Log.d("StatsViewModel", "  Day $index: ${stat.date} - ${stat.completedPomodoros} pomodoros, ${stat.totalFocusMinutes} minutes")
+                        Log.d(
+                            "StatsViewModel",
+                            "  Day $index: ${stat.date} - ${stat.completedPomodoros} pomodoros, ${stat.totalFocusMinutes} minutes"
+                        )
                     }
                     _uiState.update {
                         it.copy(
@@ -197,7 +198,7 @@ class StatsViewModel @Inject constructor(
                 val weeklyStats =
                     pomodoroUseCases.getWeeklyAvgStats.invoke(date = LocalDate.now())
                         .first()
-                
+
                 val daysWithSessions = weeklyStats.filter { it.totalFocusMinutes > 0 }.size
                 val avgDailyMinutes = if (daysWithSessions > 0) {
                     weeklyStats.sumOf { it.totalFocusMinutes } / daysWithSessions

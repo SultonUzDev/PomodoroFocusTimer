@@ -23,8 +23,8 @@ import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.core.util.calculateProgress
 import com.sultonuzdev.pft.core.util.formatToMinutesAndSeconds
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import com.sultonuzdev.pft.domain.usecase.pomodoro.AddPomodoro
-import com.sultonuzdev.pft.domain.usecase.settings.GetPomodoroSettings
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_PAUSE
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_RESUME
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_SKIP
@@ -59,7 +59,7 @@ private const val TAG = "TimerService"
 class TimerService : Service() {
 
     @Inject
-    lateinit var getPomodoroSettings: GetPomodoroSettings
+    lateinit var settingsRepository: SettingsRepository
 
     @Inject
     lateinit var addPomodoro: AddPomodoro
@@ -134,7 +134,7 @@ class TimerService : Service() {
     private fun observeTimerSettings() {
         settingsJob = serviceScope.launch {
             try {
-                getPomodoroSettings().collectLatest { settings ->
+                settingsRepository.getDefaultSettings().collectLatest { settings ->
                     Log.d(TAG, "Settings updated: $settings")
                     currentSettings = settings
 
@@ -155,14 +155,10 @@ class TimerService : Service() {
         val sessionPomodoros = _currentSessionPomodoros.value // Use session count, not total
         val pomodorosBeforeLongBreak = currentSettings.pomodoroCycleLength
 
-        Log.d(
-            TAG,
-            "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, pomodorosBeforeLongBreak=$pomodorosBeforeLongBreak"
-        )
+        Log.d(TAG, "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, pomodorosBeforeLongBreak=$pomodorosBeforeLongBreak")
 
         return when (currentType) {
             TimerType.POMODORO -> {
-                // Check if we've completed enough pomodoros in this session for a long break
                 if (sessionPomodoros >= pomodorosBeforeLongBreak) {
                     Log.d(TAG, "Session complete - taking long break")
                     TimerType.LONG_BREAK
@@ -219,7 +215,10 @@ class TimerService : Service() {
                         startedTime = sessionStartTime,
                         focusedDurationSeconds = focusedSeconds,
                     )
-                    Log.d(TAG, "Completed $currentType session saved to database (${focusedSeconds}s)")
+                    Log.d(
+                        TAG,
+                        "Completed $currentType session saved to database (${focusedSeconds}s)"
+                    )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to save completed session", e)
                 }
@@ -285,7 +284,10 @@ class TimerService : Service() {
                         startedTime = sessionStartTime,
                         focusedDurationSeconds = focusedSeconds,
                     )
-                    Log.d(TAG, "Skipped $currentType session saved to database as incomplete (${focusedSeconds}s)")
+                    Log.d(
+                        TAG,
+                        "Skipped $currentType session saved to database as incomplete (${focusedSeconds}s)"
+                    )
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to save skipped session", e)
                 }
@@ -439,8 +441,10 @@ class TimerService : Service() {
                     if (_timerState.value == TimerState.RUNNING) {
                         // Calculate elapsed time using SystemClock (reliable during screen lock)
                         val currentElapsedTime = SystemClock.elapsedRealtime()
-                        val actualElapsedTime = currentElapsedTime - timerStartElapsedTime - pausedElapsedTime
-                        val newRemainingTime = (_totalTimeMillis.value - actualElapsedTime).coerceAtLeast(0)
+                        val actualElapsedTime =
+                            currentElapsedTime - timerStartElapsedTime - pausedElapsedTime
+                        val newRemainingTime =
+                            (_totalTimeMillis.value - actualElapsedTime).coerceAtLeast(0)
 
                         val newProgress = calculateProgress(
                             _totalTimeMillis.value - newRemainingTime,

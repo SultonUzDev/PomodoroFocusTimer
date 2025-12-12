@@ -179,8 +179,7 @@ data class MeditationColors(
     val text: Color,
     val dotInactive: Color,
     val buttonBorder: Color,
-
-    )
+)
 
 // ============================================================================
 // WORK THEME COLORS

@@ -1,12 +1,10 @@
 package com.sultonuzdev.pft.presentation.settings
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.rememberScrollState
@@ -35,13 +33,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
+import com.sultonuzdev.pft.core.util.AppPreview
+import com.sultonuzdev.pft.core.util.formatAsDuration
 import com.sultonuzdev.pft.presentation.settings.components.SettingsSection
 import com.sultonuzdev.pft.presentation.settings.components.SettingsSlider
 import com.sultonuzdev.pft.presentation.settings.components.SettingsSwitch
@@ -51,11 +50,12 @@ import com.sultonuzdev.pft.presentation.settings.utils.SettingsIntent
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsUiState
 import kotlinx.coroutines.flow.collectLatest
 
+
 /**
  * Settings screen root composable with complete language support
  */
 @Composable
-fun SettingsScreenRoot(
+fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
@@ -75,7 +75,7 @@ fun SettingsScreenRoot(
         }
     }
 
-    SettingsScreen(
+    SettingsScreenContent(
         modifier = modifier,
         uiState = uiState,
         onBackClick = onBackClick,
@@ -137,30 +137,10 @@ fun SettingsScreenRoot(
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-private fun SettingsScreenPreview() {
-    PomodoroAppTheme {
-        SettingsScreen(
-            uiState = SettingsUiState(),
-            onBackClick = {},
-            snackbarHostState = SnackbarHostState(),
-            onTimerDurationChanged = {},
-            updateShortBreakMinutes = {},
-            updateLongBreakMinutes = {},
-            updatePomodorosBeforeLongBreak = {},
-            updateVibrationEnabled = {},
-            updateSoundEnabled = {},
-            updateFocusModeEnabled = {},
-            updateThemeMode = {},
-            onResetDefaults = {}
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+fun SettingsScreenContent(
     modifier: Modifier = Modifier,
     uiState: SettingsUiState,
     onBackClick: () -> Unit,
@@ -237,10 +217,7 @@ fun SettingsScreen(
                         label = stringResource(R.string.pomodoro),
                         valueRange = 5f..60f,
                         steps = 55,
-                        valueLabel = stringResource(
-                            R.string.minutes_format,
-                            uiState.settings.pomodoroMinutes
-                        ),
+                        valueLabel = uiState.settings.pomodoroMinutes.formatAsDuration(),
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -253,10 +230,7 @@ fun SettingsScreen(
                         label = stringResource(R.string.short_break),
                         valueRange = 1f..30f,
                         steps = 29,
-                        valueLabel = stringResource(
-                            R.string.minutes_format,
-                            uiState.settings.shortBreakMinutes
-                        ),
+                        valueLabel = uiState.settings.shortBreakMinutes.formatAsDuration(),
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -269,10 +243,7 @@ fun SettingsScreen(
                         label = stringResource(R.string.long_break),
                         valueRange = 5f..60f,
                         steps = 55,
-                        valueLabel = stringResource(
-                            R.string.minutes_format,
-                            uiState.settings.longBreakMinutes
-                        ),
+                        valueLabel = uiState.settings.longBreakMinutes.formatAsDuration(),
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -359,5 +330,27 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+    }
+}
+
+
+@AppPreview
+@Composable
+private fun SettingsScreenPreview() {
+    PomodoroAppTheme {
+        SettingsScreenContent(
+            uiState = SettingsUiState(),
+            onBackClick = {},
+            snackbarHostState = SnackbarHostState(),
+            onTimerDurationChanged = {},
+            updateShortBreakMinutes = {},
+            updateLongBreakMinutes = {},
+            updatePomodorosBeforeLongBreak = {},
+            updateVibrationEnabled = {},
+            updateSoundEnabled = {},
+            updateFocusModeEnabled = {},
+            updateThemeMode = {},
+            onResetDefaults = {}
+        )
     }
 }

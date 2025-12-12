@@ -2,7 +2,7 @@ package com.sultonuzdev.pft.presentation.timer_styles
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sultonuzdev.pft.domain.repository.PomodoroRepository
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TimerListViewModel @Inject constructor(
-    private val repository: PomodoroRepository,
+    private val repository: SettingsRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TimerListMviContract.TimerListState())
     val uiState: StateFlow<TimerListMviContract.TimerListState> = _uiState.asStateFlow()
@@ -27,11 +27,10 @@ class TimerListViewModel @Inject constructor(
     fun handleAction(action: TimerListMviContract.TimerListIntent) {
         viewModelScope.launch {
             when (action) {
-                is TimerListMviContract.TimerListIntent.SelectStyle -> {
+                is TimerListMviContract.TimerListIntent.NavigateToTimer -> {
                     _uiState.value = _uiState.value.copy(selectedStyle = action.timerStyle)
-                    repository.setTimerStyle(action.timerStyle)
                     delay(1000L)
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("Timer style set to ${action.timerStyle.title}"))
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToTimer(_uiState.value.selectedStyle))
                 }
 
                 TimerListMviContract.TimerListIntent.LoadTimerList -> {
@@ -40,8 +39,12 @@ class TimerListViewModel @Inject constructor(
                     }
                 }
 
-                TimerListMviContract.TimerListIntent.NavigateBack -> {
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateUp)
+                TimerListMviContract.TimerListIntent.NavigateToSettings -> {
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToSettings)
+                }
+
+                TimerListMviContract.TimerListIntent.NavigateToStats -> {
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToStats)
                 }
             }
         }

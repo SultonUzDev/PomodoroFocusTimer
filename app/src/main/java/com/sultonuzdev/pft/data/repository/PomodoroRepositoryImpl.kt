@@ -27,17 +27,8 @@ import javax.inject.Inject
  */
 class PomodoroRepositoryImpl @Inject constructor(
     private val pomodoroDao: PomodoroDao,
-    private val preferencesManager: PreferencesManager
 ) : PomodoroRepository {
 
-
-    override fun getSettings(): Flow<PomodoroTimerSettings> {
-        return preferencesManager.getSettings()
-    }
-
-    override suspend fun updateSettings(settings: PomodoroTimerSettings) {
-        preferencesManager.updateSettings(settings)
-    }
 
     override suspend fun savePomodoro(pomodoro: Pomodoro) {
         pomodoroDao.insertSession(pomodoro.toEntity())
@@ -64,22 +55,5 @@ class PomodoroRepositoryImpl @Inject constructor(
             endOfTheWeek.toString()
         )
             .map { it.toDomainModel() }
-    }
-
-
-    override fun getThemeMode(): Flow<ThemeMode> {
-        return preferencesManager.getThemeMode()
-    }
-
-    override suspend fun setThemeMode(themeMode: ThemeMode) {
-        preferencesManager.setThemeMode(themeMode)
-    }
-
-    override fun getTimerStyle(): Flow<TimerStyle> {
-        return preferencesManager.getTimerStyle()
-    }
-
-    override suspend fun setTimerStyle(style: TimerStyle) {
-        preferencesManager.setTimerStyle(style)
     }
 }

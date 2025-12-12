@@ -133,8 +133,8 @@ data class MeditationTypography(
 fun getMeditationTypography() = MeditationTypography(
     timer = TextStyle(
         fontFamily = RobotoFontFamily,
-        fontSize = 100.sp,
-        fontWeight = FontWeight.Light  // KEY: Light weight!
+        fontSize = 80.sp,
+        fontWeight = FontWeight.SemiBold  // KEY: Light weight!
     ),
     breatheText = TextStyle(
         fontFamily = RobotoFontFamily,

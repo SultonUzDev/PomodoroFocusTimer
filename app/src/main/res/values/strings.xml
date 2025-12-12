@@ -37,7 +37,7 @@
     <string name="settings">Settings</string>
     <string name="statistics">Statistics</string>
     <string name="language">Language</string>
-    <string name="timer_durations">Timer Durations</string>
+    <string name="timer_durations">All Timer\'s Default Durations</string>
     <string name="pomodoro">Pomodoro</string>
     <string name="pomodoro_duration">Pomodoro Duration</string>
     <string name="short_break_duration">Short Break Duration</string>

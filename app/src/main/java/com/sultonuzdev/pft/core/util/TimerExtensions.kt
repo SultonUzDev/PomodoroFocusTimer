@@ -5,8 +5,11 @@ import android.annotation.SuppressLint
 import com.sultonuzdev.pft.core.util.Constants.MILLIS_IN_MINUTE
 import com.sultonuzdev.pft.core.util.Constants.MILLIS_IN_SECOND
 import com.sultonuzdev.pft.core.util.Constants.SECONDS_IN_MINUTE
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 /**
  * Extension functions for timer-related conversions
@@ -40,7 +43,7 @@ fun LocalDateTime.formatToDate(): String {
 }
 
 // Helper function for formatting focus time
- fun Int.formatFocusTime(): String {
+fun Int.formatAsDuration(): String {
     return when {
         this < 60 -> "${this}m"
         this < 1440 -> { // Less than 24 hours
@@ -48,6 +51,7 @@ fun LocalDateTime.formatToDate(): String {
             val minutes = this % 60
             if (minutes == 0) "${hours}h" else "${hours}h ${minutes}m"
         }
+
         else -> { // 24+ hours
             val days = this / 1440
             val hours = (this % 1440) / 60
@@ -55,3 +59,6 @@ fun LocalDateTime.formatToDate(): String {
         }
     }
 }
+
+fun LocalDate.getStartOfTheWeek(): LocalDate =
+    this.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

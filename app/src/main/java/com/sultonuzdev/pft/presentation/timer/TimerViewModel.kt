@@ -5,19 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
+import com.sultonuzdev.pft.data.media.PomodoroTimerMediaController
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
 import com.sultonuzdev.pft.presentation.service.TimerServiceManager
-import com.sultonuzdev.pft.presentation.timer.utils.TimerEffect
-import com.sultonuzdev.pft.presentation.timer.utils.TimerIntent
-import com.sultonuzdev.pft.presentation.timer.utils.TimerUiState
+import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,14 +33,16 @@ import javax.inject.Inject
 @HiltViewModel
 class TimerViewModel @Inject constructor(
     private val timerServiceManager: TimerServiceManager,
-    private val pomodoroUseCases: PomodoroUseCases
+    private val pomodoroUseCases: PomodoroUseCases,
+    private val settingsRepository: SettingsRepository,
+    private val mediaController: PomodoroTimerMediaController,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(TimerUiState())
-    val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(TimerMviContract.TimerUiState())
+    val uiState: StateFlow<TimerMviContract.TimerUiState> = _uiState.asStateFlow()
 
-    private val _effect = MutableSharedFlow<TimerEffect>()
-    val effect: SharedFlow<TimerEffect> = _effect.asSharedFlow()
+    private val _effect = Channel<TimerMviContract.TimerEffect>()
+    val effect: Flow<TimerMviContract.TimerEffect> = _effect.receiveAsFlow()
 
     private var previousTimerState: TimerState = TimerState.IDLE
     private var completedTimerType: TimerType? = null // Track what type completed
@@ -66,7 +68,7 @@ class TimerViewModel @Inject constructor(
     private fun loadSettings() {
         viewModelScope.launch {
             try {
-                pomodoroUseCases.getPomodoroSetting().collectLatest { settings ->
+                settingsRepository.getDefaultSettings().collectLatest { settings ->
                     _uiState.update { currentState ->
                         // Always update settings, but don't override service state
                         currentState.copy(settings = settings)
@@ -188,14 +190,17 @@ class TimerViewModel @Inject constructor(
 
     }
 
-    fun processIntent(intent: TimerIntent) {
-        Log.d("TimerViewModel", "Processing intent: $intent")
-        when (intent) {
-            is TimerIntent.StartTimer -> startTimer()
-            is TimerIntent.PauseTimer -> pauseTimer()
-            is TimerIntent.ResumeTimer -> resumeTimer()
-            is TimerIntent.StopTimer -> stopTimer()
-            is TimerIntent.SkipTimer -> skipTimer()
+    fun processIntent(intent: TimerMviContract.TimerIntent) {
+        viewModelScope.launch {
+
+            Log.d("TimerViewModel", "Processing intent: $intent")
+            when (intent) {
+                is TimerMviContract.TimerIntent.StartTimer -> startTimer()
+                is TimerMviContract.TimerIntent.PauseTimer -> pauseTimer()
+                is TimerMviContract.TimerIntent.ResumeTimer -> resumeTimer()
+                is TimerMviContract.TimerIntent.StopTimer -> stopTimer()
+                is TimerMviContract.TimerIntent.SkipTimer -> skipTimer()
+            }
         }
     }
 
@@ -228,7 +233,6 @@ class TimerViewModel @Inject constructor(
     }
 
 
-
     private fun handleTimerCompletion(completedType: TimerType) {
         Log.d("TimerViewModel", "Handling completion for type: $completedType")
 
@@ -236,18 +240,18 @@ class TimerViewModel @Inject constructor(
             // Play sound/vibration based on settings
             try {
                 if (_uiState.value.settings.soundEnabled) {
-                    _effect.emit(TimerEffect.PlayTimerCompletedSound)
+                    mediaController.playSound()
                 }
 
                 if (_uiState.value.settings.vibrationEnabled) {
-                    _effect.emit(TimerEffect.VibrateDevice)
+                    mediaController.vibrateDevice()
                 }
 
                 // If a Pomodoro completed, show a motivational quote
                 // Note: Session saving is handled by TimerService
                 if (completedType == TimerType.POMODORO) {
                     Log.d("TimerViewModel", "Pomodoro completed - showing quote")
-                    _effect.emit(TimerEffect.ShowQuote(quotes.random()))
+                    _effect.send(TimerMviContract.TimerEffect.ShowQuote(quotes.random()))
                 } else {
                     Log.d("TimerViewModel", "Break completed")
                 }
@@ -258,7 +262,7 @@ class TimerViewModel @Inject constructor(
                     TimerType.SHORT_BREAK -> "Break's over. Ready for another Pomodoro?"
                     TimerType.LONG_BREAK -> "Long break completed. Great job on your session!"
                 }
-                _effect.emit(TimerEffect.ShowMessage(message))
+                _effect.send(TimerMviContract.TimerEffect.ShowMessage(message))
             } catch (e: Exception) {
                 Log.e("TimerViewModel", "Error handling timer completion", e)
             }

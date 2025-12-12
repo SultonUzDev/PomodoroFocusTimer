@@ -4,13 +4,8 @@ import com.sultonuzdev.pft.domain.repository.PomodoroRepository
 import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
 import com.sultonuzdev.pft.domain.usecase.pomodoro.AddPomodoro
 import com.sultonuzdev.pft.domain.usecase.pomodoro.GetTodayPomodoro
-import com.sultonuzdev.pft.domain.usecase.settings.GetPomodoroSettings
-import com.sultonuzdev.pft.domain.usecase.settings.GetThemeMode
-import com.sultonuzdev.pft.domain.usecase.settings.UpdatePomodoroSettings
-import com.sultonuzdev.pft.domain.usecase.settings.UpdateThemeMode
 import com.sultonuzdev.pft.domain.usecase.stats.GetCompletedPomodoros
 import com.sultonuzdev.pft.domain.usecase.stats.GetDailyStats
-import com.sultonuzdev.pft.domain.usecase.stats.GetStartOfWeek
 import com.sultonuzdev.pft.domain.usecase.stats.GetTotalFocusTime
 import com.sultonuzdev.pft.domain.usecase.stats.GetWeeklyAvgStats
 import dagger.Module
@@ -33,12 +28,6 @@ object UseCaseModule {
             getDailyStats = GetDailyStats(repository),
             getTotalFocusTime = GetTotalFocusTime(repository),
             getWeeklyAvgStats = GetWeeklyAvgStats(repository),
-            getStartOfWeek = GetStartOfWeek(),
-            getPomodoroSetting = GetPomodoroSettings(repository),
-            getThemeMode = GetThemeMode(repository),
-            updateThemeMode = UpdateThemeMode(repository),
-            updatePomodoroSettings = UpdatePomodoroSettings(repository)
-
         )
     }
 }

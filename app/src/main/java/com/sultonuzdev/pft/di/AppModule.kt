@@ -5,9 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import androidx.room.Room
-import com.sultonuzdev.pft.data.db.PomodoroDatabase
-import com.sultonuzdev.pft.core.util.Constants.DATABASE_NAME
+import com.sultonuzdev.pft.data.media.PomodoroTimerMediaController
 import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import dagger.Module
 import dagger.Provides
@@ -35,8 +33,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferencesManager(dataStore: DataStore<Preferences>): PreferencesManager {
-        return PreferencesManager(dataStore)
-    }
+    fun providePreferencesManager(dataStore: DataStore<Preferences>): PreferencesManager =
+        PreferencesManager(dataStore)
+
+
+    @Provides
+    @Singleton
+    fun providePomodoroTimerMediaController(@ApplicationContext context: Context): PomodoroTimerMediaController =
+        PomodoroTimerMediaController(context)
+
 
 }

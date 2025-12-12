@@ -5,7 +5,9 @@ import androidx.datastore.preferences.core.Preferences
 import com.sultonuzdev.pft.data.db.dao.PomodoroDao
 import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import com.sultonuzdev.pft.data.repository.PomodoroRepositoryImpl
+import com.sultonuzdev.pft.data.repository.SettingsRepositoryImpl
 import com.sultonuzdev.pft.domain.repository.PomodoroRepository
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,8 +25,13 @@ object RepositoryModule {
     @Singleton
     fun providePomodoroRepository(
         dao: PomodoroDao,
-       preferencesManager: PreferencesManager
     ): PomodoroRepository {
-        return PomodoroRepositoryImpl(dao, preferencesManager)
+        return PomodoroRepositoryImpl(dao)
     }
+
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(
+        preferencesManager: PreferencesManager
+    ): SettingsRepository = SettingsRepositoryImpl(preferencesManager)
 }

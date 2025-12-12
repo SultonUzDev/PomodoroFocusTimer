@@ -15,18 +15,9 @@ interface PomodoroRepository {
     fun getAllPomodoros(): Flow<List<Pomodoro>>
     fun getPomodoroByDate(date: LocalDate): Flow<List<Pomodoro>>
 
-    fun getSettings(): Flow<PomodoroTimerSettings>
-    suspend fun updateSettings(settings: PomodoroTimerSettings)
 
 
     fun getWeeklyStats(startOfTheWeek: LocalDate, endOfTheWeek: LocalDate): Flow<List<Pomodoro>>
 
-
-    fun getThemeMode(): Flow<ThemeMode>
-    suspend fun setThemeMode(themeMode: ThemeMode)
-
-
-    fun getTimerStyle(): Flow<TimerStyle>
-    suspend fun setTimerStyle(style: TimerStyle)
 
 }

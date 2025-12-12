@@ -1,61 +1,67 @@
 package com.sultonuzdev.pft.presentation.timer_styles
 
 import com.sultonuzdev.pft.core.enums.TimerStyle
+import com.sultonuzdev.pft.domain.model.TimerOption
 
 object TimerListMviContract {
 
     data class TimerListState(
-        val timerList: List<TimerOption> =
-            listOf(
-                TimerOption(
-                    style = TimerStyle.REGULAR,
-                    icon = "🍅",
-                    title = "Regular",
-                    description = "Minimalist dark theme optimized for distraction-free studying. Large timer display with landscape layout for maximum focus.",
-                    features = listOf("Minimalistic", "Large Timer"),
-                ),
-                TimerOption(
-                    style = TimerStyle.READING,
-                    icon = "📖",
-                    title = "Reading Session",
-                    description = "Warm, cozy theme inspired by vintage books. Serif typography and sepia tones create a comfortable reading atmosphere.",
-                    features = listOf("Warm Colors", "Book Design"),
-                ),
-                TimerOption(
-                    style = TimerStyle.MEDITATION,
-                    icon = "🧘",
-                    title = "Meditation",
-                    description = "Calm, peaceful theme with breathing animations. Minimal interface helps you stay present and focused on your practice.",
-                    features = listOf("Breathing Circle", "Calming"),
-                ),
-                TimerOption(
-                    style = TimerStyle.CODING,
-                    icon = "💻",
-                    title = "Coding Session",
-                    description = "Terminal-inspired theme with monospace fonts and syntax highlighting. Feels like your favorite IDE for focused coding.",
-                    features = listOf("Terminal Style", "Dev Tools"),
-                )
-            ),
+        val timerList: List<TimerOption> = timerOptions,
         val selectedStyle: TimerStyle = TimerStyle.REGULAR,
     )
 
     sealed interface TimerListEffect {
-        data object NavigateUp : TimerListEffect
-        data class ShowMessage(val message: String) : TimerListEffect
+        data class NavigateToTimer(val timerStyle: TimerStyle) : TimerListEffect
+        data object NavigateToSettings : TimerListEffect
+        data object NavigateToStats : TimerListEffect
 
     }
 
     sealed interface TimerListIntent {
         object LoadTimerList : TimerListIntent
-        data class SelectStyle(val timerStyle: TimerStyle) : TimerListIntent
-        data object NavigateBack : TimerListIntent
+        data class NavigateToTimer(val timerStyle: TimerStyle) : TimerListIntent
+        data object NavigateToSettings : TimerListIntent
+        data object NavigateToStats : TimerListIntent
     }
+
 }
 
-data class TimerOption(
-    val style: TimerStyle,
-    val icon: String,
-    val title: String,
-    val description: String,
-    val features: List<String>,
+val timerOptions = listOf(
+    TimerOption(
+        style = TimerStyle.REGULAR,
+        icon = "🍅",
+        title = "Regular",
+        description = "Minimalist dark theme optimized for distraction-free studying. Large timer display with landscape layout for maximum focus.",
+        features = listOf("Minimal", "Circle"),
+    ),
+    TimerOption(
+        style = TimerStyle.STUDY,
+        icon = "📚",
+        title = "Study Focus",
+        description = "Minimalist dark theme optimized for distraction-free studying. Large timer display with landscape layout for maximum focus.",
+        features = listOf("Focused", "Large"),
+    ),
+    TimerOption(
+        style = TimerStyle.READING,
+        icon = "📖",
+        title = "Reading Session",
+        description = "Warm, cozy theme inspired by vintage books. Serif typography and sepia tones create a comfortable reading atmosphere.",
+        features = listOf("Warm", "Vintage"),
+    ),
+    TimerOption(
+        style = TimerStyle.MEDITATION,
+        icon = "🧘",
+        title = "Meditation",
+        description = "Calm, peaceful theme with breathing animations. Minimal interface helps you stay present and focused on your practice.",
+        features = listOf("Breathing", "Calm"),
+    ),
+    TimerOption(
+        style = TimerStyle.CODING,
+        icon = "💻",
+        title = "Coding Session",
+        description = "Terminal-inspired theme with monospace fonts and syntax highlighting. Feels like your favorite IDE for focused coding.",
+        features = listOf("Terminal", "Monospace"),
+    )
 )
+
+

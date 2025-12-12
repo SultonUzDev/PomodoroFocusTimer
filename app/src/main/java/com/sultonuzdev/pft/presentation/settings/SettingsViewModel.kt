@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
-import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsEffect
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsIntent
 import com.sultonuzdev.pft.presentation.settings.utils.SettingsUiState
@@ -26,7 +26,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val pomodoroUseCases: PomodoroUseCases,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -44,7 +44,7 @@ class SettingsViewModel @Inject constructor(
     private fun loadThemeMode() {
         viewModelScope.launch {
             try {
-                pomodoroUseCases.getThemeMode().collectLatest { themeMode ->
+                settingsRepository.getThemeMode().collectLatest { themeMode ->
                     _uiState.update { it.copy(themeMode = themeMode) }
                 }
             } catch (e: Exception) {
@@ -58,7 +58,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
             try {
-                pomodoroUseCases.getPomodoroSetting().collectLatest { settings ->
+                settingsRepository.getDefaultSettings().collectLatest { settings ->
                     _uiState.update {
                         it.copy(
                             settings = settings,
@@ -79,114 +79,114 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun processIntent(intent: SettingsIntent) {
-        when (intent) {
-            is SettingsIntent.UpdatePomodoroMinutes -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(pomodoroMinutes = intent.minutes.coerceIn(5, 60))
-            }
-
-            is SettingsIntent.UpdateShortBreakMinutes -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(shortBreakMinutes = intent.minutes.coerceIn(1, 30))
-            }
-
-            is SettingsIntent.UpdateLongBreakMinutes -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(longBreakMinutes = intent.minutes.coerceIn(5, 60))
-            }
-
-            is SettingsIntent.UpdatePomodorosBeforeLongBreak -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(pomodoroCycleLength = intent.count.coerceIn(1, 10))
-            }
-
-            is SettingsIntent.UpdateVibrationEnabled -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(vibrationEnabled = intent.enabled)
-            }
-
-            is SettingsIntent.UpdateSoundEnabled -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(soundEnabled = intent.enabled)
-            }
-
-            is SettingsIntent.UpdateFocusModeEnabled -> updateSettings(
-                showMessage = false
-            ) {
-                it.copy(enableFocusMode = intent.enabled)
-            }
-
-            is SettingsIntent.UpdateThemeMode -> {
-                viewModelScope.launch {
-                    try {
-                        pomodoroUseCases.updateThemeMode(intent.themeMode)
-                        _uiState.update { it.copy(themeMode = intent.themeMode) }
-                        _effect.emit(SettingsEffect.ShowMessage("Theme updated"))
-                    } catch (e: Exception) {
-                        _effect.emit(SettingsEffect.ShowMessage("Failed to update theme"))
-                    }
+        viewModelScope.launch {
+            when (intent) {
+                is SettingsIntent.UpdatePomodoroMinutes -> updateSettings {
+                    it.copy(
+                        pomodoroMinutes = intent.minutes.coerceIn(
+                            5,
+                            60
+                        )
+                    )
                 }
+
+                is SettingsIntent.UpdateShortBreakMinutes -> updateSettings {
+                    it.copy(
+                        shortBreakMinutes = intent.minutes.coerceIn(
+                            1,
+                            30
+                        )
+                    )
+                }
+
+                is SettingsIntent.UpdateLongBreakMinutes -> updateSettings {
+                    it.copy(
+                        longBreakMinutes = intent.minutes.coerceIn(
+                            5,
+                            60
+                        )
+                    )
+                }
+
+                is SettingsIntent.UpdatePomodorosBeforeLongBreak -> updateSettings {
+                    it.copy(
+                        pomodoroCycleLength = intent.count.coerceIn(1, 10)
+                    )
+                }
+
+                is SettingsIntent.UpdateVibrationEnabled -> updateSettings {
+                    it.copy(
+                        vibrationEnabled = intent.enabled
+                    )
+                }
+
+                is SettingsIntent.UpdateSoundEnabled -> updateSettings { it.copy(soundEnabled = intent.enabled) }
+
+                is SettingsIntent.UpdateFocusModeEnabled -> updateSettings { it.copy(enableFocusMode = intent.enabled) }
+
+                is SettingsIntent.UpdateThemeMode -> updateTheme(intent.themeMode)
+
+
+                is SettingsIntent.ResetToDefaults -> resetToDefaults()
             }
 
+        }
+    }
 
-            is SettingsIntent.ResetToDefaults -> {
-                viewModelScope.launch {
-                    try {
-                        // Reset to default settings
-                        val defaultSettings = PomodoroTimerSettings()
-                        pomodoroUseCases.updatePomodoroSettings(defaultSettings)
-
-                        // Reset theme to system default
-                        pomodoroUseCases.updateThemeMode(ThemeMode.SYSTEM)
-
-
-                        // Update UI state
-                        _uiState.update {
-                            it.copy(
-                                settings = defaultSettings,
-                                themeMode = ThemeMode.SYSTEM,
-                            )
-                        }
-
-                        // Show message
-                        _effect.emit(SettingsEffect.ShowMessage("Settings reset to defaults"))
-                    } catch (e: Exception) {
-                        _effect.emit(SettingsEffect.ShowMessage("Failed to reset settings"))
-                    }
-                }
+    private fun updateTheme(themeMode: ThemeMode) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setThemeMode(themeMode)
+                _uiState.update { it.copy(themeMode = themeMode) }
+                _effect.emit(SettingsEffect.ShowMessage("Theme updated"))
+            } catch (e: Exception) {
+                _effect.emit(SettingsEffect.ShowMessage("Failed to update theme"))
             }
         }
     }
 
-    private fun updateSettings(
-        showMessage: Boolean = true,
-        update: (PomodoroTimerSettings) -> PomodoroTimerSettings
-    ) {
+    private fun resetToDefaults() {
         viewModelScope.launch {
             try {
-                val currentSettings = _uiState.value.settings
-                val newSettings = update(currentSettings)
+                // Reset to default settings
+                val defaultSettings = PomodoroTimerSettings()
+                settingsRepository.updateSettings(defaultSettings)
 
-                // Update local state immediately for responsive UI
-                _uiState.update { it.copy(settings = newSettings) }
+                // Reset theme to system default
+                settingsRepository.setThemeMode(ThemeMode.SYSTEM)
 
-                // Persist settings
-                pomodoroUseCases.updatePomodoroSettings(newSettings)
 
-                // Show success message only if requested
-                if (showMessage) {
-                    _effect.emit(SettingsEffect.ShowMessage("Settings updated"))
+                // Update UI state
+                _uiState.update {
+                    it.copy(
+                        settings = defaultSettings,
+                        themeMode = ThemeMode.SYSTEM,
+                    )
                 }
+
+                // Show message
+                _effect.emit(SettingsEffect.ShowMessage("Settings reset to defaults"))
             } catch (e: Exception) {
-                // Always show error messages
-                _effect.emit(SettingsEffect.ShowMessage("Failed to update settings: ${e.message}"))
+                _effect.emit(SettingsEffect.ShowMessage("Failed to reset settings"))
             }
+        }
+
+    }
+
+    private suspend fun updateSettings(update: (PomodoroTimerSettings) -> PomodoroTimerSettings) {
+        try {
+            val currentSettings = _uiState.value.settings
+            val newSettings = update(currentSettings)
+
+            // Update local state immediately for responsive UI
+            _uiState.update { it.copy(settings = newSettings) }
+
+            // Persist settings
+            settingsRepository.updateSettings(newSettings)
+
+        } catch (e: Exception) {
+            // Always show error messages
+            _effect.emit(SettingsEffect.ShowMessage("Failed to update settings: ${e.message}"))
         }
     }
 }

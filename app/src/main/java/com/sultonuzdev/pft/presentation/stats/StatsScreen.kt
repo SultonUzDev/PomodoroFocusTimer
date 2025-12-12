@@ -1,6 +1,5 @@
 package com.sultonuzdev.pft.presentation.stats
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -44,7 +42,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,11 +54,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.presentation.stats.components.ChartType
 import com.sultonuzdev.pft.presentation.stats.components.ChartTypeToggle
 import com.sultonuzdev.pft.presentation.stats.components.DateSelector
@@ -75,15 +72,13 @@ import com.sultonuzdev.pft.presentation.stats.utils.StatsIntent
 import com.sultonuzdev.pft.presentation.stats.utils.StatsUiState
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun StatsScreenRoot(
+fun StatsScreen(
     viewModel: StatsViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
-
-    ) {
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -109,17 +104,17 @@ fun StatsScreenRoot(
             }
         }
     }
-    StatsScreen(
-        modifier = Modifier,
+    StatsScreenContent(
         uiState = uiState,
-        onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
         onRefreshStats = { viewModel.processIntent(StatsIntent.RefreshStats) },
         onDaySelect = { date -> viewModel.processIntent(StatsIntent.SelectDate(date)) },
         weekDates = weekDates,
         onNextWeek = { viewModel.processIntent(StatsIntent.NavigateToNextWeek) },
         onPreviousWeek = { viewModel.processIntent(StatsIntent.NavigateToPreviousWeek) },
-    )
+        onBackClick = { onBackClick() },
+
+        )
 
 
 }
@@ -129,31 +124,10 @@ fun StatsScreenRoot(
  * Stats screen composable
  */
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-private fun StatsScreenPreview() {
-
-    PomodoroAppTheme {
-        StatsScreen(
-            modifier = Modifier,
-            uiState = StatsUiState(),
-            onBackClick = {},
-            snackbarHostState = SnackbarHostState(),
-            onRefreshStats = {},
-            onDaySelect = {},
-            weekDates = emptyList(),
-            onNextWeek = {},
-            onPreviousWeek = {},
-
-            )
-    }
-
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun StatsScreen(
+fun StatsScreenContent(
     modifier: Modifier = Modifier,
     uiState: StatsUiState,
     onBackClick: () -> Unit,
@@ -260,12 +234,9 @@ fun StatsScreen(
                         StatsSectionHeader(title = "Daily Focus")
 
                         // Selected date display
-                        val formattedDate = uiState.selectedDate.format(
-                            DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
-                        )
 
                         Text(
-                            text = formattedDate,
+                            text = uiState.selectedDate.dayOfWeek.name,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Medium
                             ),
@@ -387,6 +358,26 @@ fun StatsScreen(
             }
         }
     }
+}
+
+
+@AppPreview
+@Composable
+private fun StatsScreenPreview() {
+    PomodoroAppTheme {
+        StatsScreenContent(
+            uiState = StatsUiState(),
+            snackbarHostState = SnackbarHostState(),
+            onRefreshStats = {},
+            onDaySelect = {},
+            weekDates = emptyList(),
+            onNextWeek = {},
+            onPreviousWeek = {},
+            modifier = Modifier.fillMaxSize(),
+            onBackClick = {}
+        )
+    }
+
 }
 
 

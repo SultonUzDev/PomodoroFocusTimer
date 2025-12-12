@@ -3,7 +3,7 @@ package com.sultonuzdev.pft.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
-import com.sultonuzdev.pft.domain.usecase.PomodoroUseCases
+import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val pomodoroUseCases: PomodoroUseCases,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val _themeModeState = MutableStateFlow(ThemeMode.SYSTEM)
@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(
 
     fun loadTheme() {
         viewModelScope.launch {
-            pomodoroUseCases.getThemeMode().collect {
+            settingsRepository.getThemeMode().collect {
                 _themeModeState.value = it
             }
         }

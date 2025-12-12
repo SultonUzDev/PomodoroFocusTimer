@@ -18,13 +18,13 @@ val PomodoroTypography @Composable get() = Typography(
         fontFamily = RobotoFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.3.sp
     ),
     titleMedium = TextStyle(
         fontFamily = RobotoFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        letterSpacing = 0.15.sp
+        letterSpacing = 0.4.sp
     ),
     titleSmall = TextStyle(
         fontFamily = RobotoFontFamily,
