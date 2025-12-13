@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
@@ -325,7 +325,7 @@ private fun MeditationProgressDots(
 @AppPreview
 @Composable
 private fun MeditationTimerScreenContentPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         MeditationTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
                 currentType = TimerType.SHORT_BREAK,

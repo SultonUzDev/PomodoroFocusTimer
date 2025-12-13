@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTENT_WIDTH
 import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTROLS_WIDTH
@@ -455,7 +455,7 @@ private fun getTimerColor(timerType: TimerType): Color {
 @AppPreview
 @Composable
 private fun TimerScreenPreview() {
-    PomodoroAppTheme(darkTheme = false) {
+    PomodoroTheme(darkTheme = false) {
         RegularTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
                 currentType = TimerType.LONG_BREAK,

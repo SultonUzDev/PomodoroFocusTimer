@@ -59,7 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.enums.TimerStyle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.domain.model.TimerOption
@@ -186,8 +186,8 @@ fun TimerListScreenContent(
 @Composable
 fun TimerCard(
     option: TimerOption,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
 
     val backgroundColor = when (option.style) {
@@ -575,7 +575,7 @@ fun CodingPreview() {
 @Preview(device = "spec:width=411dp,height=1000dp")
 @Composable
 fun TimerListScreenContentPreview() {
-    PomodoroAppTheme(darkTheme = true) {
+    PomodoroTheme(darkTheme = true) {
         TimerListScreenContent(
             handleAction = {},
             uiState = TimerListMviContract.TimerListState()
@@ -586,7 +586,7 @@ fun TimerListScreenContentPreview() {
 @Preview
 @Composable
 fun TimerListScreenContentLightPreview() {
-    PomodoroAppTheme(darkTheme = false) {
+    PomodoroTheme(darkTheme = false) {
         TimerListScreenContent(
             handleAction = {},
             uiState = TimerListMviContract.TimerListState()

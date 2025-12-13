@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
@@ -138,7 +138,7 @@ private fun StatItem(
 @AppPreview
 @Composable
 private fun StudyProgressBarPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         StudyProgressBar(
             completedPomodoros = 3,
             totalFocusMinutes = 75,

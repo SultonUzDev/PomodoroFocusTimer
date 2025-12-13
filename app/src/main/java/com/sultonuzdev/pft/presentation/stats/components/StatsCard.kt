@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 
 /**
  * Card to display a single statistic
@@ -39,7 +39,7 @@ import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
 @Composable
 private fun StatsCardPreview() {
 
-    PomodoroAppTheme {
+    PomodoroTheme {
         StatsCard(
             title = "Total Sessions",
             value = "120",

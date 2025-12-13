@@ -23,13 +23,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SettingSwitchPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         SettingsSwitch(
             checked = false,
             onCheckedChange = {},

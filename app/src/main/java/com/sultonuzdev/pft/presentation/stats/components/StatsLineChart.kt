@@ -25,14 +25,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import java.time.LocalDate
 
 
 @Preview
 @Composable
 private fun StatsLineChartPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         StatsLineChart(
             data = listOf(
                 LocalDate.now().minusDays(6) to 0,

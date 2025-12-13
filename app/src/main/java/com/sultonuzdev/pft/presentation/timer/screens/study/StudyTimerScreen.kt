@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.TimerState
@@ -166,7 +166,7 @@ fun StudyTimerScreenContent(
 @AppPreview
 @Composable
 private fun StudyTimerPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         StudyTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
                 timerState = TimerState.IDLE,

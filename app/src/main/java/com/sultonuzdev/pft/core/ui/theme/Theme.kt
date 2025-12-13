@@ -7,7 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 
 
 @Composable
-fun PomodoroAppTheme(
+fun PomodoroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

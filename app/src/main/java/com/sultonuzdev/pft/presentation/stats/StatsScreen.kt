@@ -57,7 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.presentation.stats.components.ChartType
 import com.sultonuzdev.pft.presentation.stats.components.ChartTypeToggle
@@ -364,7 +364,7 @@ fun StatsScreenContent(
 @AppPreview
 @Composable
 private fun StatsScreenPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         StatsScreenContent(
             uiState = StatsUiState(),
             snackbarHostState = SnackbarHostState(),

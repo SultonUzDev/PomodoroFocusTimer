@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.R
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.formatAsDuration
@@ -337,7 +337,7 @@ fun SettingsScreenContent(
 @AppPreview
 @Composable
 private fun SettingsScreenPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         SettingsScreenContent(
             uiState = SettingsUiState(),
             onBackClick = {},

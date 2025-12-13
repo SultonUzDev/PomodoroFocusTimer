@@ -28,7 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
@@ -222,7 +222,7 @@ private fun ZenDivider(
 @AppPreview
 @Composable
 private fun MeditationStatsPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,7 +242,7 @@ private fun MeditationStatsPreview() {
 @AppPreview
 @Composable
 private fun MeditationStatsBreakPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -262,7 +262,7 @@ private fun MeditationStatsBreakPreview() {
 @AppPreview
 @Composable
 private fun MeditationStatsLongBreakPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

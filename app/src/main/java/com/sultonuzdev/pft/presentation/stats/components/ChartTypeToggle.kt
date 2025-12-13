@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 
 enum class ChartType { BAR, LINE }
 
@@ -29,7 +29,7 @@ enum class ChartType { BAR, LINE }
 @Preview
 @Composable
 private fun ChartTypeTogglePreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         ChartTypeToggle(selectedType = ChartType.BAR, onTypeSelected = {})
     }
 }

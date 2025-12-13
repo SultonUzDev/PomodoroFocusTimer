@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.TimerState
@@ -163,7 +163,7 @@ private fun getPageStatus(timerState: TimerState): String {
 @AppPreview
 @Composable
 private fun ReadingTimerPreviewDark() {
-    PomodoroAppTheme {
+    PomodoroTheme {
 
         ReadingTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(

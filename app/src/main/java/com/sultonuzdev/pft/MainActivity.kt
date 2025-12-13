@@ -14,7 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.presentation.MainViewModel
 import com.sultonuzdev.pft.presentation.navigation.SetUpNavGraph
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
             }
 
-            PomodoroAppTheme(
+            PomodoroTheme(
                 darkTheme = isDarkTheme,
             ) {
                 Surface(

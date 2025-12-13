@@ -23,13 +23,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 
 
 @Preview
 @Composable
 private fun BarColumnPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         BarColumn(dayOfWeek = "Mon", height = 0.5f, value = 120, isSelected = true)
     }
 }

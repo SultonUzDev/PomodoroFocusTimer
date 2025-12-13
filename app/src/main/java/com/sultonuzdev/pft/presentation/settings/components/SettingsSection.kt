@@ -12,14 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 
 
 @Preview
 @Composable
 private fun SettingsSectionPreview() {
 
-    PomodoroAppTheme {
+    PomodoroTheme {
         SettingsSection(title = "Timer Durations") {
             // Add your settings items here
         }
