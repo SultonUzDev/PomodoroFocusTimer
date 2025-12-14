@@ -115,8 +115,8 @@ fun TimerScreenContent(
 
     val backgroundColor = when (uiState.timerStyle) {
         TimerStyle.REGULAR -> listOf(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surface
+            MaterialTheme.colorScheme.background,
+            MaterialTheme.colorScheme.background
         )
 
         TimerStyle.MEDITATION -> listOf(
@@ -150,10 +150,10 @@ fun TimerScreenContent(
     }
     val topBarColor = when (uiState.timerStyle) {
         TimerStyle.REGULAR -> MaterialTheme.colorScheme.surface
-        TimerStyle.STUDY -> MaterialTheme.customColors.study.text
-        TimerStyle.MEDITATION -> MaterialTheme.customColors.meditation.text
-        TimerStyle.CODING -> MaterialTheme.customColors.coding.text
-        TimerStyle.READING -> MaterialTheme.customColors.reading.text
+        TimerStyle.STUDY -> MaterialTheme.colorScheme.surface
+        TimerStyle.MEDITATION -> MaterialTheme.customColors.meditation.backgroundStart
+        TimerStyle.CODING -> MaterialTheme.customColors.coding.terminalBg.copy(alpha = 0.7f)
+        TimerStyle.READING -> MaterialTheme.customColors.reading.backgroundStart
     }
 
 
@@ -273,7 +273,7 @@ fun TimerScreenContentPreview() {
                 progressFraction = 1.0f,
                 formattedTime = "25:00",
                 currentSessionPomodoros = 2,
-                timerStyle = TimerStyle.REGULAR,
+                timerStyle = TimerStyle.STUDY,
                 todayStats = DailyStats(
                     completedPomodoros = 8,
                     totalFocusMinutes = 122,

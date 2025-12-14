@@ -1,8 +1,8 @@
 package com.sultonuzdev.pft.presentation.timer.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +28,7 @@ fun TimerTopBar(
     navigateToSettings: () -> Unit,
     navigateToStats: () -> Unit,
     navigateToTimerStyle: () -> Unit,
-    containerColor: Color = MaterialTheme.colorScheme.background,
+    containerColor: Color = Color.Unspecified,
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -45,7 +45,7 @@ fun TimerTopBar(
             // Stats button
             IconButton(onClick = navigateToTimerStyle) {
                 Icon(
-                    imageVector = Icons.Default.MoreTime,
+                    imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = "More style",
                     tint = timerStyleIconColor
                 )
