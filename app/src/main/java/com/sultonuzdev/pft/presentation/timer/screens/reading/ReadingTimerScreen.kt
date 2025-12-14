@@ -37,38 +37,6 @@ import com.sultonuzdev.pft.presentation.timer.screens.reading.components.Reading
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
-
-@Composable
-fun ReadingTimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is TimerMviContract.TimerEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-
-                is TimerMviContract.TimerEffect.ShowQuote -> snackbarHostState.showSnackbar(effect.quote)
-
-            }
-        }
-    }
-
-    ReadingTimerScreenContent(
-        uiState = uiState,
-        onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
-        onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
-        onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) },
-    )
-}
-
 /**
  * Reading Timer Screen Content - Book-themed UI
  */
@@ -85,7 +53,7 @@ fun ReadingTimerScreenContent(
         modifier  = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
+                Brush.radialGradient(
                     colors = listOf(
                         MaterialTheme.customColors.reading.backgroundStart,
                         MaterialTheme.customColors.reading.backgroundEnd

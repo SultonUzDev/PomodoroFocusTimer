@@ -60,36 +60,7 @@ import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
 
-@Composable
-fun MeditationTimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is TimerMviContract.TimerEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-
-                is TimerMviContract.TimerEffect.ShowQuote -> snackbarHostState.showSnackbar(effect.quote)
-
-            }
-        }
-    }
-
-    MeditationTimerScreenContent(
-        uiState = uiState,
-        onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
-        onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
-        onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) }
-    )
-
-}
 
 /**
  * Main meditation timer screen with breathing animations
@@ -105,7 +76,6 @@ fun MeditationTimerScreenContent(
     onStopClick: () -> Unit,
     onSkipClick: () -> Unit
 ) {
-
     Column(
         modifier =  Modifier
             .fillMaxSize()

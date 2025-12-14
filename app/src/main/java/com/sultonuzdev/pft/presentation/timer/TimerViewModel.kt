@@ -200,6 +200,21 @@ class TimerViewModel @Inject constructor(
                 is TimerMviContract.TimerIntent.ResumeTimer -> resumeTimer()
                 is TimerMviContract.TimerIntent.StopTimer -> stopTimer()
                 is TimerMviContract.TimerIntent.SkipTimer -> skipTimer()
+                is TimerMviContract.TimerIntent.SetTimerStyle -> {
+                    _uiState.update { it.copy(timerStyle = intent.timerStyle) }
+                }
+
+                TimerMviContract.TimerIntent.NavigateToSettings -> {
+                    _effect.send(TimerMviContract.TimerEffect.NavigateToSettings)
+                }
+
+                TimerMviContract.TimerIntent.NavigateToStats -> {
+                    _effect.send(TimerMviContract.TimerEffect.NavigateToStats)
+                }
+
+                TimerMviContract.TimerIntent.NavigateToTimerStyle -> {
+                    _effect.send(TimerMviContract.TimerEffect.NavigateToTimerStyle)
+                }
             }
         }
     }

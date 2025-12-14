@@ -53,44 +53,6 @@ import com.sultonuzdev.pft.presentation.timer.screens.regular.components.TimerTy
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
-/**
- * Root composable for the Timer screen that handles ViewModel integration and navigation
- * Now properly manages service lifecycle with the screen
- */
-@Composable
-fun RegularTimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-
-    ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    // Request notification permission
-//    NotificationPermissionHandler()
-
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is TimerMviContract.TimerEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-
-                is TimerMviContract.TimerEffect.ShowQuote -> snackbarHostState.showSnackbar(effect.quote)
-
-            }
-        }
-    }
-
-    RegularTimerScreenContent(
-        uiState = uiState,
-        onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
-        onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
-        onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) },
-    )
-}
-
 
 /**
  * Main timer screen composable with responsive design
@@ -105,8 +67,6 @@ fun RegularTimerScreenContent(
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
     Box(
         modifier = modifier
             .fillMaxSize()

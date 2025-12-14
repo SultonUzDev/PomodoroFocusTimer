@@ -11,17 +11,14 @@ object TimerListMviContract {
     )
 
     sealed interface TimerListEffect {
-        data class NavigateToTimer(val timerStyle: TimerStyle) : TimerListEffect
-        data object NavigateToSettings : TimerListEffect
-        data object NavigateToStats : TimerListEffect
-
+        data class ShowMessage(val message: String) : TimerListEffect
+        data object NavigateBack : TimerListEffect
     }
 
     sealed interface TimerListIntent {
         object LoadTimerList : TimerListIntent
-        data class NavigateToTimer(val timerStyle: TimerStyle) : TimerListIntent
-        data object NavigateToSettings : TimerListIntent
-        data object NavigateToStats : TimerListIntent
+        data class SetTimerStyleDefault(val timerStyle: TimerStyle) : TimerListIntent
+        data object NavigateBack : TimerListIntent
     }
 
 }

@@ -8,10 +8,15 @@ import com.sultonuzdev.pft.presentation.timer_styles.TimerCard
 import com.sultonuzdev.pft.presentation.timer_styles.timerOptions
 
 
-@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES, showSystemUi = true,  showBackground = true)
 annotation class DarkPreview
 
-@Preview(name = "Light Mode", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(
+    name = "Light Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showSystemUi = true,
+    showBackground = true
+)
 annotation class LightPreview
 
 

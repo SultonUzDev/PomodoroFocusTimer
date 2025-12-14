@@ -14,64 +14,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
-import com.sultonuzdev.pft.presentation.timer.TimerViewModel
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import com.sultonuzdev.pft.presentation.timer.screens.study.components.StudyControlButtons
 import com.sultonuzdev.pft.presentation.timer.screens.study.components.StudyFocusModeIndicator
 import com.sultonuzdev.pft.presentation.timer.screens.study.components.StudyProgressBar
 import com.sultonuzdev.pft.presentation.timer.screens.study.components.StudyTimer
 import com.sultonuzdev.pft.presentation.timer.screens.study.components.StudyTipsAndEncouragement
-import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
-/**
- * Study Theme Colors - Matching HTML design
- */
-
-@Composable
-fun StudyTimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is TimerMviContract.TimerEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-
-                is TimerMviContract.TimerEffect.ShowQuote -> snackbarHostState.showSnackbar(effect.quote)
-
-            }
-        }
-    }
-
-    StudyTimerScreenContent(
-        uiState = uiState,
-
-        onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
-        onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
-        onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) })
-}
 
 /**
  * Study Timer Screen Content - Landscape layout with massive timer
@@ -91,7 +50,6 @@ fun StudyTimerScreenContent(
         modifier =  Modifier
             .fillMaxSize()
             .background(MaterialTheme.customColors.study.background)
-
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)

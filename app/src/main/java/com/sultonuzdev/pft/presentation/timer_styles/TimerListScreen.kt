@@ -31,7 +31,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -63,32 +69,26 @@ import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.domain.model.TimerOption
-import com.sultonuzdev.pft.presentation.timer_styles.components.TimerTopBar
 import kotlinx.coroutines.flow.collectLatest
 
 
 @Composable
 fun TimerListScreen(
-    navigateToSettings: () -> Unit,
-    navigateToStats: () -> Unit,
-    navigateToTimer: (TimerStyle) -> Unit,
-    viewModel: TimerListViewModel = hiltViewModel()
+    viewModel: TimerListViewModel = hiltViewModel(), navigateBack: () -> Unit
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Request notification permission
-//    NotificationPermissionHandler()
-
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collectLatest { effect ->
             when (effect) {
-                is TimerListMviContract.TimerListEffect.NavigateToTimer -> {
-                    navigateToTimer(effect.timerStyle)
+                is TimerListMviContract.TimerListEffect.ShowMessage -> {
+//                    navigateToTimer(effect.timerStyle)
                 }
 
-                TimerListMviContract.TimerListEffect.NavigateToSettings -> navigateToSettings()
-                TimerListMviContract.TimerListEffect.NavigateToStats -> navigateToStats()
+                is TimerListMviContract.TimerListEffect.NavigateBack -> {
+                    navigateBack()
+                }
             }
         }
     }
@@ -115,22 +115,25 @@ fun TimerListScreenContent(
 
 
     Scaffold(
-        modifier = modifier,
-        topBar = {
-            TimerTopBar(
-                navigateToSettings = {
-                    handleAction(
-                        TimerListMviContract.TimerListIntent.NavigateToSettings
+        modifier = modifier, topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Select a timer style",
+                        style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
                     )
                 },
-                navigateToStats = {
-                    handleAction(
-                        TimerListMviContract.TimerListIntent.NavigateToStats
-                    )
+                navigationIcon = {
+                    IconButton(onClick = { handleAction(TimerListMviContract.TimerListIntent.NavigateBack) }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             )
-        },
-        contentWindowInsets = WindowInsets.safeDrawing
+        }, contentWindowInsets = WindowInsets.safeDrawing
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -139,8 +142,7 @@ fun TimerListScreenContent(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -149,13 +151,11 @@ fun TimerListScreenContent(
                 // Header
                 item {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
                             text = "Select a timer theme that matches your task and mood",
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
@@ -167,15 +167,13 @@ fun TimerListScreenContent(
                 // Timer Cards
                 items(uiState.timerList) { option ->
                     TimerCard(
-                        option = option,
-                        onClick = {
+                        option = option, onClick = {
                             handleAction(
-                                TimerListMviContract.TimerListIntent.NavigateToTimer(
+                                TimerListMviContract.TimerListIntent.SetTimerStyleDefault(
                                     option.style
                                 )
                             )
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -185,15 +183,12 @@ fun TimerListScreenContent(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TimerCard(
-    option: TimerOption,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    option: TimerOption, modifier: Modifier = Modifier, onClick: () -> Unit
 ) {
 
     val backgroundColor = when (option.style) {
         TimerStyle.REGULAR -> listOf(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surface
+            MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface
         )
 
         TimerStyle.MEDITATION -> listOf(
@@ -212,20 +207,17 @@ fun TimerCard(
         )
 
         TimerStyle.STUDY -> listOf(
-            MaterialTheme.customColors.study.background,
-            MaterialTheme.customColors.study.background
+            MaterialTheme.customColors.study.background, MaterialTheme.customColors.study.background
         )
     }
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .border(
                 border = BorderStroke(
-                    width = 1.dp,
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp)
+                    width = 1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                ), shape = RoundedCornerShape(16.dp)
             )
             .background(
                 brush = Brush.linearGradient(
@@ -234,8 +226,6 @@ fun TimerCard(
                 shape = RoundedCornerShape(16.dp),
             ),
     ) {
-
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -265,9 +255,19 @@ fun TimerCard(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(8.dp),
-                option = option
+                    .padding(8.dp), option = option
             )
+        }
+
+
+        Button(
+            onClick = onClick, modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+
+            Text("Make it default style")
+
         }
     }
 }
@@ -282,8 +282,7 @@ fun TimerPreviewInfoSection(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
-    )
-    {
+    ) {
         // Title
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -291,9 +290,7 @@ fun TimerPreviewInfoSection(
             modifier = Modifier.padding(2.dp)
         ) {
             Text(
-                text = option.icon,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(end = 8.dp)
+                text = option.icon, fontSize = 14.sp, modifier = Modifier.padding(end = 8.dp)
             )
             Text(
                 text = option.title,
@@ -344,8 +341,7 @@ fun RegularPreview() {
     Box(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+            .fillMaxSize(), contentAlignment = Alignment.Center
     ) {
 
         // Draw the timer circle
@@ -373,9 +369,7 @@ fun StudyPreview() {
 
 
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         Text(
             text = stringResource(R.string.preview_25),
@@ -387,11 +381,8 @@ fun StudyPreview() {
         // Pulsing accent dot
         val infiniteTransition = rememberInfiniteTransition()
         val scale by infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue = 1.2f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
+            initialValue = 1f, targetValue = 1.2f, animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse
             )
         )
 
@@ -412,8 +403,7 @@ fun ReadingPreview() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp),
-        contentAlignment = Alignment.Center
+            .padding(12.dp), contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
@@ -429,8 +419,7 @@ fun ReadingPreview() {
                         )
                     )
                 )
-                .padding(4.dp),
-            contentAlignment = Alignment.Center
+                .padding(4.dp), contentAlignment = Alignment.Center
         ) {
             // Book spine line
             Box(
@@ -459,17 +448,12 @@ fun MeditationPreview() {
     val textColor = MaterialTheme.customColors.meditation.text
 
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         val infiniteTransition = rememberInfiniteTransition()
         val scale by infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue = 1.08f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(4000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
+            initialValue = 1f, targetValue = 1.08f, animationSpec = infiniteRepeatable(
+                animation = tween(4000, easing = LinearEasing), repeatMode = RepeatMode.Reverse
             )
         )
 
@@ -483,10 +467,8 @@ fun MeditationPreview() {
                         colors = listOf(
                             textColor.copy(alpha = 0.3f), Color.Transparent
                         )
-                    ),
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
+                    ), shape = CircleShape
+                ), contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.preview_25),
@@ -577,8 +559,7 @@ fun CodingPreview() {
 fun TimerListScreenContentPreview() {
     PomodoroTheme(darkTheme = true) {
         TimerListScreenContent(
-            handleAction = {},
-            uiState = TimerListMviContract.TimerListState()
+            handleAction = {}, uiState = TimerListMviContract.TimerListState()
         )
     }
 }
@@ -588,8 +569,7 @@ fun TimerListScreenContentPreview() {
 fun TimerListScreenContentLightPreview() {
     PomodoroTheme(darkTheme = false) {
         TimerListScreenContent(
-            handleAction = {},
-            uiState = TimerListMviContract.TimerListState()
+            handleAction = {}, uiState = TimerListMviContract.TimerListState()
         )
     }
 }

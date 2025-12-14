@@ -27,10 +27,10 @@ class TimerListViewModel @Inject constructor(
     fun handleAction(action: TimerListMviContract.TimerListIntent) {
         viewModelScope.launch {
             when (action) {
-                is TimerListMviContract.TimerListIntent.NavigateToTimer -> {
+                is TimerListMviContract.TimerListIntent.SetTimerStyleDefault -> {
                     _uiState.value = _uiState.value.copy(selectedStyle = action.timerStyle)
                     delay(1000L)
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToTimer(_uiState.value.selectedStyle))
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("Setting default style"))
                 }
 
                 TimerListMviContract.TimerListIntent.LoadTimerList -> {
@@ -39,13 +39,10 @@ class TimerListViewModel @Inject constructor(
                     }
                 }
 
-                TimerListMviContract.TimerListIntent.NavigateToSettings -> {
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToSettings)
+                TimerListMviContract.TimerListIntent.NavigateBack -> {
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateBack)
                 }
 
-                TimerListMviContract.TimerListIntent.NavigateToStats -> {
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.NavigateToStats)
-                }
             }
         }
     }
