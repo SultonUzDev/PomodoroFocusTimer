@@ -1,34 +1,25 @@
 package com.sultonuzdev.pft.presentation.timer.screens.meditation.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
@@ -52,8 +43,11 @@ fun MeditationStats(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
+
+
         // Stats Row with peaceful emojis
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -81,10 +75,12 @@ fun MeditationStats(
             )
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.customColors.meditation.buttonBorder)
 
         // Timer Type Selection with peaceful dots
         MeditationTimerTypes(currentType = currentType)
+
+
     }
 }
 
@@ -98,41 +94,33 @@ private fun MeditationStat(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "stat_pulse")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.7f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "emoji_alpha"
-    )
+
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         // Emoji with gentle pulse
         Text(
             text = emoji,
-            fontSize = 28.sp,
-            modifier = Modifier.alpha(alpha)
+            fontSize = 24.sp,
         )
 
         // Value
         Text(
             text = value,
             style = MaterialTheme.customTypography.meditation.breatheText,
-            color = MaterialTheme.customColors.meditation.primary
+            color = MaterialTheme.customColors.meditation.primary,
+            maxLines = 1
         )
 
         // Label
         Text(
             text = label,
             style = MaterialTheme.customTypography.meditation.breatheText,
-            color = MaterialTheme.customColors.meditation.text.copy(alpha = 0.7f)
+            color = MaterialTheme.customColors.meditation.text.copy(alpha = 0.7f),
+            maxLines = 1
         )
     }
 }
@@ -180,26 +168,17 @@ private fun MeditationTimerTypeItem(
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "selected_pulse")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "selected_alpha"
-    )
+
 
     Text(
         text = text,
         style = MaterialTheme.customTypography.meditation.breatheText.copy(
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         ),
         color = if (isSelected)
-            MaterialTheme.customColors.meditation.primary.copy(alpha = alpha)
+            MaterialTheme.customColors.meditation.primary
         else
-            MaterialTheme.customColors.meditation.text.copy(alpha = 0.4f),
+            MaterialTheme.customColors.meditation.primary.copy(alpha = 0.5f),
         modifier = modifier
     )
 }
@@ -222,7 +201,7 @@ private fun ZenDivider(
 @AppPreview
 @Composable
 private fun MeditationStatsPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,7 +221,7 @@ private fun MeditationStatsPreview() {
 @AppPreview
 @Composable
 private fun MeditationStatsBreakPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -262,7 +241,7 @@ private fun MeditationStatsBreakPreview() {
 @AppPreview
 @Composable
 private fun MeditationStatsLongBreakPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

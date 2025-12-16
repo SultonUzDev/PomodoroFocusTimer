@@ -25,13 +25,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 
 @Preview
 @Composable
 private fun THemeSelecterPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         ThemeSelector(
             modifier = Modifier,
             selectedThemeMode = ThemeMode.SYSTEM,

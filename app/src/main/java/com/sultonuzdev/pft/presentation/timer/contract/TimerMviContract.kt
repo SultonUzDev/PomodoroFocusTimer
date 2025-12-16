@@ -1,5 +1,6 @@
 package com.sultonuzdev.pft.presentation.timer.contract
 
+import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.core.ui.utils.UiEffect
 import com.sultonuzdev.pft.core.ui.utils.UiIntent
 import com.sultonuzdev.pft.core.util.TimerState
@@ -31,31 +32,40 @@ object TimerMviContract {
             totalFocusMinutes = 0
         ),
 
-
+        val timerStyle: TimerStyle = TimerStyle.REGULAR,
 
         // Loading state
         val isLoading: Boolean = false,
         val errorMessage: String? = null
     )
 
-
-
     /**
      * Represents user actions for the Timer screen
      */
-    sealed class TimerIntent : UiIntent {
-        data object StartTimer : TimerIntent()
-        data object PauseTimer : TimerIntent()
-        data object ResumeTimer : TimerIntent()
-        data object StopTimer : TimerIntent()
-        data object SkipTimer : TimerIntent()
+    sealed interface TimerIntent : UiIntent {
+        data object StartTimer : TimerIntent
+        data object PauseTimer : TimerIntent
+        data object ResumeTimer : TimerIntent
+        data object FinishTimer : TimerIntent
+        data object SkipTimer : TimerIntent
+        data class SetTimerStyle(val timerStyle: TimerStyle) : TimerIntent
+
+        data object NavigateToSettings : TimerIntent
+        data object NavigateToStats : TimerIntent
+        data object NavigateToTimerStyle : TimerIntent
+
+
 
 
     }
 
-    sealed class TimerEffect : UiEffect {
-        data class ShowMessage(val message: String) : TimerEffect()
-        data class ShowQuote(val quote: String) : TimerEffect()
+    sealed interface TimerEffect : UiEffect {
+        data class ShowMessage(val message: String) : TimerEffect
+        data class ShowQuote(val quote: String) : TimerEffect
+
+        data object NavigateToSettings : TimerEffect
+        data object NavigateToStats : TimerEffect
+        data object NavigateToTimerStyle : TimerEffect
 
     }
 }

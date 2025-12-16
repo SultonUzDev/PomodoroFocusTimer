@@ -17,61 +17,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
-import com.sultonuzdev.pft.presentation.timer.TimerViewModel
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import com.sultonuzdev.pft.presentation.timer.screens.coding.components.CodingFocusModeIndicator
 import com.sultonuzdev.pft.presentation.timer.screens.coding.components.CodingTipsAndEncouragement
 import com.sultonuzdev.pft.presentation.timer.screens.coding.components.TerminalWindow
-import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
-@Composable
-fun CodingTimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is TimerMviContract.TimerEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-
-                is TimerMviContract.TimerEffect.ShowQuote -> snackbarHostState.showSnackbar(effect.quote)
-            }
-        }
-    }
-
-    CodingTimerScreenContent(
-        uiState = uiState,
-        onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
-        onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
-        onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
-        onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) },
-    )
-}
 
 /**
  * Coding Timer Screen Content - Terminal/VS Code style
@@ -82,7 +46,7 @@ fun CodingTimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
 ) {
 
@@ -93,9 +57,9 @@ fun CodingTimerScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.customColors.coding.background)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
     ) {
         // Terminal window
         TerminalWindow(
@@ -107,7 +71,7 @@ fun CodingTimerScreenContent(
         // Control buttons
         CodingControlButtons(
             timerState = uiState.timerState,
-            onResetClick = onStopClick,
+            onFinishClick = onFinishClick,
             onPlayPauseClick = {
                 when (uiState.timerState) {
                     TimerState.IDLE -> onStartClick()
@@ -119,7 +83,7 @@ fun CodingTimerScreenContent(
             onSkipClick = onSkipClick
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
 //             Focus Mode Indicator
         AnimatedVisibility(
@@ -144,7 +108,7 @@ fun CodingTimerScreenContent(
 @Composable
 private fun CodingControlButtons(
     timerState: TimerState,
-    onResetClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -187,9 +151,9 @@ private fun CodingControlButtons(
                 )
 
                 CodingButton(
-                    text = "Stop",
+                    text = "Finish",
                     enabled = true,
-                    onClick = onResetClick
+                    onClick = onFinishClick
                 )
             }
         }
@@ -240,7 +204,7 @@ private fun CodingButton(
 @AppPreview
 @Composable
 private fun CodingTimerPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         CodingTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
                 timerState = TimerState.IDLE,
@@ -255,7 +219,7 @@ private fun CodingTimerPreview() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {},
         )
 

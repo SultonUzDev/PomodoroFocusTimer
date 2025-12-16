@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +32,7 @@ import com.sultonuzdev.pft.core.util.TimerState
 fun MeditationControlButtons(
     timerState: TimerState,
     onPlayPauseClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,8 +70,8 @@ fun MeditationControlButtons(
                 )
 
                 MeditationButton(
-                    icon = Icons.Default.Restore,
-                    onClick = onStopClick
+                    icon = Icons.Default.Done,
+                    onClick = onFinishClick
                 )
             }
         }

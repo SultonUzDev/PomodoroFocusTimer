@@ -1,11 +1,5 @@
 package com.sultonuzdev.pft.presentation.timer.screens.coding.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,22 +17,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
+import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.TimerState
+import com.sultonuzdev.pft.core.util.TimerType
+import com.sultonuzdev.pft.domain.model.DailyStats
+import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
+import java.time.LocalDate
 
 
 /**
  * Terminal window with dots and content
  */
 @Composable
- fun TerminalWindow(
+fun TerminalWindow(
     uiState: TimerMviContract.TimerUiState,
     modifier: Modifier = Modifier
 ) {
@@ -46,13 +45,13 @@ import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 500.dp),
+            .heightIn(min = 400.dp),
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.customColors.coding.terminalBg
     ) {
         Column(
             modifier = Modifier
-                .padding(20.dp)
+                .padding(16.dp)
         ) {
             // Terminal header with dots
             TerminalHeader()
@@ -61,8 +60,8 @@ import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 
             // Command line
             CommandLine(
-                command = "focus",
-                args = "--mode=coding --timer=pomodoro",
+                args = getCommand(uiState.currentType, uiState.settings),
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -124,9 +123,8 @@ private fun TerminalHeader(
  */
 @Composable
 private fun CommandLine(
-    command: String,
-    args: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    args: String
 ) {
 
 
@@ -139,10 +137,11 @@ private fun CommandLine(
         )
         // Command
         Text(
-            text = command,
+            text = "dev@focus:",
             style = MaterialTheme.customTypography.coding.terminal,
             color = MaterialTheme.customColors.coding.command
         )
+
         Text(
             text = " ",
             style = MaterialTheme.customTypography.coding.terminal
@@ -168,22 +167,11 @@ private fun TerminalTimerDisplay(
 ) {
 
 
-    // Blinking cursor animation
-    val infiniteTransition = rememberInfiniteTransition(label = "cursor_blink")
-    val cursorAlpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "cursor_alpha"
-    )
-
     Column(
         modifier = modifier
             .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
     ) {
         // Comment
         Text(
@@ -192,30 +180,15 @@ private fun TerminalTimerDisplay(
             color = MaterialTheme.customColors.coding.comment
         )
 
-        Spacer(modifier = Modifier.height(15.dp))
 
         // Timer with cursor
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = time,
-                style = MaterialTheme.customTypography.coding.timer,
-                color = MaterialTheme.customColors.coding.primary
-            )
 
-            // Blinking cursor when running
-            if (timerState == TimerState.RUNNING) {
-                Text(
-                    text = "█",
-                    style = MaterialTheme.customTypography.coding.timer,
-                    color = MaterialTheme.customColors.coding.primary.copy(alpha = cursorAlpha),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
+        Text(
+            text = time,
+            style = MaterialTheme.customTypography.coding.timer,
+            color = MaterialTheme.customColors.coding.primary
+        )
 
-        Spacer(modifier = Modifier.height(10.dp))
 
         // Status comment
         Text(
@@ -246,7 +219,6 @@ private fun TerminalOutput(
             color = MaterialTheme.customColors.coding.prompt
         )
 
-        Spacer(modifier = Modifier.height(15.dp))
 
         // Stats in code format
         CodeStatLine(
@@ -277,7 +249,6 @@ private fun TerminalOutput(
         )
     }
 }
-
 
 
 /**
@@ -329,11 +300,41 @@ private fun getStatusComment(timerState: TimerState): String {
     }
 }
 
+private fun getCommand(
+    timerType: TimerType,
+    settings: PomodoroTimerSettings
+): String {
+    return when (timerType) {
+        TimerType.POMODORO -> "$ pomodoro work --mode=coding --time=${settings.pomodoroMinutes}:00"
+        TimerType.SHORT_BREAK -> "$ pomodoro break --short --time=${settings.shortBreakMinutes}:00"
+        TimerType.LONG_BREAK -> "$ pomodoro break --long --time=${settings.longBreakMinutes}:00"
+    }
+}
+
 private fun getStatusString(timerState: TimerState): String {
     return when (timerState) {
         TimerState.IDLE -> "idle"
         TimerState.RUNNING -> "running"
         TimerState.PAUSED -> "paused"
         TimerState.COMPLETED -> "completed"
+    }
+}
+
+@AppPreview
+@Composable
+private fun TerminalViewPreview() {
+    PomodoroTheme {
+        TerminalWindow(
+            uiState = TimerMviContract.TimerUiState(
+                timerState = TimerState.IDLE,
+                formattedTime = "24:35",
+                currentSessionPomodoros = 2,
+                todayStats = DailyStats(
+                    date = LocalDate.now(),
+                    completedPomodoros = 3,
+                    totalFocusMinutes = 75
+                )
+            ),
+        )
     }
 }

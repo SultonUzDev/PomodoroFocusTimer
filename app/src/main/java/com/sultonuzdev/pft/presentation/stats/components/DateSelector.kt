@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -49,7 +49,7 @@ import java.util.Locale
 @Preview
 @Composable
 private fun DateSelectorPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         DateSelector(
             dates = remember(LocalDate.now().minusDays(7)) {
                 (0..6).map { LocalDate.now().plusDays(it.toLong()) }

@@ -26,7 +26,7 @@ import com.sultonuzdev.pft.core.util.TimerState
 fun ReadingControlButtons(
     timerState: TimerState,
     onPlayPauseClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -68,9 +68,9 @@ fun ReadingControlButtons(
                 )
 
                 ReadingButton(
-                    text = "Stop",
+                    text = "Finish",
                     isPrimary = false,
-                    onClick = onStopClick
+                    onClick = onFinishClick
                 )
             }
         }

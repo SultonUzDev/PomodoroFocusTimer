@@ -9,14 +9,15 @@ plugins {
 
 android {
     namespace = "com.sultonuzdev.pft"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sultonuzdev.pft"
         minSdk = 27
-        targetSdk = 35
-        versionCode = 10
-        versionName = "1.1.0"
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 36
+        versionCode = 11
+        versionName = "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true

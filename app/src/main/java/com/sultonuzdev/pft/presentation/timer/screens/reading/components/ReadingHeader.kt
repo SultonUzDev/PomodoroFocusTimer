@@ -29,7 +29,7 @@ fun ReadingHeader(
             style = MaterialTheme.customTypography.reading.title,
             color = MaterialTheme.customColors.reading.title
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Deep work through literature",
             style = MaterialTheme.customTypography.reading.subtitle,

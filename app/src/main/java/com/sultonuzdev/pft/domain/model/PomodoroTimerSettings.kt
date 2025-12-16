@@ -16,6 +16,5 @@ data class PomodoroTimerSettings(
     val pomodoroCycleLength: Int = DEFAULT_POMODORO_CYCLE_LENGTH,
     val vibrationEnabled: Boolean = true,
     val soundEnabled: Boolean = true,
-    val enableFocusMode: Boolean = false,
 )
 

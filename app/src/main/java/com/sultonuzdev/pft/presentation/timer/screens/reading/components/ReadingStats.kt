@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
 import com.sultonuzdev.pft.core.util.AppPreview
@@ -143,7 +143,7 @@ private fun ReadingStat(
 @AppPreview
 @Composable
 private fun ReadingStatsPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         ReadingStats(
             completedSession = 3,
             timeSpent = 75,

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.R
-import com.sultonuzdev.pft.core.ui.theme.PomodoroAppTheme
+import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.ThemeMode
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.formatAsDuration
@@ -98,9 +98,7 @@ fun SettingsScreen(
         updateSoundEnabled = { enabled ->
             settingsViewModel.processIntent(SettingsIntent.UpdateSoundEnabled(enabled))
         },
-        updateFocusModeEnabled = { enabled ->
-            settingsViewModel.processIntent(SettingsIntent.UpdateFocusModeEnabled(enabled))
-        },
+
         updateThemeMode = { themeMode ->
             settingsViewModel.processIntent(SettingsIntent.UpdateThemeMode(themeMode))
         },
@@ -151,7 +149,6 @@ fun SettingsScreenContent(
     updatePomodorosBeforeLongBreak: (Int) -> Unit,
     updateVibrationEnabled: (Boolean) -> Unit,
     updateSoundEnabled: (Boolean) -> Unit,
-    updateFocusModeEnabled: (Boolean) -> Unit,
     updateThemeMode: (ThemeMode) -> Unit,
     onResetDefaults: () -> Unit
 ) {
@@ -285,21 +282,21 @@ fun SettingsScreenContent(
                         description = stringResource(R.string.vibration_description)
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Focus mode section
-                SettingsSection(title = stringResource(R.string.focus_mode)) {
-                    // Focus mode switch
-                    SettingsSwitch(
-                        checked = uiState.settings.enableFocusMode,
-                        onCheckedChange = { enabled ->
-                            updateFocusModeEnabled(enabled)
-                        },
-                        label = stringResource(R.string.focus_mode_enabled),
-                        description = stringResource(R.string.focus_mode_description)
-                    )
-                }
+//
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                // Focus mode section
+//                SettingsSection(title = stringResource(R.string.focus_mode)) {
+//                    // Focus mode switch
+//                    SettingsSwitch(
+//                        checked = uiState.settings.enableFocusMode,
+//                        onCheckedChange = { enabled ->
+//                            updateFocusModeEnabled(enabled)
+//                        },
+//                        label = stringResource(R.string.focus_mode_enabled),
+//                        description = stringResource(R.string.focus_mode_description)
+//                    )
+//                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -337,7 +334,7 @@ fun SettingsScreenContent(
 @AppPreview
 @Composable
 private fun SettingsScreenPreview() {
-    PomodoroAppTheme {
+    PomodoroTheme {
         SettingsScreenContent(
             uiState = SettingsUiState(),
             onBackClick = {},
@@ -348,7 +345,6 @@ private fun SettingsScreenPreview() {
             updatePomodorosBeforeLongBreak = {},
             updateVibrationEnabled = {},
             updateSoundEnabled = {},
-            updateFocusModeEnabled = {},
             updateThemeMode = {},
             onResetDefaults = {}
         )

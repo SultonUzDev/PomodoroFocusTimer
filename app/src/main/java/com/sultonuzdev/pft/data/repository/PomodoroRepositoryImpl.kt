@@ -1,21 +1,9 @@
 package com.sultonuzdev.pft.data.repository
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import com.sultonuzdev.pft.core.enums.TimerStyle
-import com.sultonuzdev.pft.core.ui.theme.ThemeMode
-import com.sultonuzdev.pft.core.util.Constants.DEFAULT_LONG_BREAK_MINUTES
-import com.sultonuzdev.pft.core.util.Constants.DEFAULT_POMODORO_CYCLE_LENGTH
-import com.sultonuzdev.pft.core.util.Constants.DEFAULT_POMODORO_MINUTES
-import com.sultonuzdev.pft.core.util.Constants.DEFAULT_SHORT_BREAK_MINUTES
 import com.sultonuzdev.pft.data.db.dao.PomodoroDao
 import com.sultonuzdev.pft.data.mapper.toDomainModel
 import com.sultonuzdev.pft.data.mapper.toEntity
-import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import com.sultonuzdev.pft.domain.model.Pomodoro
-import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.domain.repository.PomodoroRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
