@@ -47,7 +47,7 @@ class TimerService : Service() {
     private var stateObserverJob: Job? = null
 
     private var lastNotificationUpdateTime: Long = 0L
-    private val NOTIFICATION_UPDATE_INTERVAL = 1000L // 5 seconds
+    private val NOTIFICATION_UPDATE_INTERVAL = 1000L // 1 seconds
 
 
 
