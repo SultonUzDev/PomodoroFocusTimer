@@ -8,6 +8,7 @@ object TimerListMviContract {
     data class TimerListState(
         val timerList: List<TimerOption> = timerOptions,
         val selectedStyle: TimerStyle = TimerStyle.REGULAR,
+        val isSetting: Boolean = false
     )
 
     sealed interface TimerListEffect {

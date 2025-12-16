@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,14 +29,16 @@ class TimerListViewModel @Inject constructor(
         viewModelScope.launch {
             when (action) {
                 is TimerListMviContract.TimerListIntent.SetTimerStyleDefault -> {
-                    _uiState.value = _uiState.value.copy(selectedStyle = action.timerStyle)
-                    delay(1000L)
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("Setting default style"))
+                    _uiState.update { it.copy(selectedStyle = action.timerStyle, isSetting = true) }
+                    repository.setTimerStyle(action.timerStyle)
+                    delay(500L)
+                    _uiState.update { it.copy(isSetting = false) }
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("${action.timerStyle.title} is set as default"))
                 }
 
                 TimerListMviContract.TimerListIntent.LoadTimerList -> {
-                    repository.getTimerStyle().collect {
-                        _uiState.value = _uiState.value.copy(selectedStyle = it)
+                    repository.getTimerStyle().collect { style ->
+                        _uiState.update { it.copy(selectedStyle = style) }
                     }
                 }
 

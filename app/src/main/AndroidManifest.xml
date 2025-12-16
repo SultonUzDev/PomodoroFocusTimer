@@ -40,16 +40,7 @@
                 android:value="timer" />
         </service>
 
-        <!-- New Timer Service using repository architecture -->
-        <service
-            android:name=".presentation.service.NewTimerService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="timer" />
-        </service>
+
     </application>
 
 </manifest>

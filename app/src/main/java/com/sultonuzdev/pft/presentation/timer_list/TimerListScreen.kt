@@ -35,16 +35,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,12 +81,13 @@ fun TimerListScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collectLatest { effect ->
             when (effect) {
                 is TimerListMviContract.TimerListEffect.ShowMessage -> {
-//                    navigateToTimer(effect.timerStyle)
+                    snackbarHostState.showSnackbar(effect.message)
                 }
 
                 is TimerListMviContract.TimerListEffect.NavigateBack -> {
@@ -100,6 +104,7 @@ fun TimerListScreen(
         handleAction = viewModel::handleAction,
         uiState = uiState,
         modifier = Modifier.fillMaxSize(),
+        snackbarHostState = snackbarHostState
     )
 
 
@@ -111,30 +116,28 @@ fun TimerListScreenContent(
     handleAction: (TimerListMviContract.TimerListIntent) -> Unit,
     uiState: TimerListMviContract.TimerListState,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState
 ) {
 
 
-    Scaffold(
-        modifier = modifier, topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Select a timer style",
-                        style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { handleAction(TimerListMviContract.TimerListIntent.NavigateBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
+    Scaffold(modifier = modifier, topBar = {
+        CenterAlignedTopAppBar(title = {
+            Text(
+                text = "Select a timer style",
+                style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             )
-        }, contentWindowInsets = WindowInsets.safeDrawing
-    ) { paddingValues ->
+        }, navigationIcon = {
+            IconButton(onClick = { handleAction(TimerListMviContract.TimerListIntent.NavigateBack) }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        })
+    }, contentWindowInsets = WindowInsets.safeDrawing, snackbarHost = {
+        androidx.compose.material3.SnackbarHost(hostState = snackbarHostState)
+    }) { paddingValues ->
         Box(
             modifier = Modifier
                 .padding(paddingValues)
@@ -167,7 +170,10 @@ fun TimerListScreenContent(
                 // Timer Cards
                 items(uiState.timerList) { option ->
                     TimerCard(
-                        option = option, onClick = {
+                        option = option,
+                        isSettingDefault = uiState.isSetting,
+                        isDefault = option.style == uiState.selectedStyle,
+                        onClick = {
                             handleAction(
                                 TimerListMviContract.TimerListIntent.SetTimerStyleDefault(
                                     option.style
@@ -183,7 +189,12 @@ fun TimerListScreenContent(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TimerCard(
-    option: TimerOption, modifier: Modifier = Modifier, onClick: () -> Unit
+    option: TimerOption,
+    modifier: Modifier = Modifier,
+    isSettingDefault: Boolean = false,
+    isDefault: Boolean = false,
+    onClick: () -> Unit
+
 ) {
 
     val backgroundColor = when (option.style) {
@@ -216,7 +227,8 @@ fun TimerCard(
             .clip(RoundedCornerShape(16.dp))
             .border(
                 border = BorderStroke(
-                    width = 1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                    width = 1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                 ), shape = RoundedCornerShape(16.dp)
             )
             .background(
@@ -260,14 +272,21 @@ fun TimerCard(
         }
 
 
+
         Button(
-            onClick = onClick, modifier = Modifier
+            onClick = onClick, enabled = !isDefault, modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-
-            Text("Set as default")
-
+            if (isSettingDefault && isDefault) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    strokeWidth = 2.dp
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(if (isDefault) "Current as default" else "Set as default")
         }
     }
 }
@@ -332,11 +351,8 @@ fun TimerPreviewInfoSection(
 }
 
 
-// Preview Components for each theme
-
 @Composable
 fun RegularPreview() {
-
     val circleColor = MaterialTheme.colorScheme.primary
     Box(
         modifier = Modifier
@@ -437,7 +453,6 @@ fun ReadingPreview() {
             )
 
         }
-        // Book spine line
 
     }
 }
@@ -559,7 +574,12 @@ fun CodingPreview() {
 fun TimerListScreenContentPreview() {
     PomodoroTheme(darkTheme = true) {
         TimerListScreenContent(
-            handleAction = {}, uiState = TimerListMviContract.TimerListState()
+            handleAction = {},
+
+            uiState = TimerListMviContract.TimerListState(
+                isSetting = true
+            ),
+            snackbarHostState = SnackbarHostState()
         )
     }
 }
@@ -569,7 +589,10 @@ fun TimerListScreenContentPreview() {
 fun TimerListScreenContentLightPreview() {
     PomodoroTheme(darkTheme = false) {
         TimerListScreenContent(
-            handleAction = {}, uiState = TimerListMviContract.TimerListState()
+            handleAction = {},
+            uiState = TimerListMviContract.TimerListState(),
+            snackbarHostState = SnackbarHostState()
+
         )
     }
 }

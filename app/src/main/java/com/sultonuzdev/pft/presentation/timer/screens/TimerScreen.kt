@@ -31,7 +31,7 @@ import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.presentation.component.NotificationPermissionHandler
-import com.sultonuzdev.pft.presentation.timer.NewTimerViewModel
+import com.sultonuzdev.pft.presentation.timer.TimerViewModel
 import com.sultonuzdev.pft.presentation.timer.components.TimerTopBar
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import com.sultonuzdev.pft.presentation.timer.screens.coding.CodingTimerScreenContent
@@ -44,7 +44,7 @@ import java.time.LocalDate
 
 @Composable
 fun TimerScreen(
-    viewModel: NewTimerViewModel = hiltViewModel(),
+    viewModel: TimerViewModel = hiltViewModel(),
     navigateToSettings: () -> Unit,
     navigateToStats: () -> Unit,
     navigateToTimerStyle: () -> Unit,
