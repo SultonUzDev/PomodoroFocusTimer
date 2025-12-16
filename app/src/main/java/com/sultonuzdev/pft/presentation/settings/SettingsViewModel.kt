@@ -122,7 +122,6 @@ class SettingsViewModel @Inject constructor(
 
                 is SettingsIntent.UpdateSoundEnabled -> updateSettings { it.copy(soundEnabled = intent.enabled) }
 
-                is SettingsIntent.UpdateFocusModeEnabled -> updateSettings { it.copy(enableFocusMode = intent.enabled) }
 
                 is SettingsIntent.UpdateThemeMode -> updateTheme(intent.themeMode)
 

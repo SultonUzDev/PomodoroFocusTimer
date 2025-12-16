@@ -78,8 +78,6 @@ fun RegularTimerScreenContent(
         )
 
 
-
-
         // Circular timer with enhanced visual feedback
         CircularTimer(
             modifier = Modifier
@@ -106,9 +104,9 @@ fun RegularTimerScreenContent(
 
         // Focus Mode Indicator
         AnimatedVisibility(
-            visible = uiState.settings.enableFocusMode &&
-                    uiState.timerState == TimerState.RUNNING &&
-                    uiState.currentType == TimerType.POMODORO
+            visible =
+                uiState.timerState == TimerState.RUNNING &&
+                        uiState.currentType == TimerType.POMODORO
         ) {
             FocusModeIndicator()
         }
@@ -121,8 +119,6 @@ fun RegularTimerScreenContent(
         )
     }
 }
-
-
 
 
 @Composable
@@ -226,7 +222,6 @@ private fun TimerScreenPreview() {
                     shortBreakMinutes = 5,
                     longBreakMinutes = 15,
                     pomodoroCycleLength = 4,
-                    enableFocusMode = true
                 )
             ),
             onStartClick = {},

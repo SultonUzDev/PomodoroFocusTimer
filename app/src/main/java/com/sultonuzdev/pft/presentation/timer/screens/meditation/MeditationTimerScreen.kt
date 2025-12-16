@@ -250,7 +250,6 @@ private fun MeditationTimerScreenContentPreview() {
                     shortBreakMinutes = 5,
                     longBreakMinutes = 15,
                     pomodoroCycleLength = 4,
-                    enableFocusMode = true
                 )
             ),
             onStartClick = {},

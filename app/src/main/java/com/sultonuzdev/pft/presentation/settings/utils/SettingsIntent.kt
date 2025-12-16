@@ -15,7 +15,6 @@ sealed class SettingsIntent : UiIntent {
     data class UpdateVibrationEnabled(val enabled: Boolean) : SettingsIntent()
     data class UpdateSoundEnabled(val enabled: Boolean) : SettingsIntent()
     data class UpdateThemeMode(val themeMode: ThemeMode) : SettingsIntent()
-    data class UpdateFocusModeEnabled(val enabled: Boolean) : SettingsIntent()
     data object ResetToDefaults : SettingsIntent()
 
 }

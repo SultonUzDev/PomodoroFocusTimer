@@ -29,7 +29,6 @@ class PreferencesManager(
                     ?: DEFAULT_POMODORO_CYCLE_LENGTH,
                 vibrationEnabled = preferences[PomodoroDataStoreKeys.VIBRATION_ENABLED] ?: true,
                 soundEnabled = preferences[PomodoroDataStoreKeys.SOUND_ENABLED] ?: true,
-                enableFocusMode = preferences[PomodoroDataStoreKeys.FOCUS_MODE_ENABLED] ?: false
             )
         }
     }
@@ -43,7 +42,6 @@ class PreferencesManager(
                 settings.pomodoroCycleLength
             preferences[PomodoroDataStoreKeys.VIBRATION_ENABLED] = settings.vibrationEnabled
             preferences[PomodoroDataStoreKeys.SOUND_ENABLED] = settings.soundEnabled
-            preferences[PomodoroDataStoreKeys.FOCUS_MODE_ENABLED] = settings.enableFocusMode
         }
     }
 
