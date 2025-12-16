@@ -202,7 +202,10 @@ class TimerRepositoryImpl @Inject constructor(
                     TimerType.LONG_BREAK -> (currentSettings.longBreakMinutes * 60).toLong()
                 }
 
-                Log.d(TAG, "Saving completed $currentType: planned=${plannedSeconds}s, focused=${focusedSeconds}s, isCompleted=true")
+                Log.d(
+                    TAG,
+                    "Saving completed $currentType: planned=${plannedSeconds}s, focused=${focusedSeconds}s, isCompleted=true"
+                )
 
                 val pomodoro = Pomodoro(
                     id = 0,
@@ -235,7 +238,10 @@ class TimerRepositoryImpl @Inject constructor(
             _timerState.value = _timerState.value.copy(
                 currentSessionPomodoros = newSessionPomodoros
             )
-            Log.d(TAG, "Pomodoro completed - Total: $completedPomodoros, Session: $newSessionPomodoros")
+            Log.d(
+                TAG,
+                "Pomodoro completed - Total: $completedPomodoros, Session: $newSessionPomodoros"
+            )
         }
 
         sessionStartTime = null
@@ -252,22 +258,33 @@ class TimerRepositoryImpl @Inject constructor(
         val sessionPomodoros = _timerState.value.currentSessionPomodoros
         val pomodorosBeforeLongBreak = currentSettings.pomodoroCycleLength
 
-        Log.d(TAG, "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, cycleLength=$pomodorosBeforeLongBreak")
+        Log.d(
+            TAG,
+            "getNextTimerType: currentType=$currentType, sessionPomodoros=$sessionPomodoros, cycleLength=$pomodorosBeforeLongBreak"
+        )
 
         return when (currentType) {
             TimerType.POMODORO -> {
                 if (sessionPomodoros >= pomodorosBeforeLongBreak) {
-                    Log.d(TAG, "Session complete ($sessionPomodoros >= $pomodorosBeforeLongBreak) -> LONG_BREAK")
+                    Log.d(
+                        TAG,
+                        "Session complete ($sessionPomodoros >= $pomodorosBeforeLongBreak) -> LONG_BREAK"
+                    )
                     TimerType.LONG_BREAK
                 } else {
-                    Log.d(TAG, "Session continues ($sessionPomodoros < $pomodorosBeforeLongBreak) -> SHORT_BREAK")
+                    Log.d(
+                        TAG,
+                        "Session continues ($sessionPomodoros < $pomodorosBeforeLongBreak) -> SHORT_BREAK"
+                    )
                     TimerType.SHORT_BREAK
                 }
             }
+
             TimerType.SHORT_BREAK -> {
                 Log.d(TAG, "Short break over -> POMODORO")
                 TimerType.POMODORO
             }
+
             TimerType.LONG_BREAK -> {
                 Log.d(TAG, "Long break over -> Resetting session, starting new cycle")
                 // Reset session
@@ -324,7 +341,10 @@ class TimerRepositoryImpl @Inject constructor(
                 // totalTimeMillis stays the same - it's the ORIGINAL duration
             )
 
-            Log.d(TAG, "Timer resumed at ${_timerState.value.formattedTime}, paused for ${pauseDuration}ms")
+            Log.d(
+                TAG,
+                "Timer resumed at ${_timerState.value.formattedTime}, paused for ${pauseDuration}ms"
+            )
         }
     }
 
@@ -362,24 +382,29 @@ class TimerRepositoryImpl @Inject constructor(
                     startedAt = sessionStart
                 )
                 savePomodoro(pomodoro)
-                Log.d(TAG, "Stopped $currentType session saved as incomplete (${focusedSeconds}s/${plannedSeconds}s)")
+                Log.d(
+                    TAG,
+                    "Stopped $currentType session saved as incomplete (${focusedSeconds}s/${plannedSeconds}s)"
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to save stopped session", e)
             }
         }
 
-        // Update state
-        _timerState.value = _timerState.value.copy(
-            timerState = TimerState.COMPLETED,
-            remainingTimeMillis = 0,
-            formattedTime = "00:00"
-        )
 
         sessionStartTime = null
 
         // Auto-transition after delay
         val nextType = getNextTimerType()
         changeTimerType(nextType)
+
+        // Update state
+        _timerState.value = _timerState.value.copy(
+            timerState = TimerState.COMPLETED,
+            remainingTimeMillis = 0,
+            formattedTime = getDurationForTimerType(nextType).formatToMinutesAndSeconds()
+        )
+
     }
 
     override suspend fun skipTimer() {
@@ -390,11 +415,6 @@ class TimerRepositoryImpl @Inject constructor(
 
         // Don't save to database
 
-        _timerState.value = _timerState.value.copy(
-            timerState = TimerState.COMPLETED,
-            remainingTimeMillis = 0,
-            formattedTime = "00:00"
-        )
 
         sessionStartTime = null
 
@@ -402,6 +422,13 @@ class TimerRepositoryImpl @Inject constructor(
         delay(TIMER_COMPLETION_DELAY_MILLIS)
         val nextType = getNextTimerType()
         changeTimerType(nextType)
+
+        _timerState.value = _timerState.value.copy(
+            timerState = TimerState.IDLE,
+            remainingTimeMillis = 0,
+            formattedTime = getDurationForTimerType(nextType).formatToMinutesAndSeconds()
+
+        )
     }
 
     override suspend fun completedTimer() {
@@ -410,7 +437,10 @@ class TimerRepositoryImpl @Inject constructor(
 
     override suspend fun savePomodoro(pomodoro: Pomodoro) {
         try {
-            Log.d(TAG, "savePomodoro: Inserting ${pomodoro.timerType} - planned=${pomodoro.plannedDurationSeconds}s, focused=${pomodoro.focusedDurationSeconds}s, completed=${pomodoro.isCompleted}")
+            Log.d(
+                TAG,
+                "savePomodoro: Inserting ${pomodoro.timerType} - planned=${pomodoro.plannedDurationSeconds}s, focused=${pomodoro.focusedDurationSeconds}s, completed=${pomodoro.isCompleted}"
+            )
             pomodoroDao.insertSession(pomodoro.toEntity())
             Log.d(TAG, "savePomodoro: ✓ Insert completed successfully")
         } catch (e: Exception) {

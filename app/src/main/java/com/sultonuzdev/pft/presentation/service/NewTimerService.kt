@@ -15,10 +15,6 @@ import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.repository.TimerRepository
-import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_FINISH
-import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_PAUSE
-import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_RESUME
-import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_SKIP
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_START
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.NOTIFICATION_CHANNEL_ID
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.NOTIFICATION_CHANNEL_NAME
@@ -200,19 +196,6 @@ class NewTimerService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
-
-        // Add action buttons based on current state
-        when (state.timerState) {
-            TimerState.RUNNING -> {
-                builder.addAction(createAction(ACTION_PAUSE, "Pause", R.drawable.ic_pause))
-                builder.addAction(createAction(ACTION_SKIP, "Skip", R.drawable.ic_skip))
-            }
-            TimerState.PAUSED -> {
-                builder.addAction(createAction(ACTION_RESUME, "Resume", R.drawable.ic_play))
-                builder.addAction(createAction(ACTION_FINISH, "Finish", R.drawable.ic_stop))
-            }
-            else -> { /* No actions for idle/completed */ }
-        }
 
         return builder.build()
     }

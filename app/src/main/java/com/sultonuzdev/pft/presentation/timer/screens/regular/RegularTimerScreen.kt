@@ -1,15 +1,12 @@
 package com.sultonuzdev.pft.presentation.timer.screens.regular
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,19 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.util.AppPreview
-import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTENT_WIDTH
-import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTROLS_WIDTH
 import com.sultonuzdev.pft.core.util.Constants.TIMER_CIRCLE_SIZE_PHONE
-import com.sultonuzdev.pft.core.util.Constants.TIMER_CIRCLE_SIZE_TABLET
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
@@ -61,56 +52,12 @@ fun RegularTimerScreenContent(
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        val configuration = LocalConfiguration.current
-        val isTablet = configuration.screenWidthDp >= 600
-        val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        if (isLandscape || isTablet) {
-            TabletTimerLayout(
-                uiState = uiState,
-                onStartClick = onStartClick,
-                onPauseClick = onPauseClick,
-                onResumeClick = onResumeClick,
-                onStopClick = onFinishClick,
-                onSkipClick = onSkipClick,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            // Phone/Portrait layout
-            PhoneTimerLayout(
-                uiState = uiState,
-                onStartClick = onStartClick,
-                onPauseClick = onPauseClick,
-                onResumeClick = onResumeClick,
-                onStopClick = onFinishClick,
-                onSkipClick = onSkipClick,
-                modifier = Modifier.fillMaxSize()
-
-            )
-        }
-    }
-
-}
-
-@Composable
-private fun PhoneTimerLayout(
-    uiState: TimerMviContract.TimerUiState,
-    onStartClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
-    onSkipClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
 
 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -125,15 +72,12 @@ private fun PhoneTimerLayout(
         // Timer Type Tabs
         TimerTypeTabs(
             selectedTimerType = uiState.currentType,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth()
         )
 
 
-        // Status Display
-        TimerStatusDisplay(
-            timerState = uiState.timerState,
-            modifier = Modifier.fillMaxWidth()
-        )
 
 
         // Circular timer with enhanced visual feedback
@@ -154,7 +98,7 @@ private fun PhoneTimerLayout(
             onStartClick = onStartClick,
             onPauseClick = onPauseClick,
             onResumeClick = onResumeClick,
-            onFinishClick = onStopClick,
+            onFinishClick = onFinishClick,
             onSkipClick = onSkipClick,
             modifier = Modifier.fillMaxWidth()
         )
@@ -178,148 +122,8 @@ private fun PhoneTimerLayout(
     }
 }
 
-@Composable
-private fun TabletTimerLayout(
-    uiState: TimerMviContract.TimerUiState,
-    onStartClick: () -> Unit,
-    onPauseClick: () -> Unit,
-    onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
-    onSkipClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Start),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Left side - Timer and controls
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
 
 
-            // Circular timer with enhanced visual feedback
-            CircularTimer(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(TIMER_CIRCLE_SIZE_TABLET)
-                    .aspectRatio(1f),
-                progress = uiState.progressFraction,
-                timeText = uiState.formattedTime,
-                progressColor = getTimerColor(uiState.currentType),
-            )
-
-
-            // Timer Controls
-            SimpleTimerControls(
-                timerState = uiState.timerState,
-                onStartClick = onStartClick,
-                onPauseClick = onPauseClick,
-                onResumeClick = onResumeClick,
-                onFinishClick = onStopClick,
-                onSkipClick = onSkipClick,
-                modifier = Modifier.fillMaxWidth(TABLET_CONTROLS_WIDTH)
-            )
-        }
-
-        // Right side - Info and stats
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically)
-        ) {
-
-            SessionSummary(
-                todayStats = uiState.todayStats,
-                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
-            )
-
-            Text(
-                text = stringResource(
-                    R.string.complete_pomodoros_to_earn_a_long_break,
-                    uiState.settings.pomodoroCycleLength
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                modifier = Modifier.padding(8.dp),
-                textAlign = TextAlign.Center
-            )
-
-
-            // Timer Type Tabs
-            TimerTypeTabs(
-                selectedTimerType = uiState.currentType,
-                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
-            )
-
-            // Status Display
-            TimerStatusDisplay(
-                timerState = uiState.timerState,
-                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
-            )
-
-            // Focus Mode Indicator
-            AnimatedVisibility(
-                visible = uiState.settings.enableFocusMode &&
-                        uiState.timerState == TimerState.RUNNING &&
-                        uiState.currentType == TimerType.POMODORO
-            ) {
-                FocusModeIndicator()
-            }
-
-            // Tips and Encouragement
-            TipsAndEncouragement(
-                timerState = uiState.timerState,
-                todayStats = uiState.todayStats,
-                modifier = Modifier.fillMaxWidth(TABLET_CONTENT_WIDTH)
-            )
-        }
-    }
-}
-
-
-@Composable
-private fun TimerStatusDisplay(
-    timerState: TimerState,
-    modifier: Modifier = Modifier
-) {
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Timer state
-        Text(
-            text = when (timerState) {
-                TimerState.IDLE -> "Ready to focus"
-                TimerState.RUNNING -> "Stay focused!"
-                TimerState.PAUSED -> "Paused - Take a breath"
-                TimerState.COMPLETED -> "Well done! 🎉"
-            },
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = when (timerState) {
-                TimerState.RUNNING -> MaterialTheme.colorScheme.primary
-                TimerState.PAUSED -> MaterialTheme.colorScheme.secondary
-                TimerState.COMPLETED -> MaterialTheme.colorScheme.tertiary
-                else -> MaterialTheme.colorScheme.onSurface
-            }
-        )
-
-    }
-}
 
 @Composable
 private fun FocusModeIndicator(
@@ -404,11 +208,11 @@ private fun TimerScreenPreview() {
     PomodoroTheme(darkTheme = false) {
         RegularTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
-                currentType = TimerType.LONG_BREAK,
+                currentType = TimerType.SHORT_BREAK,
                 timerState = TimerState.COMPLETED,
                 currentTimeMillis = 1500000,
                 totalTimeMillis = 1500000,
-                progressFraction = 1.0f,
+                progressFraction = 0.45f,
                 formattedTime = "25:00",
                 currentSessionPomodoros = 2,
                 todayStats = DailyStats(
