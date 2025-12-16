@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
@@ -42,17 +43,18 @@ fun StudyTimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
 ) {
 
     Column(
-        modifier =  Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.customColors.study.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top Progress Bar
         StudyProgressBar(
@@ -75,7 +77,7 @@ fun StudyTimerScreenContent(
         StudyTimer(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f), uiState = uiState
+                .aspectRatio(5/4f), uiState = uiState
         )
 
         HorizontalDivider(
@@ -87,7 +89,7 @@ fun StudyTimerScreenContent(
         // Bottom Controls
         StudyControlButtons(
             timerState = uiState.timerState,
-            onResetClick = onStopClick,
+            onResetClick = onFinishClick,
             onPlayPauseClick = {
                 when (uiState.timerState) {
                     TimerState.RUNNING -> onPauseClick()
@@ -138,7 +140,7 @@ private fun StudyTimerPreview() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {},
         )
 

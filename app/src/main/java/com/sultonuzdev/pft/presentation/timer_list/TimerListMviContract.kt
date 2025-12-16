@@ -1,4 +1,4 @@
-package com.sultonuzdev.pft.presentation.timer_styles
+package com.sultonuzdev.pft.presentation.timer_list
 
 import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.domain.model.TimerOption

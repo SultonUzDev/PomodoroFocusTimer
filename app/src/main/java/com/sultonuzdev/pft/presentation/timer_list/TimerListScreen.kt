@@ -1,4 +1,4 @@
-package com.sultonuzdev.pft.presentation.timer_styles
+package com.sultonuzdev.pft.presentation.timer_list
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -266,7 +266,7 @@ fun TimerCard(
                 .padding(8.dp)
         ) {
 
-            Text("Make it default style")
+            Text("Set as default")
 
         }
     }

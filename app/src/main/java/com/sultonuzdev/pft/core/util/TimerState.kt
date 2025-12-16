@@ -1,6 +1,9 @@
 package com.sultonuzdev.pft.core.util
 
 
-enum class TimerState {
-    IDLE, RUNNING, PAUSED, COMPLETED
+enum class TimerState(val title: String) {
+    IDLE("Timer"),
+    RUNNING("Running"),
+    PAUSED("Paused"),
+    COMPLETED("Completed")
 }

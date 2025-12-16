@@ -18,22 +18,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.core.util.Constants.TABLET_CONTENT_WIDTH
@@ -44,13 +40,11 @@ import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.core.util.TimerType
 import com.sultonuzdev.pft.domain.model.DailyStats
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
-import com.sultonuzdev.pft.presentation.timer.TimerViewModel
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import com.sultonuzdev.pft.presentation.timer.screens.regular.components.CircularTimer
 import com.sultonuzdev.pft.presentation.timer.screens.regular.components.SessionSummary
 import com.sultonuzdev.pft.presentation.timer.screens.regular.components.SimpleTimerControls
 import com.sultonuzdev.pft.presentation.timer.screens.regular.components.TimerTypeTabs
-import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
 
@@ -63,7 +57,7 @@ fun RegularTimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -72,8 +66,6 @@ fun RegularTimerScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-
-
         val configuration = LocalConfiguration.current
         val isTablet = configuration.screenWidthDp >= 600
         val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -83,7 +75,7 @@ fun RegularTimerScreenContent(
                 onStartClick = onStartClick,
                 onPauseClick = onPauseClick,
                 onResumeClick = onResumeClick,
-                onStopClick = onStopClick,
+                onStopClick = onFinishClick,
                 onSkipClick = onSkipClick,
                 modifier = Modifier.fillMaxSize()
             )
@@ -94,7 +86,7 @@ fun RegularTimerScreenContent(
                 onStartClick = onStartClick,
                 onPauseClick = onPauseClick,
                 onResumeClick = onResumeClick,
-                onStopClick = onStopClick,
+                onStopClick = onFinishClick,
                 onSkipClick = onSkipClick,
                 modifier = Modifier.fillMaxSize()
 
@@ -120,7 +112,7 @@ private fun PhoneTimerLayout(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
     ) {
@@ -129,16 +121,6 @@ private fun PhoneTimerLayout(
             todayStats = uiState.todayStats,
             modifier = Modifier.fillMaxWidth()
         )
-
-
-        Text(
-            text = "💡 Complete ${uiState.settings.pomodoroCycleLength} pomodoros to earn a long break!",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-            modifier = Modifier.padding(8.dp),
-            textAlign = TextAlign.Center
-        )
-
 
         // Timer Type Tabs
         TimerTypeTabs(
@@ -158,7 +140,8 @@ private fun PhoneTimerLayout(
         CircularTimer(
             modifier = Modifier
                 .fillMaxWidth(TIMER_CIRCLE_SIZE_PHONE)
-                .aspectRatio(1f),
+                .aspectRatio(1f)
+                .padding(16.dp),
             progress = uiState.progressFraction,
             timeText = uiState.formattedTime,
             progressColor = getTimerColor(uiState.currentType),
@@ -171,7 +154,7 @@ private fun PhoneTimerLayout(
             onStartClick = onStartClick,
             onPauseClick = onPauseClick,
             onResumeClick = onResumeClick,
-            onStopClick = onStopClick,
+            onFinishClick = onStopClick,
             onSkipClick = onSkipClick,
             modifier = Modifier.fillMaxWidth()
         )
@@ -240,7 +223,7 @@ private fun TabletTimerLayout(
                 onStartClick = onStartClick,
                 onPauseClick = onPauseClick,
                 onResumeClick = onResumeClick,
-                onStopClick = onStopClick,
+                onFinishClick = onStopClick,
                 onSkipClick = onSkipClick,
                 modifier = Modifier.fillMaxWidth(TABLET_CONTROLS_WIDTH)
             )
@@ -261,7 +244,10 @@ private fun TabletTimerLayout(
             )
 
             Text(
-                text = "💡 Complete ${uiState.settings.pomodoroCycleLength} pomodoros to earn a long break!",
+                text = stringResource(
+                    R.string.complete_pomodoros_to_earn_a_long_break,
+                    uiState.settings.pomodoroCycleLength
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 modifier = Modifier.padding(8.dp),
@@ -310,7 +296,7 @@ private fun TimerStatusDisplay(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -419,7 +405,7 @@ private fun TimerScreenPreview() {
         RegularTimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
                 currentType = TimerType.LONG_BREAK,
-                timerState = TimerState.IDLE,
+                timerState = TimerState.COMPLETED,
                 currentTimeMillis = 1500000,
                 totalTimeMillis = 1500000,
                 progressFraction = 1.0f,
@@ -442,7 +428,7 @@ private fun TimerScreenPreview() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {}
         )
     }

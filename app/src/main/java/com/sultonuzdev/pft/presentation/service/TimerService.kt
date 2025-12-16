@@ -25,11 +25,11 @@ import com.sultonuzdev.pft.core.util.formatToMinutesAndSeconds
 import com.sultonuzdev.pft.domain.model.PomodoroTimerSettings
 import com.sultonuzdev.pft.domain.repository.SettingsRepository
 import com.sultonuzdev.pft.domain.usecase.pomodoro.AddPomodoro
+import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_FINISH
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_PAUSE
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_RESUME
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_SKIP
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_START
-import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.ACTION_STOP
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.EXTRA_TIMER_DURATION
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.EXTRA_TIMER_TYPE
 import com.sultonuzdev.pft.presentation.service.TimerServiceConstants.NOTIFICATION_CHANNEL_ID
@@ -193,12 +193,16 @@ class TimerService : Service() {
         val currentType = _currentTimerType.value
         val sessionStartTime = startTime
 
+        // IMPORTANT: Capture values BEFORE resetting state to avoid race condition
+        val capturedTotal = _totalTimeMillis.value
+        val capturedRemaining = _remainingTimeMillis.value
+
         // Save ALL timer types to database (POMODORO, SHORT_BREAK, LONG_BREAK)
         if (sessionStartTime != null) {
             serviceScope.launch {
                 try {
                     // Calculate focused duration in seconds (not milliseconds)
-                    val focusedMillis = totalTimeMillis.value - remainingTimeMillis.value
+                    val focusedMillis = capturedTotal - capturedRemaining
                     val focusedSeconds = (focusedMillis / 1000).coerceAtLeast(0)
 
                     // Get planned duration based on timer type
@@ -252,9 +256,9 @@ class TimerService : Service() {
         }
     }
 
-    // Update your skipTimer method similarly:
-    fun skipTimer() {
-        Log.d(TAG, "skipTimer called")
+    // Update your finishTimer method similarly:
+    fun finishTimer() {
+        Log.d(TAG, "finishTimer called - user stopped timer early")
 
         timerJob?.cancel()
         timerJob = null
@@ -262,12 +266,16 @@ class TimerService : Service() {
         val currentType = _currentTimerType.value
         val sessionStartTime = startTime
 
-        // Save ALL timer types to database (marked as NOT completed since user skipped)
+        // IMPORTANT: Capture values BEFORE resetting state to avoid race condition
+        val capturedTotal = _totalTimeMillis.value
+        val capturedRemaining = _remainingTimeMillis.value
+
+        // Save ALL timer types to database (marked as NOT completed since user stopped early)
         if (sessionStartTime != null) {
             serviceScope.launch {
                 try {
                     // Calculate focused duration in seconds (not milliseconds)
-                    val focusedMillis = totalTimeMillis.value - remainingTimeMillis.value
+                    val focusedMillis = capturedTotal - capturedRemaining
                     val focusedSeconds = (focusedMillis / 1000).coerceAtLeast(0)
 
                     // Get planned duration based on timer type
@@ -280,35 +288,27 @@ class TimerService : Service() {
                     addPomodoro(
                         type = currentType,
                         plannedDurationSeconds = plannedSeconds,
-                        completed = false, // Skipped sessions are NOT completed
+                        completed = false, // User stopped early, NOT completed
                         startedTime = sessionStartTime,
                         focusedDurationSeconds = focusedSeconds,
                     )
                     Log.d(
                         TAG,
-                        "Skipped $currentType session saved to database as incomplete (${focusedSeconds}s)"
+                        "Stopped $currentType session saved to database as incomplete (${focusedSeconds}s/${plannedSeconds}s)"
                     )
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to save skipped session", e)
+                    Log.e(TAG, "Failed to save stopped session", e)
                 }
             }
         }
 
-        // Mark as completed
+        // Update state
         _timerState.value = TimerState.COMPLETED
         _remainingTimeMillis.value = 0
         _formattedTime.value = "00:00"
         _progressFraction.value = 1.0f
 
-        // Update completed count if it was a Pomodoro
-        if (currentType == TimerType.POMODORO) {
-            _completedPomodoros.value += 1 // Lifetime total
-            _currentSessionPomodoros.value += 1 // Current session
-            Log.d(
-                TAG,
-                "Pomodoro skipped - Total: ${_completedPomodoros.value}, Session: ${_currentSessionPomodoros.value}"
-            )
-        }
+        // DO NOT increment counters - user didn't complete the full session
 
         updateNotification(completed = true)
         startTime = null
@@ -362,7 +362,7 @@ class TimerService : Service() {
 
                 ACTION_PAUSE -> pauseTimer()
                 ACTION_RESUME -> resumeTimer()
-                ACTION_STOP -> stopTimer()
+                ACTION_FINISH -> finishTimer()
                 ACTION_SKIP -> skipTimer()
             }
         }
@@ -522,35 +522,34 @@ class TimerService : Service() {
     }
 
 
-    fun stopTimer() {
-        Log.d(TAG, "stopTimer called")
+    fun skipTimer() {
+        Log.d(TAG, "skipTimer called - user skipped timer, no save")
 
         // Cancel timer coroutine
         timerJob?.cancel()
         timerJob = null
 
-        // Reset timer tracking variables
-        timerStartElapsedTime = 0L
-        pausedElapsedTime = 0L
+        val currentType = _currentTimerType.value
 
-        // Reset state to initial values based on current settings
-        val defaultDuration = getDurationForTimerType(_currentTimerType.value)
+        // DO NOT save to database - user wants to skip without recording
 
-        _timerState.value = TimerState.IDLE
-        _totalTimeMillis.value = defaultDuration
-        _remainingTimeMillis.value = defaultDuration
-        _formattedTime.value = defaultDuration.formatToMinutesAndSeconds()
+        // Update state to show completion
+        _timerState.value = TimerState.COMPLETED
+        _remainingTimeMillis.value = 0
+        _formattedTime.value = "00:00"
         _progressFraction.value = 1.0f
 
-        // Stop foreground service
-        try {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error stopping foreground service", e)
-        }
+        // DO NOT increment counters - user skipped this timer
 
+        updateNotification(completed = true)
         startTime = null
+
+        // Auto-transition to next timer type after a short delay
+        serviceScope.launch {
+            delay(TIMER_COMPLETION_DELAY_MILLIS)
+            val nextType = getNextTimerType()
+            changeTimerType(nextType)
+        }
     }
 
 
@@ -574,31 +573,22 @@ class TimerService : Service() {
         startTime = null
     }
 
-
-    // Expose method to manually change timer type (called from ViewModel)
-
-
-    // Expose method to get current settings
-    fun getCurrentSettings(): PomodoroTimerSettings = currentSettings
-
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                val channel = NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID,
-                    NOTIFICATION_CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Pomodoro Timer notifications"
-                    setShowBadge(false)
-                }
-
-                val notificationManager = getSystemService(NotificationManager::class.java)
-                notificationManager.createNotificationChannel(channel)
-                Log.d(TAG, "Notification channel created")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error creating notification channel", e)
+        try {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                NOTIFICATION_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Pomodoro Timer notifications"
+                setShowBadge(false)
             }
+
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+            Log.d(TAG, "Notification channel created")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating notification channel", e)
         }
     }
 
@@ -657,7 +647,7 @@ class TimerService : Service() {
             .setSmallIcon(R.drawable.ic_logo)
             .setContentIntent(pendingIntent)
             .setOngoing(!completed)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
 
@@ -665,17 +655,16 @@ class TimerService : Service() {
         when (_timerState.value) {
             TimerState.RUNNING -> {
                 builder.addAction(createAction(ACTION_PAUSE, "Pause", R.drawable.ic_pause))
-                builder.addAction(createAction(ACTION_STOP, "Stop", R.drawable.ic_stop))
                 builder.addAction(createAction(ACTION_SKIP, "Skip", R.drawable.ic_skip))
             }
 
             TimerState.PAUSED -> {
                 builder.addAction(createAction(ACTION_RESUME, "Resume", R.drawable.ic_play))
-                builder.addAction(createAction(ACTION_STOP, "Stop", R.drawable.ic_stop))
+                builder.addAction(createAction(ACTION_FINISH, "Finish", R.drawable.ic_stop))
             }
 
-            else -> { /* No actions for idle/completed */
-            }
+            else -> { /* No actions for idle/completed */ }
+
         }
 
         return builder.build()

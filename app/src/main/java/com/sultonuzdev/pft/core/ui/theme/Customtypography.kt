@@ -78,12 +78,12 @@ data class ReadingTypography(
 fun getReadingTypography() = ReadingTypography(
     title = TextStyle(
         fontFamily = LibreBaskervilleFontFamily,
-        fontSize = 32.sp,
+        fontSize = 28.sp,
         fontWeight = FontWeight.Light
     ),
     subtitle = TextStyle(
         fontFamily = LibreBaskervilleFontFamily,
-        fontSize = 15.sp,
+        fontSize = 14.sp,
         fontStyle = FontStyle.Italic
     ),
     timer = TextStyle(
@@ -133,7 +133,7 @@ data class MeditationTypography(
 fun getMeditationTypography() = MeditationTypography(
     timer = TextStyle(
         fontFamily = RobotoFontFamily,
-        fontSize = 80.sp,
+        fontSize = 90.sp,
         fontWeight = FontWeight.SemiBold  // KEY: Light weight!
     ),
     breatheText = TextStyle(
@@ -213,12 +213,13 @@ data class CodingTypography(
 fun getCodingTypography() = CodingTypography(
     timer = TextStyle(
         fontFamily = JetBrainsMonoFontFamily,
-        fontSize = 100.sp,
-        fontWeight = FontWeight.Bold
+        fontSize = 90.sp,
+        fontWeight = FontWeight.ExtraBold,
+        letterSpacing = 1.sp
     ),
     terminal = TextStyle(
         fontFamily = JetBrainsMonoFontFamily,
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         fontWeight = FontWeight.Normal
     ),
     comment = TextStyle(

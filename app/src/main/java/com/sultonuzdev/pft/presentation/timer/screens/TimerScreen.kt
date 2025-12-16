@@ -73,7 +73,7 @@ fun TimerScreen(
         onStartClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StartTimer) },
         onPauseClick = { viewModel.processIntent(TimerMviContract.TimerIntent.PauseTimer) },
         onResumeClick = { viewModel.processIntent(TimerMviContract.TimerIntent.ResumeTimer) },
-        onStopClick = { viewModel.processIntent(TimerMviContract.TimerIntent.StopTimer) },
+        onFinishClick = { viewModel.processIntent(TimerMviContract.TimerIntent.FinishTimer) },
         onSkipClick = { viewModel.processIntent(TimerMviContract.TimerIntent.SkipTimer) },
         processIntent = viewModel::processIntent
     )
@@ -87,7 +87,7 @@ fun TimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
     processIntent: (TimerMviContract.TimerIntent) -> Unit = {}
 ) {
@@ -201,7 +201,7 @@ fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
+                        onFinishClick = onFinishClick,
                         onSkipClick = onSkipClick,
                     )
 
@@ -213,7 +213,7 @@ fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
+                        onFinishClick = onFinishClick,
                         onSkipClick = onSkipClick,
                     )
                 }
@@ -224,7 +224,7 @@ fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
+                        onFinishClick = onFinishClick,
                         onSkipClick = onSkipClick,
                     )
                 }
@@ -235,7 +235,7 @@ fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
+                        onFinishClick = onFinishClick,
                         onSkipClick = onSkipClick,
                     )
                 }
@@ -246,7 +246,7 @@ fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onStopClick = onStopClick,
+                        onFinishClick = onFinishClick,
                         onSkipClick = onSkipClick,
                     )
                 }
@@ -291,7 +291,7 @@ fun TimerScreenContentPreview() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {}
         )
     }

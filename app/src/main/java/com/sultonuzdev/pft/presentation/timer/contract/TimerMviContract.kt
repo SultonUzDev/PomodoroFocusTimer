@@ -39,7 +39,6 @@ object TimerMviContract {
         val errorMessage: String? = null
     )
 
-
     /**
      * Represents user actions for the Timer screen
      */
@@ -47,7 +46,7 @@ object TimerMviContract {
         data object StartTimer : TimerIntent
         data object PauseTimer : TimerIntent
         data object ResumeTimer : TimerIntent
-        data object StopTimer : TimerIntent
+        data object FinishTimer : TimerIntent
         data object SkipTimer : TimerIntent
         data class SetTimerStyle(val timerStyle: TimerStyle) : TimerIntent
 

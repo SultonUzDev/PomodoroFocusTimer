@@ -198,7 +198,7 @@ class TimerViewModel @Inject constructor(
                 is TimerMviContract.TimerIntent.StartTimer -> startTimer()
                 is TimerMviContract.TimerIntent.PauseTimer -> pauseTimer()
                 is TimerMviContract.TimerIntent.ResumeTimer -> resumeTimer()
-                is TimerMviContract.TimerIntent.StopTimer -> stopTimer()
+                is TimerMviContract.TimerIntent.FinishTimer -> finishTimer()
                 is TimerMviContract.TimerIntent.SkipTimer -> skipTimer()
                 is TimerMviContract.TimerIntent.SetTimerStyle -> {
                     _uiState.update { it.copy(timerStyle = intent.timerStyle) }
@@ -237,7 +237,7 @@ class TimerViewModel @Inject constructor(
         timerServiceManager.resumeTimer()
     }
 
-    private fun stopTimer() {
+    private fun finishTimer() {
         Log.d("TimerViewModel", "Stopping timer")
         timerServiceManager.stopTimer()
     }

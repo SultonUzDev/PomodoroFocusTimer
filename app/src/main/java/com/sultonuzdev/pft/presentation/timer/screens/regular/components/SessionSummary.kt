@@ -35,7 +35,7 @@ fun SessionSummary(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -45,7 +45,7 @@ fun SessionSummary(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -84,7 +84,7 @@ private fun SummaryItem(
     ) {
         Text(
             text = icon,
-            fontSize = 24.sp
+            fontSize = 20.sp
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(

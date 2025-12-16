@@ -46,7 +46,7 @@ fun CodingTimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
 ) {
 
@@ -57,9 +57,9 @@ fun CodingTimerScreenContent(
             .fillMaxSize()
             .background(MaterialTheme.customColors.coding.background)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
     ) {
         // Terminal window
         TerminalWindow(
@@ -71,7 +71,7 @@ fun CodingTimerScreenContent(
         // Control buttons
         CodingControlButtons(
             timerState = uiState.timerState,
-            onResetClick = onStopClick,
+            onFinishClick = onFinishClick,
             onPlayPauseClick = {
                 when (uiState.timerState) {
                     TimerState.IDLE -> onStartClick()
@@ -83,7 +83,7 @@ fun CodingTimerScreenContent(
             onSkipClick = onSkipClick
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
 //             Focus Mode Indicator
         AnimatedVisibility(
@@ -108,7 +108,7 @@ fun CodingTimerScreenContent(
 @Composable
 private fun CodingControlButtons(
     timerState: TimerState,
-    onResetClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onSkipClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -151,9 +151,9 @@ private fun CodingControlButtons(
                 )
 
                 CodingButton(
-                    text = "Stop",
+                    text = "Finish",
                     enabled = true,
-                    onClick = onResetClick
+                    onClick = onFinishClick
                 )
             }
         }
@@ -219,7 +219,7 @@ private fun CodingTimerPreview() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {},
         )
 

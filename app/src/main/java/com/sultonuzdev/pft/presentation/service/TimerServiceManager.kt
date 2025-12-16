@@ -241,11 +241,11 @@ class TimerServiceManager @Inject constructor(
         Log.d(TAG, "Stopping timer")
 
         // Call service directly if bound
-        timerService?.stopTimer()
+        timerService?.finishTimer()
 
         // Also send stop intent to ensure service stops
         val intent = Intent(context, TimerService::class.java).apply {
-            action = TimerServiceConstants.ACTION_STOP
+            action = TimerServiceConstants.ACTION_FINISH
         }
 
         try {

@@ -13,6 +13,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.ui.theme.settingsIconColor
 import com.sultonuzdev.pft.core.ui.theme.statsIconColor
 import com.sultonuzdev.pft.core.ui.theme.timerStyleIconColor
@@ -36,7 +38,7 @@ fun TimerTopBar(
         ),
         title = {
             Text(
-                text = "Pomodoro Focus Timer",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             )
         },
@@ -46,7 +48,7 @@ fun TimerTopBar(
             IconButton(onClick = navigateToTimerStyle) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.List,
-                    contentDescription = "More style",
+                    contentDescription = stringResource(R.string.styles),
                     tint = timerStyleIconColor
                 )
             }
@@ -54,7 +56,7 @@ fun TimerTopBar(
             IconButton(onClick = navigateToStats) {
                 Icon(
                     imageVector = Icons.Default.Assessment,
-                    contentDescription = "Statistics",
+                    contentDescription = stringResource(R.string.statistics),
                     tint = statsIconColor
                 )
             }
@@ -63,7 +65,7 @@ fun TimerTopBar(
             IconButton(onClick = navigateToSettings) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(R.string.settings),
                     tint = settingsIconColor
                 )
             }

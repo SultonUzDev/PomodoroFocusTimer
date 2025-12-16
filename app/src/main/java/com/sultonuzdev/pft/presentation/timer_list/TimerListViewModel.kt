@@ -1,4 +1,4 @@
-package com.sultonuzdev.pft.presentation.timer_styles
+package com.sultonuzdev.pft.presentation.timer_list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -6,35 +6,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.util.AppPreview
+import com.sultonuzdev.pft.core.util.Constants
 import com.sultonuzdev.pft.core.util.TimerState
 import com.sultonuzdev.pft.domain.model.DailyStats
-import com.sultonuzdev.pft.presentation.timer.TimerViewModel
 import com.sultonuzdev.pft.presentation.timer.contract.TimerMviContract
 import com.sultonuzdev.pft.presentation.timer.screens.reading.components.BookCard
 import com.sultonuzdev.pft.presentation.timer.screens.reading.components.ReadingControlButtons
 import com.sultonuzdev.pft.presentation.timer.screens.reading.components.ReadingHeader
 import com.sultonuzdev.pft.presentation.timer.screens.reading.components.ReadingStats
 import com.sultonuzdev.pft.presentation.timer.screens.reading.components.ReadingStatusDisplay
-import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
 /**
@@ -46,7 +40,7 @@ fun ReadingTimerScreenContent(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
 ) {
     Column(
@@ -71,19 +65,12 @@ fun ReadingTimerScreenContent(
 
         // Book with timer
         BookCard(
+            modifier = Modifier.fillMaxWidth(Constants.TABLET_CONTROLS_WIDTH),
             time = uiState.formattedTime,
-            pageStatus = getPageStatus(uiState.timerState),
+            pageStatus = getPageStatus(uiState.timerState)
+            ,
         )
 
-
-        // Stats
-        ReadingStats(
-            completedSession = uiState.todayStats.completedPomodoros,
-            timeSpent = uiState.todayStats.totalFocusMinutes,
-            sessions = uiState.currentSessionPomodoros,
-            currentType = uiState.currentType
-        )
-        Spacer(modifier = Modifier.height(16.dp))
 
 
         // Control buttons
@@ -97,10 +84,19 @@ fun ReadingTimerScreenContent(
                     else -> {}
                 }
             },
-            onStopClick = onStopClick,
+            onFinishClick = onFinishClick,
             onSkipClick = onSkipClick
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Stats
+        ReadingStats(
+            completedSession = uiState.todayStats.completedPomodoros,
+            timeSpent = uiState.todayStats.totalFocusMinutes,
+            sessions = uiState.currentSessionPomodoros,
+            currentType = uiState.currentType
+        )
 
         // Status text
         ReadingStatusDisplay(
@@ -145,7 +141,7 @@ private fun ReadingTimerPreviewDark() {
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
-            onStopClick = {},
+            onFinishClick = {},
             onSkipClick = {},
         )
     }

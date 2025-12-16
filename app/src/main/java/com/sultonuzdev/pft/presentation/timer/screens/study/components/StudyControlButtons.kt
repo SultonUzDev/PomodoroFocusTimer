@@ -87,7 +87,7 @@ fun StudyControlButtons(
 
                 StudyButton(
                     icon = "⏹",
-                    label = "STOP",
+                    label = "FINISH",
                     onClick = onResetClick
                 )
             }

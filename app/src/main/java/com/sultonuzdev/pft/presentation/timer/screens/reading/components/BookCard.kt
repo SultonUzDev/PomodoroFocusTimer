@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,9 +36,8 @@ fun BookCard(
 
     Box(
         modifier = modifier
-            .width(300.dp)
-            .height(380.dp)
-            .shadow(20.dp, RoundedCornerShape(10.dp))
+            .aspectRatio(4/5f)
+            .shadow(12.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .background(
                 Brush.linearGradient(

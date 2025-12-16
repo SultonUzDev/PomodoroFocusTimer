@@ -4,8 +4,8 @@ import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
-import com.sultonuzdev.pft.presentation.timer_styles.TimerCard
-import com.sultonuzdev.pft.presentation.timer_styles.timerOptions
+import com.sultonuzdev.pft.presentation.timer_list.TimerCard
+import com.sultonuzdev.pft.presentation.timer_list.timerOptions
 
 
 @Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES, showSystemUi = true,  showBackground = true)

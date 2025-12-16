@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import com.sultonuzdev.pft.presentation.settings.SettingsScreen
 import com.sultonuzdev.pft.presentation.stats.StatsScreen
 import com.sultonuzdev.pft.presentation.timer.screens.TimerScreen
-import com.sultonuzdev.pft.presentation.timer_styles.TimerListScreen
+import com.sultonuzdev.pft.presentation.timer_list.TimerListScreen
 
 
 /**

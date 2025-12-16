@@ -1,7 +1,5 @@
 package com.sultonuzdev.pft.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.sultonuzdev.pft.data.db.dao.PomodoroDao
 import com.sultonuzdev.pft.data.preferences.PreferencesManager
 import com.sultonuzdev.pft.data.repository.PomodoroRepositoryImpl
@@ -34,4 +32,7 @@ object RepositoryModule {
     fun provideSettingsRepository(
         preferencesManager: PreferencesManager
     ): SettingsRepository = SettingsRepositoryImpl(preferencesManager)
+
+
+
 }

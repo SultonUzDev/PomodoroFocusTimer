@@ -22,12 +22,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
+import com.sultonuzdev.pft.core.util.Constants.TIMER_CIRCLE_SIZE_PHONE
 
 @Preview
 @Composable
 private fun CircularTimerPreview() {
     PomodoroTheme {
         CircularTimer(
+            modifier = Modifier
+                .fillMaxWidth(TIMER_CIRCLE_SIZE_PHONE)
+                .aspectRatio(1f)
+                .padding(16.dp),
             progress = 0.5f,
             timeText = "25:00",
             progressColor = MaterialTheme.colorScheme.primary
@@ -54,10 +59,7 @@ fun CircularTimer(
     )
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f)
-            .padding(16.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
 
@@ -78,7 +80,7 @@ fun CircularTimer(
                 startAngle = -90f, // Start from top
                 sweepAngle = sweepAngle,
                 useCenter = false,
-                style = Stroke(width = 30f, cap = StrokeCap.Round)
+                style = Stroke(width = 40f, cap = StrokeCap.Round)
             )
         }
 

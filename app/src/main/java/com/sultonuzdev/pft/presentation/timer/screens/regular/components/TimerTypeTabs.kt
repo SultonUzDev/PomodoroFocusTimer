@@ -12,7 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.util.TimerType
 
 /**
@@ -34,21 +36,21 @@ fun TimerTypeTabs(
             )
     ) {
         TimerTypeTab(
-            text = "Pomodoro",
+            text = stringResource(R.string.pomodoro),
             selected = selectedTimerType == TimerType.POMODORO,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.weight(1f)
         )
 
         TimerTypeTab(
-            text = "Short Break",
+            text = stringResource(R.string.short_break),
             selected = selectedTimerType == TimerType.SHORT_BREAK,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.weight(1f)
         )
 
         TimerTypeTab(
-            text = "Long Break",
+            text = stringResource(R.string.long_break),
             selected = selectedTimerType == TimerType.LONG_BREAK,
             color = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.weight(1f)

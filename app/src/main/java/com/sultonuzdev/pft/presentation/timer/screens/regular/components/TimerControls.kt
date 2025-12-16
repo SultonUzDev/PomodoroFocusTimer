@@ -21,7 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sultonuzdev.pft.R
 import com.sultonuzdev.pft.core.util.TimerState
 
 
@@ -37,7 +39,7 @@ fun SimpleTimerControls(
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onStopClick: () -> Unit,
+    onFinishClick: () -> Unit,
     onSkipClick: () -> Unit,
     isTablet: Boolean = false
 ) {
@@ -60,10 +62,10 @@ fun SimpleTimerControls(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Start"
+                        contentDescription = stringResource(R.string.start)
                     )
                     Text(
-                        text = "Start Focus",
+                        text = stringResource(R.string.start_focus),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
@@ -87,10 +89,10 @@ fun SimpleTimerControls(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Pause,
-                        contentDescription = "Pause"
+                        contentDescription = stringResource(R.string.pause)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Pause")
+                    Text(stringResource(R.string.pause))
                 }
 
                 FilledTonalButton(
@@ -98,7 +100,7 @@ fun SimpleTimerControls(
                     modifier = Modifier.weight(1f),
                     shape = CircleShape
                 ) {
-                    Text("Skip")
+                    Text(stringResource(R.string.skip))
                 }
             }
         }
@@ -119,23 +121,23 @@ fun SimpleTimerControls(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Resume"
+                        contentDescription = stringResource(R.string.resume)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Resume")
+                    Text(stringResource(R.string.resume))
                 }
 
                 OutlinedButton(
-                    onClick = onStopClick,
+                    onClick = onFinishClick,
                     modifier = Modifier.weight(1f),
                     shape = CircleShape
                 ) {
                     Icon(
                         imageVector = Icons.Default.Stop,
-                        contentDescription = "Stop"
+                        contentDescription = stringResource(R.string.finish)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Stop")
+                    Text(stringResource(R.string.finish))
                 }
             }
         }
