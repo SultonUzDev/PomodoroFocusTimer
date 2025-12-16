@@ -270,14 +270,14 @@ fun TimerScreenContentPreview() {
     PomodoroTheme {
         TimerScreenContent(
             uiState = TimerMviContract.TimerUiState(
-                currentType = TimerType.LONG_BREAK,
+                currentType = TimerType.POMODORO,
                 timerState = TimerState.IDLE,
                 currentTimeMillis = 1500000,
                 totalTimeMillis = 1500000,
                 progressFraction = 1.0f,
                 formattedTime = "25:00",
                 currentSessionPomodoros = 2,
-                timerStyle = TimerStyle.STUDY,
+                timerStyle = TimerStyle.CODING,
                 todayStats = DailyStats(
                     completedPomodoros = 8,
                     totalFocusMinutes = 122,

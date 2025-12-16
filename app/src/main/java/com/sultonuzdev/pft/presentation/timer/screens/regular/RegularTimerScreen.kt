@@ -201,14 +201,16 @@ private fun getTimerColor(timerType: TimerType): Color {
 @AppPreview
 @Composable
 private fun TimerScreenPreview() {
-    PomodoroTheme(darkTheme = false) {
+    PomodoroTheme {
         RegularTimerScreenContent(
+            modifier = Modifier
+                .padding(vertical = 16.dp),
             uiState = TimerMviContract.TimerUiState(
                 currentType = TimerType.SHORT_BREAK,
-                timerState = TimerState.COMPLETED,
+                timerState = TimerState.IDLE,
                 currentTimeMillis = 1500000,
                 totalTimeMillis = 1500000,
-                progressFraction = 0.45f,
+                progressFraction = 1f,
                 formattedTime = "25:00",
                 currentSessionPomodoros = 2,
                 todayStats = DailyStats(

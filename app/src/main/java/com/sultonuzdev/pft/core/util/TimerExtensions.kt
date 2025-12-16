@@ -10,6 +10,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
+import java.util.Locale
 
 /**
  * Extension functions for timer-related conversions
@@ -62,3 +63,9 @@ fun Int.formatAsDuration(): String {
 
 fun LocalDate.getStartOfTheWeek(): LocalDate =
     this.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+
+fun LocalDate.formatDayDateYear(): String {
+    val formatter = DateTimeFormatter.ofPattern("EEEE, d MMM yyyy", Locale.ENGLISH)
+    val formattedDate = this.format(formatter)
+    return formattedDate
+}

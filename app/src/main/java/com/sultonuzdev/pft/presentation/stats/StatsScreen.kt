@@ -59,6 +59,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.util.AppPreview
+import com.sultonuzdev.pft.core.util.formatDayDateYear
+import com.sultonuzdev.pft.domain.model.DailyStats
 import com.sultonuzdev.pft.presentation.stats.components.ChartType
 import com.sultonuzdev.pft.presentation.stats.components.ChartTypeToggle
 import com.sultonuzdev.pft.presentation.stats.components.DateSelector
@@ -236,7 +238,7 @@ fun StatsScreenContent(
                         // Selected date display
 
                         Text(
-                            text = uiState.selectedDate.dayOfWeek.name,
+                            text = uiState.selectedDate.formatDayDateYear(),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Medium
                             ),
@@ -366,7 +368,15 @@ fun StatsScreenContent(
 private fun StatsScreenPreview() {
     PomodoroTheme {
         StatsScreenContent(
-            uiState = StatsUiState(),
+            uiState = StatsUiState(
+                dailyStats = DailyStats(
+                    date = LocalDate.now(),
+                    completedPomodoros = 10,
+                    totalFocusMinutes = 60,
+                    completedCycles = 5
+                ),
+                weeklyStats = sampleWeeklyStats
+            ),
             snackbarHostState = SnackbarHostState(),
             onRefreshStats = {},
             onDaySelect = {},
@@ -380,6 +390,50 @@ private fun StatsScreenPreview() {
 
 }
 
+val sampleWeeklyStats = listOf(
+    DailyStats(
+        date = LocalDate.of(2024, 12, 9), // Monday
+        completedPomodoros = 8,
+        totalFocusMinutes = 200,
+        completedCycles = 2
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 10), // Tuesday
+        completedPomodoros = 6,
+        totalFocusMinutes = 150,
+        completedCycles = 1
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 11), // Wednesday
+        completedPomodoros = 10,
+        totalFocusMinutes = 250,
+        completedCycles = 2
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 12), // Thursday
+        completedPomodoros = 4,
+        totalFocusMinutes = 100,
+        completedCycles = 1
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 13), // Friday
+        completedPomodoros = 7,
+        totalFocusMinutes = 175,
+        completedCycles = 1
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 14), // Saturday
+        completedPomodoros = 3,
+        totalFocusMinutes = 75,
+        completedCycles = 0
+    ),
+    DailyStats(
+        date = LocalDate.of(2024, 12, 15), // Sunday
+        completedPomodoros = 5,
+        totalFocusMinutes = 125,
+        completedCycles = 1
+    )
+)
 
 
 

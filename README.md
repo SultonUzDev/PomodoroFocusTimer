@@ -12,7 +12,7 @@ Compose**, following a clean and scalable architecture with **MVVM** and **MVI**
 ---
 
 ## ✦ Features
-
+- Multi Style
 - Customizable Pomodoro, short break, and long break durations
 - Circular animated timer
 - Daily and weekly focus reports
@@ -28,8 +28,8 @@ Compose**, following a clean and scalable architecture with **MVVM** and **MVI**
 - **Language:** Kotlin
 - **UI:** Jetpack Compose
 - **Architecture:** MVVM + MVI
-- **State Management:** Kotlin `StateFlow`, `SharedFlow`
-- **Dependency Injection:** Koin (or Hilt)
+- **State Management:** Kotlin `StateFlow
+- **Dependency Injection:** Hilt
 - **Persistence:** DataStore for settings, Room for history
 - **Navigation:** Jetpack Navigation Compose
 - **Other:** Coroutine-based background timer logic
@@ -63,12 +63,12 @@ cd PomodoroFocusTimer
 ## ✦ Screenshots
 
 <div align="center">
-  <img src="img/image1.jpeg" width="200"  alt=""/>
-  <img src="img/image1_2.jpeg" width="200" />
-  <img src="img/image1_3.jpeg" width="200" />
-  <img src="img/image1_4.jpeg" width="200" />
+  <img src="img/regular_light.png" width="200"  alt=""/>
+  <img src="img/study_light.png" width="200"  alt="" />
+  <img src="img/meditation_light.png" width="200"  alt=""/>
+  <img src="img/coding_light.png" width="200"  alt=""/>
+  <img src="img/reading_light.png" width="200"  alt=""/>
   <img src="img/feature_graphic.png" width="1024"  alt=""/>
-  <img src="img/tablet.png" width="1024"  alt=""/>
 </div>
 
 

@@ -61,7 +61,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,6 +70,7 @@ import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 import com.sultonuzdev.pft.core.ui.theme.customColors
 import com.sultonuzdev.pft.core.ui.theme.customTypography
+import com.sultonuzdev.pft.core.util.AppPreview
 import com.sultonuzdev.pft.domain.model.TimerOption
 import kotlinx.coroutines.flow.collectLatest
 
@@ -569,10 +569,10 @@ fun CodingPreview() {
 }
 
 
-@Preview(device = "spec:width=411dp,height=1000dp")
+@AppPreview
 @Composable
 fun TimerListScreenContentPreview() {
-    PomodoroTheme(darkTheme = true) {
+    PomodoroTheme {
         TimerListScreenContent(
             handleAction = {},
 
@@ -584,18 +584,6 @@ fun TimerListScreenContentPreview() {
     }
 }
 
-@Preview
-@Composable
-fun TimerListScreenContentLightPreview() {
-    PomodoroTheme(darkTheme = false) {
-        TimerListScreenContent(
-            handleAction = {},
-            uiState = TimerListMviContract.TimerListState(),
-            snackbarHostState = SnackbarHostState()
-
-        )
-    }
-}
 
 
 
