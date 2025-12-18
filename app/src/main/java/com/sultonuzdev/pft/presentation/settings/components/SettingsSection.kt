@@ -19,7 +19,7 @@ import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
 @Composable
 private fun SettingsSectionPreview() {
 
-    PomodoroTheme {
+    PomodoroTheme(darkTheme = true) {
         SettingsSection(title = "Timer Durations") {
             // Add your settings items here
         }
@@ -37,7 +37,7 @@ fun SettingsSection(
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor =  MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 2.dp

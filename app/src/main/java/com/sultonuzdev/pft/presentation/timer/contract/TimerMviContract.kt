@@ -49,15 +49,10 @@ object TimerMviContract {
         data object ResumeTimer : TimerIntent
         data object FinishTimer : TimerIntent
         data object SkipTimer : TimerIntent
-        data class SetTimerStyle(val timerStyle: TimerStyle) : TimerIntent
 
         data object NavigateToSettings : TimerIntent
         data object NavigateToStats : TimerIntent
         data object NavigateToTimerStyle : TimerIntent
-
-
-
-
     }
 
     sealed interface TimerEffect : UiEffect {

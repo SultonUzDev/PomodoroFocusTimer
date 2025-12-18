@@ -282,21 +282,7 @@ fun SettingsScreenContent(
                         description = stringResource(R.string.vibration_description)
                     )
                 }
-//
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                // Focus mode section
-//                SettingsSection(title = stringResource(R.string.focus_mode)) {
-//                    // Focus mode switch
-//                    SettingsSwitch(
-//                        checked = uiState.settings.enableFocusMode,
-//                        onCheckedChange = { enabled ->
-//                            updateFocusModeEnabled(enabled)
-//                        },
-//                        label = stringResource(R.string.focus_mode_enabled),
-//                        description = stringResource(R.string.focus_mode_description)
-//                    )
-//                }
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -310,19 +296,6 @@ fun SettingsScreenContent(
                         }
                     )
                 }
-
-//                // Language selector
-//                Spacer(modifier = Modifier.height(16.dp))
-//
-//                SettingsSection(title = stringResource(R.string.language)) {
-//                    LanguageSelector(
-//                        selectedLanguage = uiState.selectedLanguage,
-//                        onLanguageSelected = { language ->
-//                            updateLanguage(language)
-//                        }
-//                    )
-//                }
-
 
                 Spacer(modifier = Modifier.height(32.dp))
             }

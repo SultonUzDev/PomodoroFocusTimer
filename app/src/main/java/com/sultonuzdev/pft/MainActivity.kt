@@ -1,6 +1,7 @@
 package com.sultonuzdev.pft
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -45,6 +46,11 @@ class MainActivity : ComponentActivity() {
             PomodoroTheme(
                 darkTheme = isDarkTheme,
             ) {
+
+                val colors = MaterialTheme.colorScheme
+                Log.d("Theme", "Surface: ${colors.surface}")
+                Log.d("Theme", "Background: ${colors.background}")
+
                 Surface(
                     modifier = Modifier
                         .background( MaterialTheme.colorScheme.background)

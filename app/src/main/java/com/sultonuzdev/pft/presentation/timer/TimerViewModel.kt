@@ -64,6 +64,8 @@ class TimerViewModel @Inject constructor(
     init {
         loadStatistics()
         observeRepositoryState()
+        observeSettings()
+        loadInitialTimerStyle()
     }
 
     private fun observeRepositoryState() {
@@ -106,33 +108,43 @@ class TimerViewModel @Inject constructor(
         }
     }
 
-    private fun loadSettings() {
-        Log.d(TAG, "Loading settings")
+    private fun observeSettings() {
+        Log.d(TAG, "Observing settings")
         viewModelScope.launch {
             try {
                 settingsRepository.getDefaultSettings().collectLatest { settings ->
                     _uiState.update { it.copy(settings = settings) }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading settings", e)
+                Log.e(TAG, "Error observing settings", e)
             }
-
-
         }
     }
 
-    private fun loadTimerStyle() {
+    private fun loadInitialTimerStyle() {
         viewModelScope.launch {
             try {
-                settingsRepository.getTimerStyle().collectLatest { timerStyle ->
-                    Log.d(TAG, "Timer style updated: $timerStyle")
+                settingsRepository.getTimerStyle().collect { timerStyle ->
+                    Log.d(TAG, "Initial timer style loaded: $timerStyle")
                     _uiState.update { it.copy(timerStyle = timerStyle) }
+                    return@collect // Only load once, don't keep collecting
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading timer style", e)
+                Log.e(TAG, "Error loading initial timer style", e)
             }
         }
+    }
 
+    private suspend fun reloadTimerStyleFromRepository() {
+        try {
+            settingsRepository.getTimerStyle().collect { timerStyle ->
+                Log.d(TAG, "Reloaded timer style from repository: $timerStyle")
+                _uiState.update { it.copy(timerStyle = timerStyle) }
+                return@collect // Only read once
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reloading timer style", e)
+        }
     }
 
     private fun loadStatistics() {
@@ -153,8 +165,8 @@ class TimerViewModel @Inject constructor(
             Log.d(TAG, "Processing intent: $intent")
             when (intent) {
                 TimerMviContract.TimerIntent.LoadSettings -> {
-                    loadSettings()
-                    loadTimerStyle()
+                    // Reload timer style from repository when navigating back
+                    reloadTimerStyleFromRepository()
                 }
 
                 is TimerMviContract.TimerIntent.StartTimer -> startTimer()
@@ -162,9 +174,6 @@ class TimerViewModel @Inject constructor(
                 is TimerMviContract.TimerIntent.ResumeTimer -> resumeTimer()
                 is TimerMviContract.TimerIntent.FinishTimer -> finishTimer()
                 is TimerMviContract.TimerIntent.SkipTimer -> skipTimer()
-                is TimerMviContract.TimerIntent.SetTimerStyle -> {
-                    _uiState.update { it.copy(timerStyle = intent.timerStyle) }
-                }
 
                 TimerMviContract.TimerIntent.NavigateToSettings -> {
                     _effect.send(TimerMviContract.TimerEffect.NavigateToSettings)

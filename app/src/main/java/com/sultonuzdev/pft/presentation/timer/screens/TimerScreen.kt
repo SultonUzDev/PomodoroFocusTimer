@@ -2,18 +2,14 @@ package com.sultonuzdev.pft.presentation.timer.screens
 
 import android.os.Build
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,10 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
@@ -62,27 +54,33 @@ fun TimerScreen(
         NotificationPermissionHandler()
     }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = object : LifecycleEventObserver {
-            override fun onStateChanged(
-                source: LifecycleOwner,
-                event: Lifecycle.Event
-            ) {
-                if (event == Lifecycle.Event.ON_START) {
-                    viewModel.processIntent(TimerMviContract.TimerIntent.LoadSettings)
-                }
-            }
-
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-
+    // Reload saved timer style when returning to this screen
+    LaunchedEffect(Unit) {
+        viewModel.processIntent(TimerMviContract.TimerIntent.LoadSettings)
     }
+
+//
+//    val lifecycleOwner = LocalLifecycleOwner.current
+//    DisposableEffect(lifecycleOwner) {
+//        val observer = object : LifecycleEventObserver {
+//            override fun onStateChanged(
+//                source: LifecycleOwner,
+//                event: Lifecycle.Event
+//            ) {
+//                if (event == Lifecycle.Event.ON_START) {
+//                    viewModel.processIntent(TimerMviContract.TimerIntent.LoadSettings)
+//                }
+//            }
+//
+//        }
+//
+//        lifecycleOwner.lifecycle.addObserver(observer)
+//
+//        onDispose {
+//            lifecycleOwner.lifecycle.removeObserver(observer)
+//        }
+//
+//    }
 
 
     LaunchedEffect(Unit) {
@@ -123,29 +121,6 @@ fun TimerScreenContent(
     onSkipClick: () -> Unit,
     processIntent: (TimerMviContract.TimerIntent) -> Unit = {}
 ) {
-    val pagerState = rememberPagerState(
-        initialPage = TimerStyle.entries.indexOf(uiState.timerStyle),
-        pageCount = { TimerStyle.entries.size }
-    )
-
-
-    // Sync timerStyle when page changes via swipe
-    LaunchedEffect(pagerState.currentPage) {
-        val currentStyle = TimerStyle.entries[pagerState.currentPage]
-        if (currentStyle != uiState.timerStyle) {
-            processIntent(TimerMviContract.TimerIntent.SetTimerStyle(currentStyle))
-        }
-    }
-
-    // Sync pager position when timerStyle changes from other sources
-    LaunchedEffect(uiState.timerStyle) {
-        val targetPage = TimerStyle.entries.indexOf(uiState.timerStyle)
-        if (pagerState.currentPage != targetPage) {
-            pagerState.animateScrollToPage(targetPage)
-        }
-    }
-
-
     val backgroundColor = when (uiState.timerStyle) {
         TimerStyle.REGULAR -> listOf(
             MaterialTheme.colorScheme.background,
@@ -216,75 +191,67 @@ fun TimerScreenContent(
         Text(
             text = uiState.timerStyle.title,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier
-                .clickable {
-                    processIntent(TimerMviContract.TimerIntent.SetTimerStyle(uiState.timerStyle))
-                }
-                .padding(vertical = 2.dp),
+            modifier = Modifier.padding(vertical = 2.dp),
             softWrap = false,
             color = tabTextColor.copy(alpha = 0.5f),
         )
 
-        HorizontalPager(state = pagerState) { page ->
-            val currentStyle = TimerStyle.entries[page]
-            when (currentStyle) {
-                TimerStyle.REGULAR -> {
-                    RegularTimerScreenContent(
-                        uiState = uiState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onFinishClick = onFinishClick,
-                        onSkipClick = onSkipClick,
-                    )
-
-                }
-
-                TimerStyle.READING -> {
-                    ReadingTimerScreenContent(
-                        uiState = uiState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onFinishClick = onFinishClick,
-                        onSkipClick = onSkipClick,
-                    )
-                }
-
-                TimerStyle.STUDY -> {
-                    StudyTimerScreenContent(
-                        uiState = uiState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onFinishClick = onFinishClick,
-                        onSkipClick = onSkipClick,
-                    )
-                }
-
-                TimerStyle.MEDITATION -> {
-                    MeditationTimerScreenContent(
-                        uiState = uiState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onFinishClick = onFinishClick,
-                        onSkipClick = onSkipClick,
-                    )
-                }
-
-                TimerStyle.CODING -> {
-                    CodingTimerScreenContent(
-                        uiState = uiState,
-                        onStartClick = onStartClick,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick,
-                        onFinishClick = onFinishClick,
-                        onSkipClick = onSkipClick,
-                    )
-                }
+        // Display the appropriate timer screen based on selected style
+        when (uiState.timerStyle) {
+            TimerStyle.REGULAR -> {
+                RegularTimerScreenContent(
+                    uiState = uiState,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onFinishClick = onFinishClick,
+                    onSkipClick = onSkipClick,
+                )
             }
 
+            TimerStyle.READING -> {
+                ReadingTimerScreenContent(
+                    uiState = uiState,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onFinishClick = onFinishClick,
+                    onSkipClick = onSkipClick,
+                )
+            }
+
+            TimerStyle.STUDY -> {
+                StudyTimerScreenContent(
+                    uiState = uiState,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onFinishClick = onFinishClick,
+                    onSkipClick = onSkipClick,
+                )
+            }
+
+            TimerStyle.MEDITATION -> {
+                MeditationTimerScreenContent(
+                    uiState = uiState,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onFinishClick = onFinishClick,
+                    onSkipClick = onSkipClick,
+                )
+            }
+
+            TimerStyle.CODING -> {
+                CodingTimerScreenContent(
+                    uiState = uiState,
+                    onStartClick = onStartClick,
+                    onPauseClick = onPauseClick,
+                    onResumeClick = onResumeClick,
+                    onFinishClick = onFinishClick,
+                    onSkipClick = onSkipClick,
+                )
+            }
         }
 
 
