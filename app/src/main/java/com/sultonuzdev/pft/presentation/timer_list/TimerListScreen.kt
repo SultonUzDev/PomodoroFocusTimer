@@ -83,6 +83,11 @@ fun TimerListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
+
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(TimerListMviContract.TimerListIntent.LoadTimerList)
+    }
+
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collectLatest { effect ->
             when (effect) {

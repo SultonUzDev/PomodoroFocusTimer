@@ -1,5 +1,6 @@
 package com.sultonuzdev.pft.presentation.timer_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sultonuzdev.pft.domain.repository.SettingsRepository
@@ -25,6 +26,7 @@ class TimerListViewModel @Inject constructor(
     private val _uiSideEffect = Channel<TimerListMviContract.TimerListEffect>()
     val uiSideEffect: Flow<TimerListMviContract.TimerListEffect> = _uiSideEffect.receiveAsFlow()
 
+
     fun handleAction(action: TimerListMviContract.TimerListIntent) {
         viewModelScope.launch {
             when (action) {
@@ -33,11 +35,12 @@ class TimerListViewModel @Inject constructor(
                     repository.setTimerStyle(action.timerStyle)
                     delay(500L)
                     _uiState.update { it.copy(isSetting = false) }
-                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("${action.timerStyle.title} is set as default"))
+                    _uiSideEffect.send(TimerListMviContract.TimerListEffect.ShowMessage("${action.timerStyle.title} is set as default. Next time open app you will see default timer style"))
                 }
 
                 TimerListMviContract.TimerListIntent.LoadTimerList -> {
                     repository.getTimerStyle().collect { style ->
+                        Log.d("TimerListViewModel", "style: $style")
                         _uiState.update { it.copy(selectedStyle = style) }
                     }
                 }

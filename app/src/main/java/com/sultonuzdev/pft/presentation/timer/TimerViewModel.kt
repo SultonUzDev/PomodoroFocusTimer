@@ -62,13 +62,11 @@ class TimerViewModel @Inject constructor(
     )
 
     init {
-        observeRepositoryState()
-        loadSettings()
         loadStatistics()
+        observeRepositoryState()
     }
 
     private fun observeRepositoryState() {
-        // Observe repository state and map to UI state
         viewModelScope.launch {
             timerRepository.timerState.collectLatest { repoState ->
                 Log.d(
@@ -109,19 +107,32 @@ class TimerViewModel @Inject constructor(
     }
 
     private fun loadSettings() {
+        Log.d(TAG, "Loading settings")
         viewModelScope.launch {
             try {
                 settingsRepository.getDefaultSettings().collectLatest { settings ->
                     _uiState.update { it.copy(settings = settings) }
                 }
-
-                settingsRepository.getTimerStyle().collectLatest { timerStyle ->
-                    _uiState.update { it.copy(timerStyle = timerStyle) }
-                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading settings", e)
             }
+
+
         }
+    }
+
+    private fun loadTimerStyle() {
+        viewModelScope.launch {
+            try {
+                settingsRepository.getTimerStyle().collectLatest { timerStyle ->
+                    Log.d(TAG, "Timer style updated: $timerStyle")
+                    _uiState.update { it.copy(timerStyle = timerStyle) }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading timer style", e)
+            }
+        }
+
     }
 
     private fun loadStatistics() {
@@ -141,6 +152,11 @@ class TimerViewModel @Inject constructor(
         viewModelScope.launch {
             Log.d(TAG, "Processing intent: $intent")
             when (intent) {
+                TimerMviContract.TimerIntent.LoadSettings -> {
+                    loadSettings()
+                    loadTimerStyle()
+                }
+
                 is TimerMviContract.TimerIntent.StartTimer -> startTimer()
                 is TimerMviContract.TimerIntent.PauseTimer -> pauseTimer()
                 is TimerMviContract.TimerIntent.ResumeTimer -> resumeTimer()
@@ -168,11 +184,8 @@ class TimerViewModel @Inject constructor(
     private suspend fun startTimer() {
         Log.d(TAG, "Starting timer for type: ${_uiState.value.currentType}")
 
-        // IMPORTANT: Start foreground service FIRST, then start timer
-        // Service needs to be foreground before repository state changes
         startForegroundService()
 
-        // Start the repository timer (this will update state immediately)
         timerRepository.startTimer()
     }
 
@@ -256,6 +269,6 @@ class TimerViewModel @Inject constructor(
     }
 
     companion object Companion {
-        private const val TAG = "NewTimerViewModel"
+        private const val TAG = "TimerViewModel"
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -21,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sultonuzdev.pft.core.enums.TimerStyle
 import com.sultonuzdev.pft.core.ui.theme.PomodoroTheme
@@ -56,6 +61,29 @@ fun TimerScreen(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         NotificationPermissionHandler()
     }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = object : LifecycleEventObserver {
+            override fun onStateChanged(
+                source: LifecycleOwner,
+                event: Lifecycle.Event
+            ) {
+                if (event == Lifecycle.Event.ON_START) {
+                    viewModel.processIntent(TimerMviContract.TimerIntent.LoadSettings)
+                }
+            }
+
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+
+    }
+
 
     LaunchedEffect(Unit) {
         viewModel.effect.collectLatest { effect ->
@@ -99,6 +127,7 @@ fun TimerScreenContent(
         initialPage = TimerStyle.entries.indexOf(uiState.timerStyle),
         pageCount = { TimerStyle.entries.size }
     )
+
 
     // Sync timerStyle when page changes via swipe
     LaunchedEffect(pagerState.currentPage) {

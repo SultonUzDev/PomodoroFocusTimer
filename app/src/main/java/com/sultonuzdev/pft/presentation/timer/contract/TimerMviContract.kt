@@ -43,6 +43,7 @@ object TimerMviContract {
      * Represents user actions for the Timer screen
      */
     sealed interface TimerIntent : UiIntent {
+        data object LoadSettings : TimerIntent
         data object StartTimer : TimerIntent
         data object PauseTimer : TimerIntent
         data object ResumeTimer : TimerIntent
