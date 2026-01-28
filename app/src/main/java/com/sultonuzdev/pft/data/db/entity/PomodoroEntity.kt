@@ -4,9 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.sultonuzdev.pft.core.util.TimerType
-import com.sultonuzdev.pft.data.db.converter.DateTimeConverter
 import com.sultonuzdev.pft.data.db.converter.TimerTypeConverter
-import java.time.LocalDate
 
 /**
  * Room entity for timer sessions

@@ -2,6 +2,8 @@ package com.sultonuzdev.pft.core.ui.theme
 
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -11,6 +13,27 @@ import androidx.compose.ui.graphics.Color
  * Custom Colors for Timer Themes
  * Access via: MaterialTheme.customColors.studyBackground
  */
+
+
+
+val LightColorScheme3 = lightColorScheme(
+    primary = Color(0xFFFCA311),
+    background = Color(0xFFE5E5E5),
+    onBackground = Color(0xFF000000),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFFF5F5F5)
+)
+
+val DarkColorScheme3 = darkColorScheme(
+    primary = Color(0xFFFCA311),
+    background = Color(0xFF2A2B2D),
+    onBackground = Color(0xFFE5E5E5),
+    surface = Color(0xFF000000),
+    onSurface = Color(0xFFFFFFFF)
+)
+
+
+
 
 // ============================================================================
 // STUDY THEME COLORS

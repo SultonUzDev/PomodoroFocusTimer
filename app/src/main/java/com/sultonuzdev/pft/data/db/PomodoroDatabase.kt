@@ -3,7 +3,6 @@ package com.sultonuzdev.pft.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.sultonuzdev.pft.data.db.converter.DateTimeConverter
 import com.sultonuzdev.pft.data.db.converter.TimerTypeConverter
 import com.sultonuzdev.pft.data.db.dao.PomodoroDao
 import com.sultonuzdev.pft.data.db.entity.PomodoroEntity
